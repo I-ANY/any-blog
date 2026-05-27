@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>promethues | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="前提说明
@@ -61,16 +61,16 @@ kube-prometheus
 kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus
 ​	Operator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。">
 <meta name="author" content="ANY">
-<link rel="canonical" href="//localhost:1313/k8s/promethues/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
-<link rel="icon" href="//localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
+<link rel="canonical" href="/k8s/promethues/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/promethues/">
+<link rel="alternate" hreflang="en" href="/k8s/promethues/">
 <noscript>
     <style>
         #theme-toggle,
@@ -116,17 +116,124 @@ kube-prometheus项目地址：https://github.com/prometheus-operator/kube-promet
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="/k8s/promethues/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="promethues">
+  <meta property="og:description" content="前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus
+并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样…
+prometheus 架构 组件：
+Prometheus Server：主服务器，负责收集和存储时间序列数据
+client libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中
+Pushgateway：推送网关，为支持 short-lived 作业提供一个推送网关
+exporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。
+Alertmanager：专门用于处理 alert 的组件
+采集层：
+采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。
+短作业：直接通过 API，在退出时间指标推送给 Pushgateway。
+长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。
+应用层
+应用层主要分为两种：
+AlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等
+数据可视化：Prometheus build-in WebUI，Grafana
+PromQL 介绍 ​	PromQL 是 Prometheus 内置的数据查询语言，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。
+​	通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列
+优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book
+安装 kube-prometheus kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus
+​	Operator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="promethues">
+  <meta name="twitter:description" content="前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus
+并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样…
+prometheus 架构 组件：
+Prometheus Server：主服务器，负责收集和存储时间序列数据
+client libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中
+Pushgateway：推送网关，为支持 short-lived 作业提供一个推送网关
+exporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。
+Alertmanager：专门用于处理 alert 的组件
+采集层：
+采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。
+短作业：直接通过 API，在退出时间指标推送给 Pushgateway。
+长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。
+应用层
+应用层主要分为两种：
+AlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等
+数据可视化：Prometheus build-in WebUI，Grafana
+PromQL 介绍 ​	PromQL 是 Prometheus 内置的数据查询语言，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。
+​	通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列
+优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book
+安装 kube-prometheus kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus
+​	Operator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "promethues",
+      "item": "/k8s/promethues/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "promethues",
+  "name": "promethues",
+  "description": "前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus\n并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样\u0026hellip;\nprometheus 架构 组件：\nPrometheus Server：主服务器，负责收集和存储时间序列数据\nclient libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中\nPushgateway：推送网关，为支持 short-lived 作业提供一个推送网关\nexporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。\nAlertmanager：专门用于处理 alert 的组件\n采集层：\n采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。\n短作业：直接通过 API，在退出时间指标推送给 Pushgateway。\n长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。\n应用层\n应用层主要分为两种：\nAlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等\n数据可视化：Prometheus build-in WebUI，Grafana\nPromQL 介绍 ​\tPromQL 是 Prometheus 内置的数据查询语言，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。\n​\t通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列\n优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book\n安装 kube-prometheus kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus\n​\tOperator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus\n并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样…\nprometheus 架构 组件：\nPrometheus Server：主服务器，负责收集和存储时间序列数据\nclient libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中\nPushgateway：推送网关，为支持 short-lived 作业提供一个推送网关\nexporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。\nAlertmanager：专门用于处理 alert 的组件\n采集层：\n采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。\n短作业：直接通过 API，在退出时间指标推送给 Pushgateway。\n长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。\n应用层\n应用层主要分为两种：\nAlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等\n数据可视化：Prometheus build-in WebUI，Grafana\nPromQL 介绍 ​\tPromQL 是 Prometheus 内置的数据查询语言，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。\n​\t通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列\n优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book\n安装 kube-prometheus kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus\n​\tOperator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。\n​\tOperator是将运维人员对软件操作的知识给代码化，同时利用 Kubernetes 强大的抽象来管理大规模的软件应用。目前CoreOS官方提供了几种Operator的实现，其中就包括我们今天的主角：Prometheus Operator，Operator的核心实现就是基于 Kubernetes 的以下两个概念：\n资源：对象的状态定义 控制器：观测、分析和行动，以调节资源的分布 注：CRD是对 Kubernetes API 的扩展，Kubernetes 中的每个资源都是一个 API 对象的集合，例如我们在 YAML文件里定义的那些spec都是对 Kubernetes 中的资源对象的定义，所有的自定义资源可以跟 Kubernetes 中内建的资源一样使用 kubectl 操作。 架构：\n参考博客：https://blog.csdn.net/weixin_46887489/article/details/135350632?spm=1001.2014.3001.5502\nOperator部署器是基于已经编写好的yaml文件，prometheus server、alertmanager、grafana、node-exporter、cadvisor等组件⼀键批量部署在k8s集群当中。\n# 克隆，-b指定下载版本，不通k8s版本对应不一样 git clone -b release-0.11 https://github.com/prometheus-operator/kube-prometheus.git # 或者直接wget下载 wget https://github.com/prometheus-operator/kube-prometheus/archive/refs/heads/release-0.13.zip 解压之后进入目录：kube-prometheus-0.13.0/manifests\n移走自带的networkPolicy相关的网络策略文件信息，否则创建这些资源之后，访问服务都会被阻塞，对应issue信息：\nhttps://github.com/prometheus-operator/kube-prometheus/issues/1763#issuecomment-1139553506 [root@k8s-master1 manifests]# ll *networkPolicy* -rw-r--r-- 1 root root 977 Mar 19 20:08 alertmanager-networkPolicy.yaml -rw-r--r-- 1 root root 722 Mar 19 20:08 blackboxExporter-networkPolicy.yaml -rw-r--r-- 1 root root 651 Mar 19 20:08 grafana-networkPolicy.yaml -rw-r--r-- 1 root root 723 Mar 19 20:08 kubeStateMetrics-networkPolicy.yaml -rw-r--r-- 1 root root 671 Mar 19 20:08 nodeExporter-networkPolicy.yaml -rw-r--r-- 1 root root 565 Mar 19 20:08 prometheusAdapter-networkPolicy.yaml -rw-r--r-- 1 root root 1073 Mar 19 20:08 prometheus-networkPolicy.yaml -rw-r--r-- 1 root root 694 Mar 19 20:08 prometheusOperator-networkPolicy.yaml # 移动到networkPolicy目录下 [root@k8s-master1 manifests]# mkdir networkPolicy \u0026\u0026 mv *networkPolicy*.yaml networkPolicy 查看镜像，因为有些镜像在国外，没有梯子无法下载：\n[root@k8s-master1 manifests]# grep -i 'image:' -R ./* |awk '{print $3}' docker.io/bogeit/alertmanager:v0.26.0 docker.io/bogeit/blackbox-exporter:v0.24.0 jimmidyson/configmap-reload:v0.5.0 docker.io/bogeit/kube-rbac-proxy:v0.14.2 docker.io/bogeit/grafana:9.5.3 docker.io/bogeit/kube-state-metrics:v2.9.2 docker.io/bogeit/kube-rbac-proxy:v0.14.2 docker.io/bogeit/kube-rbac-proxy:v0.14.2 docker.io/bogeit/node-exporter:v1.6.1 docker.io/bogeit/kube-rbac-proxy:v0.14.2 docker.io/bogeit/prometheus-adapter:v0.11.1 docker.io/bogeit/prometheus-operator:v0.67.1 docker.io/bogeit/kube-rbac-proxy:v0.14.2 docker.io/bogeit/prometheus:v2.46.0 # 由于上面的镜像中，有部分国内网络无法正常摘取，所以博哥将上述所有镜像已转存至docker hub上，用下面命令批量替换下镜像地址即可 find ./ -type f |xargs sed -ri 's+quay.io/.*/+docker.io/bogeit/+g' find ./ -type f |xargs sed -ri 's+docker.io/cloudnativelabs/+docker.io/bogeit/+g' find ./ -type f |xargs sed -ri 's+grafana/+docker.io/bogeit/+g' find ./ -type f |xargs sed -ri 's+registry.k8s.io/.*/+docker.io/bogeit/+g' 开始创建资源\n# 要创建setup下的资源 kubectl create -f manifests/setup kubectl create -f manifests/ 外部网页访问\n方式1：更改grafana和prometheus的service为nodePort模式 vim grafana-service.yaml apiVersion: v1 kind: Service metadata: labels: app.kubernetes.io/component: grafana app.kubernetes.io/name: grafana app.kubernetes.io/part-of: kube-prometheus app.kubernetes.io/version: 9.5.3 name: grafana namespace: monitoring spec: type: NodePort # 添加修改模式 ports: - name: http port: 3000 targetPort: http nodePort: 33000 # 暴漏的端口 selector: app.kubernetes.io/component: grafana app.kubernetes.io/name: grafana app.kubernetes.io/part-of: kube-prometheus vim prometheus-service.yaml apiVersion: v1 kind: Service metadata: labels: app.kubernetes.io/component: prometheus app.kubernetes.io/instance: k8s app.kubernetes.io/name: prometheus app.kubernetes.io/part-of: kube-prometheus app.kubernetes.io/version: 2.46.0 name: prometheus-k8s namespace: monitoring spec: type: NodePort # 添加修改模式 ports: - name: web port: 9090 targetPort: web nodePort: 39090 # 暴漏的端口 - name: reloader-web port: 8080 targetPort: reloader-web selector: app.kubernetes.io/component: prometheus app.kubernetes.io/instance: k8s app.kubernetes.io/name: prometheus app.kubernetes.io/part-of: kube-prometheus sessionAffinity: ClientIP 方式2：创建ingress资源 cat \u003eprometheus-grafana-ingress.yaml \u003c\u003c EOF apiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: prometheus spec: rules: - host: prometheus.boge.com http: paths: - backend: service: name: prometheus-k8s port: number: 9090 path: / pathType: Prefix --- apiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: grafana spec: rules: - host: grafana.boge.com http: paths: - backend: service: name: grafana port: number: 3000 path: / pathType: Prefix EOF 然后就可以进行网页访问，grafana的默认用户密码：admin/admin\nprometheus数据持久化配置\n# kube-prometheus使用的statefulset服务来启动，也是我们需要做数据持久化的地方 # kubectl -n monitoring get statefulset,pod|grep prometheus-k8s statefulset.apps/prometheus-k8s 2/2 3h41m pod/prometheus-k8s-0 2/2 Running 1 19m pod/prometheus-k8s-1 2/2 Running 1 19m 基于nfs的StorageClass动态存储（如果已经创建StorageClass，可跳过安装步骤）\n安装NFS服务器：\n# 在nfs上安装nfs服务 [root@nfs ~]# yum install nfs-utils -y # 准备一个共享目录 [root@nfs ~]# mkdir /root/data/nfs -pv # 将共享目录以读写权限暴露给192.168.5.0/24网段中的所有主机 [root@nfs ~]# vim /etc/exports [root@nfs ~]# more /etc/exports /root/data/nfs/prometheus 192.168.9.0/24(rw,no_root_squash) # 启动nfs服务 [root@nfs ~]# systemctl restart nfs # 在node上安装nfs服务，注意不需要启动 [root@k8s-master01 ~]# yum install nfs-utils -y # 查看可使用的nfs共享目录 [root@k8s-master01 ~]# showmount -e 创建制备器\n创建sa用户\ncat \u003e nfs-serviceAccount.yaml \u003c",
+  "wordCount" : "5141",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/promethues/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="//localhost:1313/" title="首页">
+                <a href="/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -137,42 +244,42 @@ kube-prometheus项目地址：https://github.com/prometheus-operator/kube-promet
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                        <a href="/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/docker/" title="Docker">
+                        <a href="/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/go/" title="Go">
+                        <a href="/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/linux/" title="Linux">
+                        <a href="/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/python/" title="Python">
+                        <a href="/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                        <a href="/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/log/" title="日志">
+                        <a href="/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/middleware/" title="中间件">
+                        <a href="/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -2721,11 +2828,11 @@ kube-prometheus项目地址：https://github.com/prometheus-operator/kube-promet
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="//localhost:1313/middleware/nacos/">
+  <a class="prev" href="/middleware/nacos/">
     <span class="title">« Prev</span>
     <span>nacos</span>
   </a>
-  <a class="next" href="//localhost:1313/linux/rsync/">
+  <a class="next" href="/linux/rsync/">
     <span class="title">Next »</span>
     <span>rsync</span>
   </a>
@@ -2736,7 +2843,7 @@ kube-prometheus项目地址：https://github.com/prometheus-operator/kube-promet
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
 
     
     

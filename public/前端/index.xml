@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>前端 on 探无止境</title>
-    <link>//localhost:1313/%E5%89%8D%E7%AB%AF/</link>
+    <link>/%E5%89%8D%E7%AB%AF/</link>
     <description>Recent content in 前端 on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="//localhost:1313/%E5%89%8D%E7%AB%AF/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/%E5%89%8D%E7%AB%AF/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Vue3快速上手</title>
-      <link>//localhost:1313/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</link>
+      <link>/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</guid>
+      <guid>/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</guid>
       <description>&lt;h1 id=&#34;1-vue3简介&#34;&gt;1. Vue3简介&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>Jenkins | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="安装环境
@@ -40,16 +40,16 @@ war包安装
 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java &amp;&gt;jenkins.log 2&gt;&amp;1 &amp;
 启动之后直接访问8080端口，初始化后的密码可通过jenkins.log查到，密码文件使用后会自动删除">
 <meta name="author" content="ANY">
-<link rel="canonical" href="//localhost:1313/cicd/jenkins/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
-<link rel="icon" href="//localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
+<link rel="canonical" href="/cicd/jenkins/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="//localhost:1313/cicd/jenkins/">
+<link rel="alternate" hreflang="en" href="/cicd/jenkins/">
 <noscript>
     <style>
         #theme-toggle,
@@ -95,17 +95,96 @@ nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --e
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="/cicd/jenkins/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="Jenkins">
+  <meta property="og:description" content="安装环境 Jenkins，原名 Hudson，2011 年改为现在的名字。它是一个开源的实现持续集成的软件工具。
+官方网站：https://www.jenkins.io/
+JDK安装 yum安装，检索可用包
+yum search java|grep jdk yum install java-1.8.0-openjdk # 默认yum安装java的时候会显示安装的是openjdk1.8 实则实际上只安装了jre yum install -y java-devel # jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java &amp;&gt;jenkins.log 2&gt;&amp;1 &amp; Jenkins安装 官方文档介绍非常详细：https://www.jenkins.io
+安装需求
+机器要求： 256 MB 内存，建议大于 512 MB 10 GB 的硬盘空间（用于 Jenkins 和 Docker 镜像） 需要安装以下软件： Java 8 ( JRE 或者 JDK 都可以) # Docker （导航到网站顶部的Get Docker链接以访问适合您平台的Docker下载） war包安装 下载：https://www.jenkins.io/download/
+# jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java &amp;&gt;jenkins.log 2&gt;&amp;1 &amp; 启动之后直接访问8080端口，初始化后的密码可通过jenkins.log查到，密码文件使用后会自动删除">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="cicd">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Jenkins">
+  <meta name="twitter:description" content="安装环境 Jenkins，原名 Hudson，2011 年改为现在的名字。它是一个开源的实现持续集成的软件工具。
+官方网站：https://www.jenkins.io/
+JDK安装 yum安装，检索可用包
+yum search java|grep jdk yum install java-1.8.0-openjdk # 默认yum安装java的时候会显示安装的是openjdk1.8 实则实际上只安装了jre yum install -y java-devel # jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java &amp;&gt;jenkins.log 2&gt;&amp;1 &amp; Jenkins安装 官方文档介绍非常详细：https://www.jenkins.io
+安装需求
+机器要求： 256 MB 内存，建议大于 512 MB 10 GB 的硬盘空间（用于 Jenkins 和 Docker 镜像） 需要安装以下软件： Java 8 ( JRE 或者 JDK 都可以) # Docker （导航到网站顶部的Get Docker链接以访问适合您平台的Docker下载） war包安装 下载：https://www.jenkins.io/download/
+# jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java &amp;&gt;jenkins.log 2&gt;&amp;1 &amp; 启动之后直接访问8080端口，初始化后的密码可通过jenkins.log查到，密码文件使用后会自动删除">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "CI/CD",
+      "item": "/cicd/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Jenkins",
+      "item": "/cicd/jenkins/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Jenkins",
+  "name": "Jenkins",
+  "description": "安装环境 Jenkins，原名 Hudson，2011 年改为现在的名字。它是一个开源的实现持续集成的软件工具。\n官方网站：https://www.jenkins.io/\nJDK安装 yum安装，检索可用包\nyum search java|grep jdk yum install java-1.8.0-openjdk # 默认yum安装java的时候会显示安装的是openjdk1.8 实则实际上只安装了jre yum install -y java-devel # jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java \u0026amp;\u0026gt;jenkins.log 2\u0026gt;\u0026amp;1 \u0026amp; Jenkins安装 官方文档介绍非常详细：https://www.jenkins.io\n安装需求\n机器要求： 256 MB 内存，建议大于 512 MB 10 GB 的硬盘空间（用于 Jenkins 和 Docker 镜像） 需要安装以下软件： Java 8 ( JRE 或者 JDK 都可以) # Docker （导航到网站顶部的Get Docker链接以访问适合您平台的Docker下载） war包安装 下载：https://www.jenkins.io/download/\n# jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java \u0026amp;\u0026gt;jenkins.log 2\u0026gt;\u0026amp;1 \u0026amp; 启动之后直接访问8080端口，初始化后的密码可通过jenkins.log查到，密码文件使用后会自动删除\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "安装环境 Jenkins，原名 Hudson，2011 年改为现在的名字。它是一个开源的实现持续集成的软件工具。\n官方网站：https://www.jenkins.io/\nJDK安装 yum安装，检索可用包\nyum search java|grep jdk yum install java-1.8.0-openjdk # 默认yum安装java的时候会显示安装的是openjdk1.8 实则实际上只安装了jre yum install -y java-devel # jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java \u0026\u003ejenkins.log 2\u003e\u00261 \u0026 Jenkins安装 官方文档介绍非常详细：https://www.jenkins.io\n安装需求\n机器要求： 256 MB 内存，建议大于 512 MB 10 GB 的硬盘空间（用于 Jenkins 和 Docker 镜像） 需要安装以下软件： Java 8 ( JRE 或者 JDK 都可以) # Docker （导航到网站顶部的Get Docker链接以访问适合您平台的Docker下载） war包安装 下载：https://www.jenkins.io/download/\n# jenkins.war方式启动jenkins # 下载jenkins.war包之后 #-DJENKINS_HOME:指定工作目录，--httpPort：指定端口 nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --enable-future-java \u0026\u003ejenkins.log 2\u003e\u00261 \u0026 启动之后直接访问8080端口，初始化后的密码可通过jenkins.log查到，密码文件使用后会自动删除\n# cat jenkins.log ... Jenkins initial setup is required. An admin user has been created and a password generated. Please use the following password to proceed to installation: 4e67bbe261da476abdc63c5b51311646 This may also be found at: /opt/jenkins/data/secrets/initialAdminPassword docker启动 官文：https://www.jenkins.io/zh/doc/book/installing/\ndocker run \\ -u root \\ --rm \\ -d \\ -p 8080:8080 \\ -p 50000:50000 \\ -v jenkins-data:/var/jenkins_home \\ -v /var/run/docker.sock:/var/run/docker.sock \\ jenkinsci/blueocean k8s启动 创建RBAC文件\ncat \u003e jenkins-rbac.yaml \u003c\u003c EOF apiVersion: v1 kind: ServiceAccount metadata: name: jenkins namespace: cicd --- apiVersion: rbac.authorization.k8s.io/v1 kind: ClusterRole metadata: name: jenkins rules: # 详细写对什么资源有什么操作可以用kubectl explain ClusterRole.rules，也可以授权访问所有k8s资源增删改查 - apiGroups: [\"\"] resources: [\"*\"] verbs: [\"*\"] --- apiVersion: rbac.authorization.k8s.io/v1 kind: ClusterRoleBinding metadata: name: jenkins namespace: cicd roleRef: apiGroup: rbac.authorization.k8s.io kind: ClusterRole name: jenkins subjects: - kind: ServiceAccount name: jenkins namespace: cicd EOF deployment资源\n[root@tiaoban cicd]# cat \u003e jenkins-deployment.yaml \u003c\u003c EOF # 先创建一个pv存储数据，也可以是使用nfs或者其他存储方法 apiVersion: v1 kind: PersistentVolumeClaim metadata: name: jenkins-pvc namespace: cicd spec: storageClassName: nfs-client accessModes: - ReadWriteOnce resources: requests: storage: 10Gi --- # deployment资源 apiVersion: apps/v1 kind: Deployment metadata: name: jenkins namespace: cicd spec: selector: matchLabels: app: jenkins replicas: 1 template: metadata: labels: app: jenkins spec: serviceAccountName: jenkins containers: - name: jenkins # 官方推荐镜像 # image: jenkinsci/blueocean:latest image: harbor.local.com/cicd/jenkins:2.455 ports: - containerPort: 8080 name: web - containerPort: 50000 name: slave readinessProbe: tcpSocket: port: web livenessProbe: httpGet: path: /login port: web timeoutSeconds: 5 startupProbe: httpGet: path: /login port: web initialDelaySeconds: 10 # 初始化时间, 健康检查延迟执行时间 timeoutSeconds: 2 # 超时时间 periodSeconds: 3 # 检测间隔 successThreshold: 1 # 检查成功为 1 次表示就绪 failureThreshold: 2 # 检测失败 2 次表示未就绪 resources: requests: memory: \"512Mi\" cpu: \"500m\" limits: memory: \"8Gi\" cpu: \"4\" volumeMounts: - name: data mountPath: /var/jenkins_home securityContext: runAsUser: 1000 runAsGroup: 1000 fsGroup: 1000 volumes: - name: data persistentVolumeClaim: claimName: jenkins-pvc EOF service与ingress\ncat \u003e jenkins-svc-ing.yaml \u003c\u003c EOF apiVersion: v1 kind: Service metadata: name: jenkins namespace: cicd spec: selector: app: jenkins ports: - port: 8080 targetPort: web name: web - port: 50000 targetPort: slave name: slave --- # nginx版本的ingress apiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: jenkins-ingress annotations: kubernetes.io/ingress.class: nginx # 指定当前使用的ingress-controller的版本类型 spec: rules: - host: jenkins.local.com http: paths: - path: / pathType: Prefix backend: # 注意此处与extensions/v1beta1版本接口配置有所差别 service: name: jenkins port: number: 8080 EOF # traefik版本ingress apiVersion: traefik.containo.us/v1alpha1 kind: IngressRoute metadata: name: jenkins namespace: cicd spec: entryPoints: - web routes: - match: Host(`jenkins.local.com`) kind: Rule services: - name: jenkins port: 8080 jenkins工具集成 系统管理 –\u003e 全局工具配置\n前提：安装好安装配置好 JDK、Maven 、Git、sonarqube插件\n1.Git\\gitlab配置 jenkins主机上安装git：yum install -y git\n安装gitlab插件\njenkins——\u003eManage Jenkins——\u003e插件管理——\u003ePlugins，在Jenkins的插件管理中安装GitLab插件\n连接配置\nSSH验证 在jenkins容器中生成密钥\n# 执行后一直回车，注意必须是jenkins执行的用户 ssh-keygen -t rsa cat ~/.ssh/id_rsa.pub 在gitlab中添加ssh密钥信息\n依次点击用户——\u003e设置——\u003essh密钥，填写密钥信息\n获取jenkins服务器用户名和私钥\ncat ~/.ssh/id_rsa jenkins创建密钥凭据，类型选择ssh username with private key\n添加源码管理配置\nHTTP/HTTPS验证 在jenkins中添加凭据，账号为gitlab账户和密码。 jenkins——\u003e系统管理——\u003eCredentials——\u003e添加类型为username with password的全局凭据\n填写代码仓地址，并选择上面创建的全局凭据\nAccess Token验证 登录gitlab，依次点击项目——\u003e设置——\u003e访问令牌。角色设置为guest，授予api权限即可。\njenkins配置gitlab信息\njenkins——\u003e系统管理——\u003e系统配置，找到gitlab配置区域， gitlab url填写gitlab的访问地址，然后点击 Test Connection，显示 Success，表示成功。\n开启webhook配置\n配置gitlab策略，使用root用户登录——\u003e管理员——\u003e网络——\u003e出站请求——\u003e允许来自webhook和集成对本地网络的请求\n通常在企业实际开发过程中，当代码提交到master分支或者创建tag时，gitlab请求jenkins的webhook地址，完成持续构建和持续部署流程。\n获取jenkins webhook令牌 修改流水线任务，点击Build when a change is pushed to GitLab的高级选项，生成令牌。\n切回gitlab，设置——\u003ewebhooks——\u003e填写jenkins生成的webhook地址和令牌。触发来源选择所有分支。 http://192.168.9.20:8080/project/gitlab-webhook\n2.Maven安装配置 官网：https://maven.apache.org/download.cgi\n下载后复制到Jenkins所在服务器解压缩即可\nwget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz tar -zxf apache-maven-3.9.6-bin.tar.gz -C /opt cd /opt \u0026\u0026 mv apache-maven-3.9.6 maven-3.9.6 添加环境变量\nvim ~/.bash_profile export MAVEN_HOME=/opt/maven-3.9.6 export PATH=$PATH:$HOME/bin:$MAVEN_HOME/bin source ~/.bash_profile # 测试 mvn --sersion 修改镜像源，配置为国内或者nexus：\n/usr/local/maven/conf/settings.xml\n159行左右\n... nexus * http://maven.aliyun.com/nexus/content/groups/public/ nexus-public-snapshots public-snapshots http://maven.aliyun.com/nexus/content/repositories/snapshots/ nexus-public-snapshots1 public-snapshots1 https://artifacts.alfresco.com/nexus/content/repositories/public/ ... jenkins配置\nJenkins的系统管理-\u003e插件管理-\u003e可选插件，查找maven并安装插件\n配置\njenkis——\u003emanage jenkins——\u003etools\nPom.xml配置\n读取pom.xml参数\n在执行 Java 项目的流水线时，我们经常要动态获取项目中的属性，很多属性都配置在项目的 pom.xml 中，使用Pipeline Utility Steps 插件提供能够读取 pom.xml 的方法，pipeline如下\nstage('读取pom.xml参数阶段'){ // 读取 Pom.xml 参数 pom = readMavenPom file: './pom.xml' // 输出读取的参数 print \"${pom.artifactId}\" print = \"${pom.version}\" } pipline配置打包编译代码\n... stage('打包编译') { steps { echo '开始打包编译' sh 'mvn clean package' echo '打包编译完成' } } ... 3.sonarqube安装配置 下载Sonar-scanner：https://www.sonarsource.com/products/sonarqube/downloads/\n前提依赖，提前准备好：\njava环境 安装PostgreSQL（在7.9版本之后不再支持mysql） 安装PostgreSQL\n# 1、下载源 yum install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm # yum安装 yum -y install postgresql-13 # 2、初始化，-注：后面的‘12’根据版本进行更改 /usr/pgsql-13/bin/postgresql-13-setup initdb # 3、修postgres用户改密码 passwd postgres # 4、配置允许远程连接 vim /var/lib/pgsql/13/data/postgresql.conf ... #listen_addresses = 'localhost' # what IP address(es) to listen on; listen_addresses = '*' # what IP address(es) to listen on; ... vim /var/lib/pgsql/13/data/pg_hba.conf ... # \"local\" is for Unix domain socket connections only local all all peer # IPv4 local connections: #host all all 127.0.0.1/32 scram-sha-256 host all all 0.0.0.0/0 md5 # IPv6 local connections: host all all ::1/128 scram-sha-256 # Allow replication connections from localhost, by a user with the # replication privilege. local replication all peer host replication all 127.0.0.1/32 scram-sha-256 host replication all ::1/128 scram-sha-256 ... # 5、启动 systemctl enable postgresql-13 systemctl start postgresql-13 # 6、进入数据库 # 先切换到postgres用户 su - postgres # 进入到数据库 psql -U postgres \\password # 测试 postgres=# select version(); version ---------------------------------------------------------------------------------------------------------- PostgreSQL 13.13 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44), 64-bit (1 row) 创建用户和sonarqube库：\n# 创建用户 postgres=# create user sonarqube with password '需要修改的口令'; postgres=# \\du postgres=# alter user sonarqube createrole createdb replication login; # 创建表 postgres=# create database sonarqube; postgres=# grant CREATE on DATABASE sonarqube to sonarqube; 创建sonarqube数据库schema\n切换到sonarqube账号登录到数据库，并执行新建指令：\n# 首先切换到sonarqube用户下（没有就创建） su - sonarqube # 登录到sonarqube数据库 sonarqube@qudoor-virtual-machine:~$ psql sonarqube -U sonarqube -W Password: psql (14.5 (Ubuntu 14.5-1.pgdg22.04+1)) Type \"help\" for help. # 创建表 sonarqube=\u003e CREATE SCHEMA IF NOT EXISTS sonarqube AUTHORIZATION SESSION_USER; sonarqube=\u003e \\dn List of schemas Name | Owner -----------+----------- public | postgres sonarqube | sonarqube (2 rows) 下载之后上传到linux上解压\n# 先安装解压工具 yum -y install unzip # 解压，创建软连接 unzip sonarqube-10.3.0.82913.zip mv sonarqube-10.3.0.82913 /opt/app ln -s sonarqube-10.3.0.82913 sonarqube # 创建用户用于启动，必须sonar用于启动，否则报错 groupadd sonar useradd sonar -g sonar chown -R sonar.sonar /opt/app/sonarqube # 添加环境变量 vim ~/.bash_profile export SONARQUBE_HOME=/opt/app/sonarqube export PATH=$PATH:$HOME/bin:$SONARQUBE_HOME/bin source ~/.bash_profile 准备好postSql环境，创建sonar数据库\n$ cat sonar.properties # ---数据库访问链接配置 sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube?currentSchema=sonarqube sonar.jdbc.username=sonar sonar.jdbc.password=111111 # ----web地址绑定及访问地址 sonar.web.host=192.168.65.139 sonar.web.context=/sonarqube sonar.web.port=9000 # ----日志访问路径 sonar.path.logs=/var/log/sonarqube/ # ---es数据保存地址，建议此地址修改到/var/log/data和/var/log/tmp sonar.path.data=data sonar.path.temp=temp # 以上log地址和es的保存地址需要授权访问，chown -R sonarqube：sonarqube 设置的路径 启动sonarqube\n./sonar.sh start #启动 ./sonar.sh console #启动过程中查询console打印 ./sonar.sh status #查询状态 启动成功之后直接在网页端访问：9000端口（默认）\n默认的用户密码：admin/admin\n汉化配置：\nsonarqube生成token\njenkins端配置sonarqube的token\n配置sonarqube服务端地址：系统管理 –\u003e Configure System\n配置sonarscan的家目录：\npipline加入SonarQube代码审查阶段\n... stage('代码审查') { steps { echo '开始代码审查' script { // 引入SonarQube scanner，名称与jenkins 全局工具SonarQube Scanner的name保持一致 def scannerHome = tool 'SonarQube' // 引入SonarQube Server，名称与jenkins 系统配置SonarQube servers的name保持一致 withSonarQubeEnv('SonarQube') { sh \"${scannerHome}/bin/sonar-scanner\" } } echo '代码审查完成' } } ... 4.Harbor配置 安装Docker Pipeline插件\n添加Harbor凭证，填写用户名密码\n安装Version Number插件\n自动给镜像打上tag，所以这里涉及到tag的取名规则，我用了一个Version Number 的插件，它能够获取到当天的年，月，日数据，我可以利用它来为tag进行取名。\n在Jenkins的插件管理中安装Kubernetes插件 jenkins——\u003e系统管理——\u003e插件管理——\u003eavaliable plugins\npipline配置如下\npipeline { agent any environment { VERSION = VersionNumber versionPrefix:'prod.', versionNumberString: '${BUILD_DATE_FORMATTED, \"yyyyMMdd\"}.${BUILDS_TODAY}' } stages { stage('构建镜像') { environment { // harbor信息 HARBOR_CRED = \"harbor-demo\" HARBOR_URL = \"xxxx\" HARBOR_PROJECT = \"spring_boot_demo\" // image信息 IMAGE_APP = \"demo\" IMAGE_TAG = sh(script: \"git rev-parse --short HEAD\", returnStdout: true).trim() IMAGE_NAME = \"${HARBOR_URL}/${HARBOR_PROJECT}/${IMAGE_APP}:${IMAGE_TAG}\" } steps { echo '开始构建镜像' script { docker.build \"${IMAGE_NAME}\" } echo '构建镜像完成' echo '开始推送镜像' script { docker.withRegistry(\"https://${HARBOR_URL}\", \"${HARBOR_CRED}\") { docker.image(\"${IMAGE_NAME}\").push() } } echo '推送镜像完成' echo '开始删除镜像' script { sh \"docker rmi -f ${IMAGE_NAME}\" } echo '删除镜像完成' } } } } 5.k8s配置 jenkins在集群内 如果jenkins在k8s集群中部署，直接创建sa账号，并进行rbac授权即可。\n创建cloud资源 然后在jenkins——\u003e系统管理——\u003eClouds——\u003eNew cloud——\u003e输入cloud name并勾选类型为kubernetes\n点击kubernetes cloud details填写cloud详细信息\nKubernetes地址：在集群内部暴露的k8s service名称https://kubernetes.default.svc Kubernetes命名空间：jenkins sa所属的名称空间cicd Jenkins地址：jenkins svc的名称:8080端口http://jenkins.cicd.svc:8080 配置完成后点击连接测试，显示k8s集群版本，证明配置无误。\njenkins在集群外 jenkins部署在k8s集群外，通过二进制或者docker方式部署，如果想要连接k8s集群实现资源自动创建。或者当前jenkins部署在k8s集群A中，需要通过jenkins实现集群B资源的自动创建发布，使用此方式连接。\n思路：\njenkins要想连接并操作k8s集群，需要配置授权，请求k8s集群的kube apiserver的请求，可以和kubectl一样利用config文件用作请求的鉴权，默认在~/.kube/config下，也可以单独严格指定权限细节，生成一个jenkins专用的config文件。 在jenkins中能够识别的证书文件为PKCS#12 certificate，因此需要先将kubeconfig文件中的证书转换生成PKCS#12格式的pfx证书文件\n生成证书 可以使用yq命令行工具解析yaml，并提取相关的内容，然后通过base 64解码，最后生成文件 安装yq工具，仓库地址：https://github.com/mikefarah/yq\nwget https://github.com/mikefarah/yq/releases/download/v4.34.1/yq_linux_amd64.tar.gz tar -zxvf yq_linux_amd64.tar.gz mv yq_linux_amd64 /usr/bin/yq certificate-authority-data——\u003ebase 64解码——\u003eca.crt client-certificate-data——\u003ebase 64解码——\u003eclient.crt client-key-data——\u003ebase 64解码——\u003eclient.key mkdir -p /opt/jenkins-crt/ yq e '.clusters[0].cluster.certificate-authority-data' /root/.kube/config | base64 -d \u003e /opt/jenkins-crt/ca.crt yq e '.users[0].user.client-certificate-data' /root/.kube/config | base64 -d \u003e /opt/jenkins-crt/client.crt yq e '.users[0].user.client-key-data' /root/.kube/config | base64 -d \u003e /opt/jenkins-crt/client.key 转换证书\n通过openssl进行证书格式的转换，生成Client P12认证文件cert.pfx，输入两次密码并牢记密码。\nopenssl pkcs12 -export -out cert.pfx -inkey client.key -in client.crt -certfile ca.crt 导入证书 打开jenkins的web界面，系统管理——\u003eCredentials——\u003e添加全局凭据 凭据的类型选择Certificate，证书上传刚才生成的cert.pfx证书文件，输入通过openssl生成证书文件时输入的密码\n配置远程k8s集群地址 jenkins——\u003e系统管理——\u003eClouds——\u003eNew cloud——\u003e输入cloud name并勾选类型为kubernetes 填写cloud详细信息\n- Kubernetes地址：/root/.kube/config文件中cluster部分中server的内容 - Kubernetes命名空间：/root/.kube/config文件中cluster部分中name的内容 - Jenkins地址：jenkins服务的地址 - kubernetes服务证书key：ca.crt内容 - 凭据：选择刚刚创建的Certificate凭据 配置完成后点击连接测试，显示k8s集群版本，证明配置无误。\n动态slave 目前大多公司都采用 Jenkins 集群来搭建符合需求的 CI/CD 流程，然而传统的 Jenkins Slave 一主多从方式会存在一些痛点，比如：\n主 Master 发生单点故障时，整个流程都不可用了 每个 Slave 的配置环境不一样，来完成不同语言的编译打包等操作，但是这些差异化的配置导致管理起来非常不方便，维护起来也是比较费劲 资源分配不均衡，有的 Slave 要运行的 job 出现排队等待，而有的 Slave 处于空闲状态 资源有浪费，每台 Slave 可能是物理机或者虚拟机，当 Slave 处于空闲状态时，也不会完全释放掉资源。 正因为上面的这些种种痛点，我们渴望一种更高效更可靠的方式来完成这个 CI/CD 流程，而 Docker虚拟化容器技术能很好的解决这个痛点，又特别是在 Kubernetes 集群环境下面能够更好来解决上面的问题，下图是基于 Kubernetes 搭建 Jenkins 集群的简单示意图：\n可以看到 Jenkins Master 和 Jenkins Slave 以 Pod 形式运行在 Kubernetes 集群的 Node 上，Master 运行在其中一个节点，并且将其配置数据存储到一个 Volume 上去，Slave 运行在各个节点上，并且它不是一直处于运行状态，它会按照需求动态的创建并自动删除。 这种方式的工作流程大致为：当 Jenkins Master 接受到 Build 请求时，会根据配置的 Label 动态创建一个运行在 Pod 中的 Jenkins Slave 并注册到 Master 上，当运行完 Job 后，这个 Slave 会被注销并且这个 Pod 也会自动删除，恢复到最初状态。\n优势：\n服务高可用，当 Jenkins Master 出现故障时，Kubernetes 会自动创建一个新的 Jenkins Master 容器，并且将 Volume 分配给新创建的容器，保证数据不丢失，从而达到集群服务高可用(这是k8s带来的资源控制器带来的优势) 动态伸缩，合理使用资源，每次运行 Job 时，会自动创建一个 Jenkins Slave，Job 完成后，Slave 自动注销并删除容器，资源自动释放，而且 Kubernetes 会根据每个资源的使用情况，动态分配 Slave 到空闲的节点上创建，降低出现因某节点资源利用率高，还排队等待在该节点的情况。 扩展性好，当 Kubernetes 集群的资源严重不足而导致 Job 排队等待时，可以很容易的添加一个 Kubernetes Node 到集群中，从而实现扩展。 配置：\n制作slave镜，slave镜像应该包含以下功能：\n运行jenkins-agent服务 使用kubectl命令操作k8s集群 使用nerdctl工具管理container镜像 使用buildctl构建container镜像。 构建镜像\ncat \u003eDockerfile \u003c",
+  "wordCount" : "2886",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/cicd/jenkins/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="//localhost:1313/" title="首页">
+                <a href="/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -116,42 +195,42 @@ nohup java -DJENKINS_HOME=/opt/jenkins/data -jar jenkins.war --httpPort=8080 --e
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                        <a href="/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/docker/" title="Docker">
+                        <a href="/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/go/" title="Go">
+                        <a href="/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/linux/" title="Linux">
+                        <a href="/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/python/" title="Python">
+                        <a href="/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                        <a href="/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/log/" title="日志">
+                        <a href="/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="//localhost:1313/middleware/" title="中间件">
+                        <a href="/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -1729,7 +1808,7 @@ steps：阶段内的每一步，可执行命令
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
 
     
     

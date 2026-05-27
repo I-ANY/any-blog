@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Python on 探无止境</title>
-    <link>//localhost:1313/python/</link>
+    <link>/python/</link>
     <description>Recent content in Python on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="//localhost:1313/python/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/python/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>celery</title>
-      <link>//localhost:1313/python/celery/</link>
+      <link>/python/celery/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/celery/</guid>
+      <guid>/python/celery/</guid>
       <description>&lt;h1 id=&#34;celery&#34;&gt;celery&lt;/h1&gt;
 &lt;p&gt;Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。&lt;/p&gt;
 &lt;ul&gt;
@@ -67,11 +67,11 @@
     </item>
     <item>
       <title>Django</title>
-      <link>//localhost:1313/python/django/</link>
+      <link>/python/django/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/django/</guid>
+      <guid>/python/django/</guid>
       <description>&lt;h1 id=&#34;框架&#34;&gt;框架&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
 &lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;p&gt;1、conda 安装：&lt;/p&gt;
 &lt;p&gt;​	去到对应的虚拟环境下：conda install django==版本号  （如出现报错：missPackageNotFoundError: Packages missing in current channels，首先要保证当前使用的源有安装包，使用命令查找： conda search BeautifulSoup）
@@ -89,16 +89,16 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt;
 1、需要手动添加更改templates的文件路径settings.py：&amp;lsquo;DIRS&amp;rsquo; : os.path.join(BASE_DIR, &amp;rsquo;templates&amp;rsquo;)
 2、创建应用之后需要在settings.py中注册，不注册的话django不会识别：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;2、pycharm创建（会自动创建templates目录）：&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;创建：new project &amp;mdash;-&amp;gt; django &amp;mdash;&amp;gt; 选择环境及编译器 &amp;mdash;&amp;gt; create&lt;/p&gt;
 &lt;p&gt;启动：直接在界面上点击运行：run&lt;/p&gt;
 &lt;p&gt;如果有报错需要更改settings.py中的tempates的路径：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;创建应用：菜单Tools &amp;mdash;&amp;gt; Run Manage.py Task ，然后直接执行：startapp&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;更改端口号：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;项目文件目录构成：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;web01项目文件夹：
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--web01                文件夹
@@ -141,11 +141,11 @@
     </item>
     <item>
       <title>Django-bak</title>
-      <link>//localhost:1313/python/django-bak/</link>
+      <link>/python/django-bak/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/django-bak/</guid>
+      <guid>/python/django-bak/</guid>
       <description>&lt;h1 id=&#34;框架&#34;&gt;框架&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django-bak/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
 &lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;p&gt;1、conda 安装：&lt;/p&gt;
 &lt;p&gt;​	去到对应的虚拟环境下：conda install django==版本号  （如出现报错：missPackageNotFoundError: Packages missing in current channels，首先要保证当前使用的源有安装包，使用命令查找： conda search BeautifulSoup）
@@ -163,16 +163,16 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt;
 1、需要手动添加更改templates的文件路径settings.py：&amp;lsquo;DIRS&amp;rsquo; : os.path.join(BASE_DIR, &amp;rsquo;templates&amp;rsquo;)
 2、创建应用之后需要在settings.py中注册，不注册的话django不会识别：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django-bak/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;2、pycharm创建（会自动创建templates目录）：&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;创建：new project &amp;mdash;-&amp;gt; django &amp;mdash;&amp;gt; 选择环境及编译器 &amp;mdash;&amp;gt; create&lt;/p&gt;
 &lt;p&gt;启动：直接在界面上点击运行：run&lt;/p&gt;
 &lt;p&gt;如果有报错需要更改settings.py中的tempates的路径：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django-bak/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;创建应用：菜单Tools &amp;mdash;&amp;gt; Run Manage.py Task ，然后直接执行：startapp&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django-bak/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;更改端口号：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/python/django-bak/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;项目文件目录构成：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;web01项目文件夹：
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--web01                文件夹
@@ -215,9 +215,9 @@
     </item>
     <item>
       <title>se_huaweiCloud</title>
-      <link>//localhost:1313/python/spider/se_huaweicloud/</link>
+      <link>/python/spider/se_huaweicloud/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/spider/se_huaweicloud/</guid>
+      <guid>/python/spider/se_huaweicloud/</guid>
       <description>&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Chrome
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.common.keys &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Keys
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; ActionChains
@@ -281,9 +281,9 @@
     </item>
     <item>
       <title>Spider集合</title>
-      <link>//localhost:1313/python/spider/spider%E9%9B%86%E5%90%88/</link>
+      <link>/python/spider/spider%E9%9B%86%E5%90%88/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/spider/spider%E9%9B%86%E5%90%88/</guid>
+      <guid>/python/spider/spider%E9%9B%86%E5%90%88/</guid>
       <description>&lt;h1 id=&#34;网站分析&#34;&gt;网站分析&lt;/h1&gt;
 &lt;p&gt;1、先找到对应的网站的数据信息，看Headers找到对应的url、请求方式以及请求头相关信息以及响应数据等&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image-20240121232145617&#34; loading=&#34;lazy&#34; src=&#34;images/image-20240121232145617.png&#34;&gt;&lt;/p&gt;
@@ -348,9 +348,9 @@ xpath(&amp;lsquo;xpath表达式&amp;rsquo;)
     </item>
     <item>
       <title>基础</title>
-      <link>//localhost:1313/python/%E5%9F%BA%E7%A1%80/</link>
+      <link>/python/%E5%9F%BA%E7%A1%80/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/%E5%9F%BA%E7%A1%80/</guid>
+      <guid>/python/%E5%9F%BA%E7%A1%80/</guid>
       <description>&lt;h1 id=&#34;编码&#34;&gt;编码&lt;/h1&gt;
 &lt;p&gt;decode：解码&lt;/p&gt;
 &lt;p&gt;encode：编码&lt;/p&gt;
@@ -645,9 +645,9 @@ xpath(&amp;lsquo;xpath表达式&amp;rsquo;)
     </item>
     <item>
       <title>安装</title>
-      <link>//localhost:1313/python/%E5%AE%89%E8%A3%85/</link>
+      <link>/python/%E5%AE%89%E8%A3%85/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/%E5%AE%89%E8%A3%85/</guid>
+      <guid>/python/%E5%AE%89%E8%A3%85/</guid>
       <description>&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;p&gt;1、下载tar包：wget &lt;a href=&#34;https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz&#34;&gt;https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;2、解压：tar xvf Python-3.9.9.tgz&lt;/p&gt;
@@ -716,9 +716,9 @@ xpath(&amp;lsquo;xpath表达式&amp;rsquo;)
     </item>
     <item>
       <title>模块合集</title>
-      <link>//localhost:1313/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</link>
+      <link>/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</guid>
+      <guid>/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</guid>
       <description>&lt;h1 id=&#34;内置模块&#34;&gt;内置模块&lt;/h1&gt;
 &lt;h2 id=&#34;os&#34;&gt;os&lt;/h2&gt;
 &lt;table&gt;
@@ -907,9 +907,9 @@ xpath(&amp;lsquo;xpath表达式&amp;rsquo;)
     </item>
     <item>
       <title>爬取网页云评论</title>
-      <link>//localhost:1313/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</link>
+      <link>/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>//localhost:1313/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</guid>
+      <guid>/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</guid>
       <description>&lt;h1 id=&#34;分析网站&#34;&gt;分析网站&lt;/h1&gt;
 &lt;p&gt;第一步，查看网站信息&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image-20240616150202086&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616150202086.png&#34;&gt;&lt;/p&gt;
