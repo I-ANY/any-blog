@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>日志系统 on 探无止境</title>
-    <link>/log/</link>
+    <link>http://127.0.0.1:1314/log/</link>
     <description>Recent content in 日志系统 on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/log/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://127.0.0.1:1314/log/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>es</title>
-      <link>/log/es/</link>
+      <link>http://127.0.0.1:1314/log/es/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/log/es/</guid>
+      <guid>http://127.0.0.1:1314/log/es/</guid>
       <description>&lt;p&gt;文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947&lt;/p&gt;
 &lt;h1 id=&#34;es简介&#34;&gt;ES简介&lt;/h1&gt;
 &lt;p&gt;ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。&lt;/p&gt;
@@ -102,9 +102,9 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
     </item>
     <item>
       <title>filebeat</title>
-      <link>/log/filebeat/</link>
+      <link>http://127.0.0.1:1314/log/filebeat/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/log/filebeat/</guid>
+      <guid>http://127.0.0.1:1314/log/filebeat/</guid>
       <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
 &lt;p&gt;官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html&lt;/p&gt;
 &lt;p&gt;​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。&lt;/p&gt;
@@ -147,9 +147,9 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
     </item>
     <item>
       <title>graylog</title>
-      <link>/log/graylog/</link>
+      <link>http://127.0.0.1:1314/log/graylog/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/log/graylog/</guid>
+      <guid>http://127.0.0.1:1314/log/graylog/</guid>
       <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
 &lt;p&gt;Graylog - 日志监控系统，官文：https://docs.graylog.org/docs&lt;/p&gt;
 &lt;p&gt;Graylog 是一个开源的日志聚合、分析、审计、展现和预警工具。在功能上来说，和 ELK 类似，但又比 ELK 要简单很多。依靠着更加简洁，高效，部署使用简单的优势很快受到许多人的青睐。当然，在扩展性上面确实没有比 ELK 好，但是其有商业版本可以选择。&lt;/p&gt;
@@ -160,9 +160,9 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
 &lt;li&gt;Graylog 来提供 Web 界面和对外接口的(CPU 密集)。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;!-- raw HTML omitted --&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240522160447783&#34; loading=&#34;lazy&#34; src=&#34;/log/graylog/images/image-20240522160447783.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240522160447783&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/log/graylog/images/image-20240522160447783.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;生产环境架构：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240521210940478&#34; loading=&#34;lazy&#34; src=&#34;/log/graylog/images/image-20240521210940478.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240521210940478&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/log/graylog/images/image-20240521210940478.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Graylog 组件功能&lt;/p&gt;
 &lt;table&gt;
   &lt;thead&gt;
@@ -253,9 +253,9 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
     </item>
     <item>
       <title>Loki</title>
-      <link>/log/loki/</link>
+      <link>http://127.0.0.1:1314/log/loki/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/log/loki/</guid>
+      <guid>http://127.0.0.1:1314/log/loki/</guid>
       <description>&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
 &lt;p&gt;Loki的第一个稳定版本于2019年11月19日发布，是 Grafana Labs 团队最新的开源项目，是一个水平可扩展，高可用性，多租户的日志聚合系统。Loki 是专门用于聚集日志数据，重点是高可用性和可伸缩性。与竞争对手不同的是，它确实易于安装且资源效率极高。&lt;/p&gt;
 &lt;p&gt;github地址：&lt;a href=&#34;https://github.com/grafana/loki/&#34;&gt;&lt;strong&gt;https://github.com/grafana/loki/&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
@@ -283,7 +283,7 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
 &lt;p&gt;&lt;strong&gt;Distributor&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;一旦promtail收集日志并将其发送给loki，Distributor就是第一个接收日志的组件。由于日志的写入量可能很大，所以不能在它们传入时将它们写入数据库。这会毁掉数据库。需要批处理和压缩数据。&lt;/p&gt;
 &lt;p&gt;Loki通过构建压缩数据块来实现这一点，在日志进入时对其进行gzip操作，组件ingester是一个有状态的组件，负责构建和刷新chunck，当chunk达到一定的数量或者时间后，刷新到存储中去。每个流的日志对应一个ingester，当日志到达Distributor后，根据元数据和hash算法计算出应该到哪个ingester上面。此外，为了冗余和弹性，将其复制n（默认情况下为3）次。&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240521192724744&#34; loading=&#34;lazy&#34; src=&#34;/log/loki/images/image-20240521192724744.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240521192724744&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/log/loki/images/image-20240521192724744.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Ingester&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Ingester接收到日志并开始构建chunk：&lt;/p&gt;</description>
     </item>

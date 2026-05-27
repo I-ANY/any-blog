@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Posts on 探无止境</title>
-    <link>/posts/</link>
+    <link>http://127.0.0.1:1314/posts/</link>
     <description>Recent content in Posts on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 27 May 2026 23:05:44 +0800</lastBuildDate>
-    <atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://127.0.0.1:1314/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>My First Post</title>
-      <link>/posts/my-first-post/</link>
+      <link>http://127.0.0.1:1314/posts/my-first-post/</link>
       <pubDate>Wed, 27 May 2026 23:05:44 +0800</pubDate>
-      <guid>/posts/my-first-post/</guid>
+      <guid>http://127.0.0.1:1314/posts/my-first-post/</guid>
       <description>&lt;p&gt;这是我的第一篇 Hugo 文章！&lt;/p&gt;
 &lt;h2 id=&#34;标题&#34;&gt;标题&lt;/h2&gt;
 &lt;p&gt;Hugo 使用 CommonMark Markdown 规范，支持各种 Markdown 语法。&lt;/p&gt;

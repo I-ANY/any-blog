@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>CI/CD on 探无止境</title>
-    <link>/cicd/</link>
+    <link>http://127.0.0.1:1314/cicd/</link>
     <description>Recent content in CI/CD on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/cicd/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://127.0.0.1:1314/cicd/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>gitlab</title>
-      <link>/cicd/gitlab/</link>
+      <link>http://127.0.0.1:1314/cicd/gitlab/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/cicd/gitlab/</guid>
+      <guid>http://127.0.0.1:1314/cicd/gitlab/</guid>
       <description>&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;p&gt;环境硬件要求：最低2核4GB，建议4核8GB（比较重）&lt;/p&gt;
 &lt;h2 id=&#34;yum安装&#34;&gt;yum安装&lt;/h2&gt;
@@ -87,12 +87,12 @@
     </item>
     <item>
       <title>Gitops</title>
-      <link>/cicd/gitops/</link>
+      <link>http://127.0.0.1:1314/cicd/gitops/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/cicd/gitops/</guid>
+      <guid>http://127.0.0.1:1314/cicd/gitops/</guid>
       <description>&lt;h1 id=&#34;tekton&#34;&gt;tekton&lt;/h1&gt;
 &lt;p&gt;tekton 是一款功能非常强大而灵活的开源的 CI/CD 云原生框架。Tekton 的前身是 Knative 项目的 build-pipeline 项目，这个项目是为了给 build 模块增加 pipeline 的功能，但是随着不同的功能加入到 Knative build 模块中，build 模块越来越变得像一个通用的 CI/CD 系统，于是，索性将 build-pipeline 剥离出 Knative，就变成了现在的 Tekton，而 Tekton 也从此致力于提供全功能、标准化的云原生 CI/CD 解决方案。&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240524165004084&#34; loading=&#34;lazy&#34; src=&#34;/cicd/gitops/images/Gitops/image-20240524165004084.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240524165004084&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/gitops/images/Gitops/image-20240524165004084.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Tekton 为 CI/CD 系统提供了诸多好处：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -116,9 +116,9 @@
     </item>
     <item>
       <title>harbor</title>
-      <link>/cicd/harbor/</link>
+      <link>http://127.0.0.1:1314/cicd/harbor/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/cicd/harbor/</guid>
+      <guid>http://127.0.0.1:1314/cicd/harbor/</guid>
       <description>&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;p&gt;下载地址：https://github.com/goharbor/harbor/releases&lt;/p&gt;
 &lt;p&gt;本次以v2.6.2版本为例，先下载harbor-offline-installer-v2.6.2.tgz到主机上。&lt;/p&gt;
@@ -160,9 +160,9 @@
     </item>
     <item>
       <title>Jenkins</title>
-      <link>/cicd/jenkins/</link>
+      <link>http://127.0.0.1:1314/cicd/jenkins/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/cicd/jenkins/</guid>
+      <guid>http://127.0.0.1:1314/cicd/jenkins/</guid>
       <description>&lt;h1 id=&#34;安装环境&#34;&gt;安装环境&lt;/h1&gt;
 &lt;p&gt;Jenkins，原名 Hudson，2011 年改为现在的名字。它是一个开源的实现持续集成的软件工具。&lt;/p&gt;
 &lt;p&gt;官方网站：https://www.jenkins.io/&lt;/p&gt;
@@ -198,9 +198,9 @@
     </item>
     <item>
       <title>基于jenkins&#43;ArgoCD实现Devops</title>
-      <link>/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</link>
+      <link>http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</guid>
+      <guid>http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</guid>
       <description>&lt;h2 id=&#34;jenkins上安装插件&#34;&gt;Jenkins上安装插件&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;kubernetes&lt;/li&gt;
@@ -214,19 +214,19 @@
 &lt;/ul&gt;
 &lt;h2 id=&#34;配置kubernetes集群信息&#34;&gt;配置Kubernetes集群信息&lt;/h2&gt;
 &lt;p&gt;在系统管理&amp;ndash;&amp;gt;系统配置&amp;ndash;&amp;gt;cloud&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240619165841691&#34; loading=&#34;lazy&#34; src=&#34;/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165841691.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240619165841691&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165841691.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;配置邮箱地址&#34;&gt;配置邮箱地址&lt;/h2&gt;
 &lt;p&gt;系统设置&amp;ndash;&amp;gt;系统配置&amp;ndash;&amp;gt;Email&lt;/p&gt;
 &lt;p&gt;（1）设置管理员邮箱&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240619165400609&#34; loading=&#34;lazy&#34; src=&#34;/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165400609.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240619165400609&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165400609.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;配置SMTP服务&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240619164922130&#34; loading=&#34;lazy&#34; src=&#34;/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619164922130.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240619164922130&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619164922130.png&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;创建一个共享库&#34;&gt;创建一个共享库&lt;/h2&gt;
 &lt;p&gt;首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：&lt;/p&gt;
 &lt;p&gt;包含有src/org/devops目录&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240619114115871&#34; loading=&#34;lazy&#34; src=&#34;/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114115871.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240619114115871&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114115871.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;然后在该目录下创建一下groovy文件&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20240619114246292&#34; loading=&#34;lazy&#34; src=&#34;/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114246292.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240619114246292&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114246292.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;内容分别如下：&lt;/p&gt;
 &lt;h3 id=&#34;buildgroovy&#34;&gt;build.groovy&lt;/h3&gt;
 &lt;p&gt;build.groovy&lt;/p&gt;

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>harbor | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="安装
@@ -46,16 +46,16 @@ https方式(建议)
 生成自签名证书
 这里使用https://github.com/Fishdrowned/ssl提供的shell脚本来生成ssl证书，证书有效期是 2 年，可以修改 ca.cnf 来修改这个年限。">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/cicd/harbor/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="http://127.0.0.1:1314/cicd/harbor/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
+<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/cicd/harbor/">
+<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/cicd/harbor/">
 <noscript>
     <style>
         #theme-toggle,
@@ -101,92 +101,17 @@ https方式(建议)
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/cicd/harbor/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="harbor">
-  <meta property="og:description" content="安装 下载地址：https://github.com/goharbor/harbor/releases
-本次以v2.6.2版本为例，先下载harbor-offline-installer-v2.6.2.tgz到主机上。
-wget https://github.com/goharbor/harbor/releases/download/v2.6.2/harbor-offline-installer-v2.6.2.tgz #解压软件包 tar xf harbor-offline-installer-v2.6.2.tgz -C /opt #进入harbor目录 cd /opt/harbor 修改配置文件
-http访问 检查80端口是否被占用，若被占用，更改端口
-netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置域名，也可直接ip地址 # hostname: 192.168.9.20 hostname: harbor.local.com # 注释https相关配置 # http related config http: # port for http, default is 80. If https enabled, this port will redirect to https port port: 80 # https related config #https: # https port for harbor, default is 443 #port: 443 # The path of cert and key files for nginx #certificate: /your/certificate/path #private_key: /your/private/key/path https方式(建议) 生成自签名证书 这里使用https://github.com/Fishdrowned/ssl提供的shell脚本来生成ssl证书，证书有效期是 2 年，可以修改 ca.cnf 来修改这个年限。">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="cicd">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="harbor">
-  <meta name="twitter:description" content="安装 下载地址：https://github.com/goharbor/harbor/releases
-本次以v2.6.2版本为例，先下载harbor-offline-installer-v2.6.2.tgz到主机上。
-wget https://github.com/goharbor/harbor/releases/download/v2.6.2/harbor-offline-installer-v2.6.2.tgz #解压软件包 tar xf harbor-offline-installer-v2.6.2.tgz -C /opt #进入harbor目录 cd /opt/harbor 修改配置文件
-http访问 检查80端口是否被占用，若被占用，更改端口
-netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置域名，也可直接ip地址 # hostname: 192.168.9.20 hostname: harbor.local.com # 注释https相关配置 # http related config http: # port for http, default is 80. If https enabled, this port will redirect to https port port: 80 # https related config #https: # https port for harbor, default is 443 #port: 443 # The path of cert and key files for nginx #certificate: /your/certificate/path #private_key: /your/private/key/path https方式(建议) 生成自签名证书 这里使用https://github.com/Fishdrowned/ssl提供的shell脚本来生成ssl证书，证书有效期是 2 年，可以修改 ca.cnf 来修改这个年限。">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "CI/CD",
-      "item": "/cicd/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "harbor",
-      "item": "/cicd/harbor/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "harbor",
-  "name": "harbor",
-  "description": "安装 下载地址：https://github.com/goharbor/harbor/releases\n本次以v2.6.2版本为例，先下载harbor-offline-installer-v2.6.2.tgz到主机上。\nwget https://github.com/goharbor/harbor/releases/download/v2.6.2/harbor-offline-installer-v2.6.2.tgz #解压软件包 tar xf harbor-offline-installer-v2.6.2.tgz -C /opt #进入harbor目录 cd /opt/harbor 修改配置文件\nhttp访问 检查80端口是否被占用，若被占用，更改端口\nnetstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置域名，也可直接ip地址 # hostname: 192.168.9.20 hostname: harbor.local.com # 注释https相关配置 # http related config http: # port for http, default is 80. If https enabled, this port will redirect to https port port: 80 # https related config #https: # https port for harbor, default is 443 #port: 443 # The path of cert and key files for nginx #certificate: /your/certificate/path #private_key: /your/private/key/path https方式(建议) 生成自签名证书 这里使用https://github.com/Fishdrowned/ssl提供的shell脚本来生成ssl证书，证书有效期是 2 年，可以修改 ca.cnf 来修改这个年限。\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "安装 下载地址：https://github.com/goharbor/harbor/releases\n本次以v2.6.2版本为例，先下载harbor-offline-installer-v2.6.2.tgz到主机上。\nwget https://github.com/goharbor/harbor/releases/download/v2.6.2/harbor-offline-installer-v2.6.2.tgz #解压软件包 tar xf harbor-offline-installer-v2.6.2.tgz -C /opt #进入harbor目录 cd /opt/harbor 修改配置文件\nhttp访问 检查80端口是否被占用，若被占用，更改端口\nnetstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置域名，也可直接ip地址 # hostname: 192.168.9.20 hostname: harbor.local.com # 注释https相关配置 # http related config http: # port for http, default is 80. If https enabled, this port will redirect to https port port: 80 # https related config #https: # https port for harbor, default is 443 #port: 443 # The path of cert and key files for nginx #certificate: /your/certificate/path #private_key: /your/private/key/path https方式(建议) 生成自签名证书 这里使用https://github.com/Fishdrowned/ssl提供的shell脚本来生成ssl证书，证书有效期是 2 年，可以修改 ca.cnf 来修改这个年限。\n# 克隆项目 git clone https://github.com/Fishdrowned/ssl.git # 一键生成证书 cd ssl \u0026\u0026 ./gen.cert.sh harbor.local.com # 生成harbor.local.com域名的证书 # 查看证书文件 cd out/harbor.local.com/ \u0026\u0026 ll 总用量 0 drwxr-xr-x 2 root root 101 8月 13 18:49 20231013-1849 lrwxrwxrwx 1 root root 43 8月 13 18:49 harbor.local.com.bundle.crt -\u003e ./20231013-1049/harbor.local.com.bundle.crt lrwxrwxrwx 1 root root 36 8月 13 18:49 harbor.local.com.crt -\u003e ./20231013-1049/harbor.local.com.crt lrwxrwxrwx 1 root root 15 8月 13 18:49 harbor.local.com.key.pem -\u003e ../cert.key.pem lrwxrwxrwx 1 root root 11 8月 13 18:49 root.crt -\u003e ../root.crt # 拷贝证书至harbor目录 cp harbor.local.com.crt /opt/harbor/ cp harbor.local.com.key.pem /opt/harbor/ 修改配置文件\n# 先备份 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置域名 hostname: harbor.local.com # 注释http相关配置 # http related config # http: # port for http, default is 80. If https enabled, this port will redirect to https port # port: 80 # https related config https: # https port for harbor, default is 443 port: 443 # The path of cert and key files for nginx certificate: /opt/harbor/harbor.local.com.crt private_key: /opt/harbor/harbor.local.com.key.pem data_volume: /data/harbor 执行安装脚本\n# 在harbor目录下进行安装 ./install.sh 安装成功后，在浏览器上访问ip地址即可访问到harbor。账号admin、密码为上面配置所配置的密码。\n开机自启文件\ncat \u003e /usr/lib/systemd/system/harbor.service \u003c",
-  "wordCount" : "430",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/cicd/harbor/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="http://127.0.0.1:1314/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -197,42 +122,42 @@ netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="/k8s/" title="Kubernetes">
+                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/docker/" title="Docker">
+                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/go/" title="Go">
+                        <a href="http://127.0.0.1:1314/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/linux/" title="Linux">
+                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/python/" title="Python">
+                        <a href="http://127.0.0.1:1314/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/cicd/" title="CI/CD">
+                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/log/" title="日志">
+                        <a href="http://127.0.0.1:1314/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/middleware/" title="中间件">
+                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -495,7 +420,7 @@ netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
 
     
     
@@ -547,6 +472,69 @@ netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置
 
     headings.forEach((item) => observer.observe(item.heading));
     links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+<script>
+  (() => {
+    const images = Array.from(document.querySelectorAll('.post-content img'));
+    if (!images.length) return;
+
+    let scale = 1;
+    let activeImage = null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'kb-image-lightbox';
+    overlay.innerHTML = '<button class="kb-image-lightbox-close" type="button" aria-label="关闭图片预览">×</button><img alt="">';
+    document.body.appendChild(overlay);
+
+    const preview = overlay.querySelector('img');
+    const closeButton = overlay.querySelector('button');
+
+    function applyScale() {
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    function closePreview() {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('kb-lightbox-open');
+      preview.removeAttribute('src');
+      preview.alt = '';
+      activeImage = null;
+      scale = 1;
+      applyScale();
+    }
+
+    function openPreview(image) {
+      activeImage = image;
+      scale = 1;
+      preview.src = image.currentSrc || image.src;
+      preview.alt = image.alt || '';
+      applyScale();
+      overlay.classList.add('is-active');
+      document.body.classList.add('kb-lightbox-open');
+    }
+
+    images.forEach((image) => {
+      image.addEventListener('click', () => openPreview(image));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePreview();
+    });
+
+    closeButton.addEventListener('click', closePreview);
+
+    overlay.addEventListener('wheel', (event) => {
+      if (!activeImage) return;
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      scale = Math.min(4, Math.max(0.5, scale + direction * 0.12));
+      applyScale();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && activeImage) closePreview();
+    });
   })();
 </script>
 
@@ -609,6 +597,53 @@ netstat -tunlp|grep 80 # cp harbor.yml.tmpl harbor.yml # vim harbor.yml # 设置
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

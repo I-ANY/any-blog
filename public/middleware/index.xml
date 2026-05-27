@@ -2,24 +2,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>中间件 on 探无止境</title>
-    <link>/middleware/</link>
+    <link>http://127.0.0.1:1314/middleware/</link>
     <description>Recent content in 中间件 on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/middleware/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://127.0.0.1:1314/middleware/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>dubbo</title>
-      <link>/middleware/dubbo/</link>
+      <link>http://127.0.0.1:1314/middleware/dubbo/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/middleware/dubbo/</guid>
+      <guid>http://127.0.0.1:1314/middleware/dubbo/</guid>
       <description></description>
     </item>
     <item>
       <title>nacos</title>
-      <link>/middleware/nacos/</link>
+      <link>http://127.0.0.1:1314/middleware/nacos/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/middleware/nacos/</guid>
+      <guid>http://127.0.0.1:1314/middleware/nacos/</guid>
       <description>&lt;h1 id=&#34;k8s部署nacos&#34;&gt;k8s部署nacos&lt;/h1&gt;
 &lt;p&gt;官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html&lt;/p&gt;
 &lt;p&gt;一、NFS持久化模式安装，如果不用NFS可忽略&lt;/p&gt;
@@ -57,12 +57,12 @@
     </item>
     <item>
       <title>sentinel</title>
-      <link>/middleware/sentinel/</link>
+      <link>http://127.0.0.1:1314/middleware/sentinel/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/middleware/sentinel/</guid>
+      <guid>http://127.0.0.1:1314/middleware/sentinel/</guid>
       <description>&lt;h1 id=&#34;k8s部署sentinel&#34;&gt;k8s部署sentinel&lt;/h1&gt;
 &lt;p&gt;官网dockerfile：https://github.com/alibaba/Sentinel/blob/master/sentinel-dashboard/Dockerfile&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20231212135811524&#34; loading=&#34;lazy&#34; src=&#34;/middleware/sentinel/images/image-20231212135811524.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20231212135811524&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/middleware/sentinel/images/image-20231212135811524.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;构建镜像&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;FROM amd64/buildpack-deps:buster-curl as installer&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
@@ -182,15 +182,15 @@
     </item>
     <item>
       <title>skywalking</title>
-      <link>/middleware/skywalking/</link>
+      <link>http://127.0.0.1:1314/middleware/skywalking/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/middleware/skywalking/</guid>
+      <guid>http://127.0.0.1:1314/middleware/skywalking/</guid>
       <description>&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
 &lt;p&gt;官网地址：https://skywalking.apache.org/&lt;/p&gt;
 &lt;p&gt;Skywalking是分布式系统的应用程序性能监视工具，专为微服务，云原生架构和基于容器（Docker，K8S,Mesos）架构而设计，它是一款优秀的APM（Application Performance Management）工具，包括了分布式追踪，性能指标分析和服务依赖分析等。&lt;/p&gt;
 &lt;p&gt;SkyWalking 的核心是数据分析和度量结果的存储平台，通过 HTTP 或 gRPC 方式向 SkyWalking Collecter 提交分析和度量数据，SkyWalking Collecter 对数据进行分析和聚合，存储到 Elasticsearch、MySQL、TiDB 等其一即可，最后我们可以通过 SkyWalking UI 的可视化界面对最终的结果进行查看。&lt;/p&gt;
 &lt;p&gt;Skywalking 支持从多个来源和多种格式收集数据：多种语言的 Skywalking Agent 、Zipkin v1/v2 、Istio 勘测、Envoy 度量等数据格式。&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;/middleware/skywalking/images/1664954267291-0c0691fc-6dda-49ce-bf96-bdc0f57a5435.webp&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;http://127.0.0.1:1314/middleware/skywalking/images/1664954267291-0c0691fc-6dda-49ce-bf96-bdc0f57a5435.webp&#34;&gt;&lt;/p&gt;
 &lt;p&gt;特性&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;多种监控手段，语言探针和service mesh&lt;/li&gt;

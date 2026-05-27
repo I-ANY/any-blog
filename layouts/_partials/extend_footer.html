@@ -37,3 +37,69 @@
   })();
 </script>
 {{- end }}
+
+{{- if eq .Kind "page" }}
+<script>
+  (() => {
+    const images = Array.from(document.querySelectorAll('.post-content img'));
+    if (!images.length) return;
+
+    let scale = 1;
+    let activeImage = null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'kb-image-lightbox';
+    overlay.innerHTML = '<button class="kb-image-lightbox-close" type="button" aria-label="关闭图片预览">×</button><img alt="">';
+    document.body.appendChild(overlay);
+
+    const preview = overlay.querySelector('img');
+    const closeButton = overlay.querySelector('button');
+
+    function applyScale() {
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    function closePreview() {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('kb-lightbox-open');
+      preview.removeAttribute('src');
+      preview.alt = '';
+      activeImage = null;
+      scale = 1;
+      applyScale();
+    }
+
+    function openPreview(image) {
+      activeImage = image;
+      scale = 1;
+      preview.src = image.currentSrc || image.src;
+      preview.alt = image.alt || '';
+      applyScale();
+      overlay.classList.add('is-active');
+      document.body.classList.add('kb-lightbox-open');
+    }
+
+    images.forEach((image) => {
+      image.addEventListener('click', () => openPreview(image));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePreview();
+    });
+
+    closeButton.addEventListener('click', closePreview);
+
+    overlay.addEventListener('wheel', (event) => {
+      if (!activeImage) return;
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      scale = Math.min(4, Math.max(0.5, scale + direction * 0.12));
+      applyScale();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && activeImage) closePreview();
+    });
+  })();
+</script>
+{{- end }}

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>gitlab | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="安装
@@ -79,16 +79,16 @@ nginx[&#39;gzip_enabled&#39;] = true
 #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率
 启动">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/cicd/gitlab/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="http://127.0.0.1:1314/cicd/gitlab/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
+<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/cicd/gitlab/">
+<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/cicd/gitlab/">
 <noscript>
     <style>
         #theme-toggle,
@@ -134,90 +134,17 @@ nginx[&#39;gzip_enabled&#39;] = true
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/cicd/gitlab/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="gitlab">
-  <meta property="og:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
-yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
-建议使用HTTPS
-[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="cicd">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="gitlab">
-  <meta name="twitter:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
-yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
-建议使用HTTPS
-[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "CI/CD",
-      "item": "/cicd/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "gitlab",
-      "item": "/cicd/gitlab/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "gitlab",
-  "name": "gitlab",
-  "description": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u0026gt;/etc/yum.repos.d/gitlab-ce.repo \u0026lt;\u0026lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问\u0026#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/\u0026#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件\n建议使用HTTPS\n[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url \u0026#39;http://gitlab.example.com/\u0026#39; #时区 gitlab_rails[\u0026#39;time_zone\u0026#39;] = \u0026#39;Asia/Shanghai\u0026#39; ######### SSH配置 ######### gitlab_rails[\u0026#39;gitlab_shell_ssh_port\u0026#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[\u0026#39;smtp_enable\u0026#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[\u0026#39;smtp_address\u0026#39;] = \u0026#34;smtp.exmail.qq.com\u0026#34; #设置SMTP服务器地址 gitlab_rails[\u0026#39;smtp_port\u0026#39;] = 465 #设置SMTP服务器端口 gitlab_rails[\u0026#39;smtp_user_name\u0026#39;] = \u0026#34;xxx@xxx.cn\u0026#34; #设置邮箱账号 gitlab_rails[\u0026#39;smtp_password\u0026#39;] = \u0026#34;xxx\u0026#34; #设置邮箱密码 gitlab_rails[\u0026#39;smtp_authentication\u0026#39;] = \u0026#34;login\u0026#34; #设置邮箱账号密码身份验证方式，\u0026#34;login\u0026#34;表示采用账号密码的方式登陆 gitlab_rails[\u0026#39;smtp_enable_starttls_auto\u0026#39;] = true gitlab_rails[\u0026#39;smtp_tls\u0026#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[\u0026#39;gitlab_email_from\u0026#39;] = \u0026#39;xxx@xxx.cn\u0026#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[\u0026#39;enable\u0026#39;] = true #启用Nginx服务 nginx[\u0026#39;client_max_body_size\u0026#39;] = \u0026#39;250m\u0026#39; #设置客户端最大文件上传大小 nginx[\u0026#39;redirect_http_to_https\u0026#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[\u0026#39;ssl_certificate\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem\u0026#34; #设置HTTPS所使用的证书 nginx[\u0026#39;ssl_certificate_key\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.key\u0026#34; #设置HTTPS所使用的证书密码 nginx[\u0026#39;ssl_protocols\u0026#39;] = \u0026#34;TLSv1.1 TLSv1.2\u0026#34; #设置HTTPS所使用的TLS协议版本 nginx[\u0026#39;ssl_session_cache\u0026#39;] = \u0026#34;builtin:1000 shared:SSL:10m\u0026#34; #设置开启SSL会话缓存功能 nginx[\u0026#39;ssl_session_timeout\u0026#39;] = \u0026#34;5m\u0026#34; #设置SSL会话超时时间 nginx[\u0026#39;listen_addresses\u0026#39;] = [\u0026#39;*\u0026#39;, \u0026#39;[::]\u0026#39;] #设置Nginx监听地址，\u0026#34;*\u0026#34;表示监听主机上所有网卡的地址 nginx[\u0026#39;gzip_enabled\u0026#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u003e/etc/yum.repos.d/gitlab-ce.repo \u003c",
-  "wordCount" : "663",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/cicd/gitlab/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="http://127.0.0.1:1314/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -228,42 +155,42 @@ yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitla
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="/k8s/" title="Kubernetes">
+                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/docker/" title="Docker">
+                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/go/" title="Go">
+                        <a href="http://127.0.0.1:1314/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/linux/" title="Linux">
+                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/python/" title="Python">
+                        <a href="http://127.0.0.1:1314/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/cicd/" title="CI/CD">
+                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/log/" title="日志">
+                        <a href="http://127.0.0.1:1314/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/middleware/" title="中间件">
+                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -682,7 +609,7 @@ gitlab/gitlab-ce:15.6.2-ce.0
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
 
     
     
@@ -734,6 +661,69 @@ gitlab/gitlab-ce:15.6.2-ce.0
 
     headings.forEach((item) => observer.observe(item.heading));
     links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+<script>
+  (() => {
+    const images = Array.from(document.querySelectorAll('.post-content img'));
+    if (!images.length) return;
+
+    let scale = 1;
+    let activeImage = null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'kb-image-lightbox';
+    overlay.innerHTML = '<button class="kb-image-lightbox-close" type="button" aria-label="关闭图片预览">×</button><img alt="">';
+    document.body.appendChild(overlay);
+
+    const preview = overlay.querySelector('img');
+    const closeButton = overlay.querySelector('button');
+
+    function applyScale() {
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    function closePreview() {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('kb-lightbox-open');
+      preview.removeAttribute('src');
+      preview.alt = '';
+      activeImage = null;
+      scale = 1;
+      applyScale();
+    }
+
+    function openPreview(image) {
+      activeImage = image;
+      scale = 1;
+      preview.src = image.currentSrc || image.src;
+      preview.alt = image.alt || '';
+      applyScale();
+      overlay.classList.add('is-active');
+      document.body.classList.add('kb-lightbox-open');
+    }
+
+    images.forEach((image) => {
+      image.addEventListener('click', () => openPreview(image));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePreview();
+    });
+
+    closeButton.addEventListener('click', closePreview);
+
+    overlay.addEventListener('wheel', (event) => {
+      if (!activeImage) return;
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      scale = Math.min(4, Math.max(0.5, scale + direction * 0.12));
+      applyScale();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && activeImage) closePreview();
+    });
   })();
 </script>
 
@@ -796,6 +786,53 @@ gitlab/gitlab-ce:15.6.2-ce.0
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

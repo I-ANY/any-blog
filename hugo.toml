@@ -12,6 +12,7 @@ theme = 'PaperMod'
   ShowPostNavLinks = true
   ShowToc = true
   TocOpen = true
+  ShowCodeCopyButtons = true
   mainSections = ['k8s', 'docker', 'go', 'linux', 'python', 'CICD', 'log', 'middleware', 'shell', 'bigData', '前端']
 
 [menu]

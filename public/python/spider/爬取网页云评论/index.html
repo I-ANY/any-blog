@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>爬取网页云评论 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="分析网站
@@ -142,16 +142,16 @@ for line in res[&#34;data&#34;][&#39;comments&#39;]:
         print(line[&#39;content&#39;])
 ">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="http://127.0.0.1:1314/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
+<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/">
+<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/">
 <noscript>
     <style>
         #theme-toggle,
@@ -197,108 +197,17 @@ for line in res[&#34;data&#34;][&#39;comments&#39;]:
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="爬取网页云评论">
-  <meta property="og:description" content="分析网站 第一步，查看网站信息
-第二步，通过一个一个接口检查，发现最终返回的评论信息在这个请求返回中
-第三步，分析这个请求
-发现这个请求需要携带参数，并且是加密的
-第四步，获取加密信息
-查看调用栈信息 点击最后一个调用栈，跳转到对应的js代码位置，打一个点，重新刷新页面，一个一个请求查看到对应的请求信息
-刷新网页，一步一步调试分析，直到找到对应的url为止
-从上面网页第二步请求分析可知所要调的url为：
-通过几次调试，找到了返回评论数据的请求url
-下一步，开始往回找，找到data数据加密的位置
-找参数：
-代码实现：
-import requests from lxml import etree #AES加密函数,需要安装pycrypto from Crypto.Cipher import AES #进行base64数据转换 from base64 import b64encode import json url = &#39;https://music.163.com/weapi/comment/resource/comments/get?csrf_token=&#39; header = { &#39;user-Agent&#39;:&#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36&#39; } #对js代码进行解析然后把data进行加密（必须要使用网易云的逻辑），params &gt;&gt;encTEXT encSecKsy &gt;&gt;encSecKey (都是在window.asrsea中加的密) #真实参数 data = { &#39;csrf_token&#39;: &#34;&#34;, &#39;cursor&#39;: &#34;-1&#34;, &#39;offset&#39;: &#34;0&#34;, &#39;orderType&#39;: &#34;1&#34;, &#39;pageNo&#39;: &#34;2&#34;, &#39;pageSize&#39;: &#34;20&#34;, &#39;rid&#39;: &#34;R_SO_4_2158973221&#34;, &#39;threadId&#39;: &#34;R_SO_4_2158973221&#34;, } #找到对应调用的函数并且处理加密过程 &#34;&#34;&#34; function a(a) { 返回随机的16位字符串 var d, e, b = &#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#34;, c = &#34;&#34;; for (d = 0; a &gt; d; d &#43;= 1) #循环16次 e = Math.random() * b.length, #随机数 e = Math.floor(e), #取整 c &#43;= b.charAt(e); #去字符串中的xxx位置 return c function b(a, b) { var c = CryptoJS.enc.Utf8.parse(b) , d = CryptoJS.enc.Utf8.parse(&#34;0102030405060708&#34;) , e = CryptoJS.enc.Utf8.parse(a) , f = CryptoJS.AES.encrypt(e, c, { iv: d, mode: CryptoJS.mode.CBC }); return f.toString() } function c(a, b, c) { var d, e; return setMaxDigits(131), d = new RSAKeyPair(b,&#34;&#34;,c), e = encryptedString(d, a) } #实际调用的加密函数算法 四个参数：d:对应data数据,e:&#39;010001&#39;,f:&#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&#39;,g:&#39;0CoJUm6Qyw8W8jud&#39; function d(d, e, f, g) { var h = {} #空对象 , i = a(16); #16位的随机值 return h.encText = b(d, g), h.encText = b(h.encText, i), #返回的就是encTEXT h.encSecKey = c(i, e, f), #返回的就是encSecKey，e，f是定死的，i是变的，此时把i固定 h } function e(a, b, d, e) { var f = {}; return f.encText = c(a &#43; e, b, d), f } &#34;&#34;&#34; e = &#39;010001&#39; f = &#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&#39; g = &#39;0CoJUm6Qyw8W8jud&#39; i = &#34;nJaSvmCuZFEAORCi&#34; def get_encSecKey(): return &#34;036401bcdf2daa471574782cc5d5a1d3a9b6ee4a347134ba1a84a0fbf68c4d493fe4f3e9ccf3467f5af8e7249165d87bea59af6539f964ec7023d600d48a732be2c8a6f7111ec11ced3ad3bc072442cbfc563fb767da6fe7d6addba5752fdddc7963e486d49bc1c0fa68f10e4c3dbc1269be054fa0b54a92c5f404bfd7d11547&#34; #对paragms进行加密 def get_params(data): first = enc_paragms(data,g) second = enc_paragms(first,i) return second def to_16(data): pad = 16 - len(data) % 16 data &#43;= chr(pad) * pad return data #机密函数 def enc_paragms(data,key): iv = &#34;0102030405060708&#34; data = to_16(data) aes = AES.new(key=key.encode(&#39;utf-8&#39;) ,IV=iv.encode(&#39;utf-8&#39;),mode=AES.MODE_CBC) #定义加密器 bs = aes.encrypt(data.encode(&#39;utf-8&#39;)) #加密，加密的字符串的长度必须为16的倍数,见to_16函数 “123456char(10)” return str(b64encode(bs),&#39;utf-8&#39;) #转化称字符串 res = requests.post(url=url,data={&#39;params&#39;:get_params(json.dumps(data)),&#39;encSecKey&#39;:get_encSecKey()},headers=header).json() for line in res[&#34;data&#34;][&#39;comments&#39;]: if line[&#39;user&#39;][&#39;nickname&#39;]: print(&#34;{}---{}&#34;.format(line[&#39;user&#39;][&#39;nickname&#39;],line[&#39;content&#39;])) else: print(line[&#39;content&#39;])">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="python">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="爬取网页云评论">
-  <meta name="twitter:description" content="分析网站 第一步，查看网站信息
-第二步，通过一个一个接口检查，发现最终返回的评论信息在这个请求返回中
-第三步，分析这个请求
-发现这个请求需要携带参数，并且是加密的
-第四步，获取加密信息
-查看调用栈信息 点击最后一个调用栈，跳转到对应的js代码位置，打一个点，重新刷新页面，一个一个请求查看到对应的请求信息
-刷新网页，一步一步调试分析，直到找到对应的url为止
-从上面网页第二步请求分析可知所要调的url为：
-通过几次调试，找到了返回评论数据的请求url
-下一步，开始往回找，找到data数据加密的位置
-找参数：
-代码实现：
-import requests from lxml import etree #AES加密函数,需要安装pycrypto from Crypto.Cipher import AES #进行base64数据转换 from base64 import b64encode import json url = &#39;https://music.163.com/weapi/comment/resource/comments/get?csrf_token=&#39; header = { &#39;user-Agent&#39;:&#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36&#39; } #对js代码进行解析然后把data进行加密（必须要使用网易云的逻辑），params &gt;&gt;encTEXT encSecKsy &gt;&gt;encSecKey (都是在window.asrsea中加的密) #真实参数 data = { &#39;csrf_token&#39;: &#34;&#34;, &#39;cursor&#39;: &#34;-1&#34;, &#39;offset&#39;: &#34;0&#34;, &#39;orderType&#39;: &#34;1&#34;, &#39;pageNo&#39;: &#34;2&#34;, &#39;pageSize&#39;: &#34;20&#34;, &#39;rid&#39;: &#34;R_SO_4_2158973221&#34;, &#39;threadId&#39;: &#34;R_SO_4_2158973221&#34;, } #找到对应调用的函数并且处理加密过程 &#34;&#34;&#34; function a(a) { 返回随机的16位字符串 var d, e, b = &#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#34;, c = &#34;&#34;; for (d = 0; a &gt; d; d &#43;= 1) #循环16次 e = Math.random() * b.length, #随机数 e = Math.floor(e), #取整 c &#43;= b.charAt(e); #去字符串中的xxx位置 return c function b(a, b) { var c = CryptoJS.enc.Utf8.parse(b) , d = CryptoJS.enc.Utf8.parse(&#34;0102030405060708&#34;) , e = CryptoJS.enc.Utf8.parse(a) , f = CryptoJS.AES.encrypt(e, c, { iv: d, mode: CryptoJS.mode.CBC }); return f.toString() } function c(a, b, c) { var d, e; return setMaxDigits(131), d = new RSAKeyPair(b,&#34;&#34;,c), e = encryptedString(d, a) } #实际调用的加密函数算法 四个参数：d:对应data数据,e:&#39;010001&#39;,f:&#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&#39;,g:&#39;0CoJUm6Qyw8W8jud&#39; function d(d, e, f, g) { var h = {} #空对象 , i = a(16); #16位的随机值 return h.encText = b(d, g), h.encText = b(h.encText, i), #返回的就是encTEXT h.encSecKey = c(i, e, f), #返回的就是encSecKey，e，f是定死的，i是变的，此时把i固定 h } function e(a, b, d, e) { var f = {}; return f.encText = c(a &#43; e, b, d), f } &#34;&#34;&#34; e = &#39;010001&#39; f = &#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&#39; g = &#39;0CoJUm6Qyw8W8jud&#39; i = &#34;nJaSvmCuZFEAORCi&#34; def get_encSecKey(): return &#34;036401bcdf2daa471574782cc5d5a1d3a9b6ee4a347134ba1a84a0fbf68c4d493fe4f3e9ccf3467f5af8e7249165d87bea59af6539f964ec7023d600d48a732be2c8a6f7111ec11ced3ad3bc072442cbfc563fb767da6fe7d6addba5752fdddc7963e486d49bc1c0fa68f10e4c3dbc1269be054fa0b54a92c5f404bfd7d11547&#34; #对paragms进行加密 def get_params(data): first = enc_paragms(data,g) second = enc_paragms(first,i) return second def to_16(data): pad = 16 - len(data) % 16 data &#43;= chr(pad) * pad return data #机密函数 def enc_paragms(data,key): iv = &#34;0102030405060708&#34; data = to_16(data) aes = AES.new(key=key.encode(&#39;utf-8&#39;) ,IV=iv.encode(&#39;utf-8&#39;),mode=AES.MODE_CBC) #定义加密器 bs = aes.encrypt(data.encode(&#39;utf-8&#39;)) #加密，加密的字符串的长度必须为16的倍数,见to_16函数 “123456char(10)” return str(b64encode(bs),&#39;utf-8&#39;) #转化称字符串 res = requests.post(url=url,data={&#39;params&#39;:get_params(json.dumps(data)),&#39;encSecKey&#39;:get_encSecKey()},headers=header).json() for line in res[&#34;data&#34;][&#39;comments&#39;]: if line[&#39;user&#39;][&#39;nickname&#39;]: print(&#34;{}---{}&#34;.format(line[&#39;user&#39;][&#39;nickname&#39;],line[&#39;content&#39;])) else: print(line[&#39;content&#39;])">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Python",
-      "item": "/python/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "爬取网页云评论",
-      "item": "/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "爬取网页云评论",
-  "name": "爬取网页云评论",
-  "description": "分析网站 第一步，查看网站信息\n第二步，通过一个一个接口检查，发现最终返回的评论信息在这个请求返回中\n第三步，分析这个请求\n发现这个请求需要携带参数，并且是加密的\n第四步，获取加密信息\n查看调用栈信息 点击最后一个调用栈，跳转到对应的js代码位置，打一个点，重新刷新页面，一个一个请求查看到对应的请求信息\n刷新网页，一步一步调试分析，直到找到对应的url为止\n从上面网页第二步请求分析可知所要调的url为：\n通过几次调试，找到了返回评论数据的请求url\n下一步，开始往回找，找到data数据加密的位置\n找参数：\n代码实现：\nimport requests from lxml import etree #AES加密函数,需要安装pycrypto from Crypto.Cipher import AES #进行base64数据转换 from base64 import b64encode import json url = \u0026#39;https://music.163.com/weapi/comment/resource/comments/get?csrf_token=\u0026#39; header = { \u0026#39;user-Agent\u0026#39;:\u0026#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36\u0026#39; } #对js代码进行解析然后把data进行加密（必须要使用网易云的逻辑），params \u0026gt;\u0026gt;encTEXT encSecKsy \u0026gt;\u0026gt;encSecKey (都是在window.asrsea中加的密) #真实参数 data = { \u0026#39;csrf_token\u0026#39;: \u0026#34;\u0026#34;, \u0026#39;cursor\u0026#39;: \u0026#34;-1\u0026#34;, \u0026#39;offset\u0026#39;: \u0026#34;0\u0026#34;, \u0026#39;orderType\u0026#39;: \u0026#34;1\u0026#34;, \u0026#39;pageNo\u0026#39;: \u0026#34;2\u0026#34;, \u0026#39;pageSize\u0026#39;: \u0026#34;20\u0026#34;, \u0026#39;rid\u0026#39;: \u0026#34;R_SO_4_2158973221\u0026#34;, \u0026#39;threadId\u0026#39;: \u0026#34;R_SO_4_2158973221\u0026#34;, } #找到对应调用的函数并且处理加密过程 \u0026#34;\u0026#34;\u0026#34; function a(a) { 返回随机的16位字符串 var d, e, b = \u0026#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\u0026#34;, c = \u0026#34;\u0026#34;; for (d = 0; a \u0026gt; d; d += 1) #循环16次 e = Math.random() * b.length, #随机数 e = Math.floor(e), #取整 c += b.charAt(e); #去字符串中的xxx位置 return c function b(a, b) { var c = CryptoJS.enc.Utf8.parse(b) , d = CryptoJS.enc.Utf8.parse(\u0026#34;0102030405060708\u0026#34;) , e = CryptoJS.enc.Utf8.parse(a) , f = CryptoJS.AES.encrypt(e, c, { iv: d, mode: CryptoJS.mode.CBC }); return f.toString() } function c(a, b, c) { var d, e; return setMaxDigits(131), d = new RSAKeyPair(b,\u0026#34;\u0026#34;,c), e = encryptedString(d, a) } #实际调用的加密函数算法 四个参数：d:对应data数据,e:\u0026#39;010001\u0026#39;,f:\u0026#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7\u0026#39;,g:\u0026#39;0CoJUm6Qyw8W8jud\u0026#39; function d(d, e, f, g) { var h = {} #空对象 , i = a(16); #16位的随机值 return h.encText = b(d, g), h.encText = b(h.encText, i), #返回的就是encTEXT h.encSecKey = c(i, e, f), #返回的就是encSecKey，e，f是定死的，i是变的，此时把i固定 h } function e(a, b, d, e) { var f = {}; return f.encText = c(a + e, b, d), f } \u0026#34;\u0026#34;\u0026#34; e = \u0026#39;010001\u0026#39; f = \u0026#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7\u0026#39; g = \u0026#39;0CoJUm6Qyw8W8jud\u0026#39; i = \u0026#34;nJaSvmCuZFEAORCi\u0026#34; def get_encSecKey(): return \u0026#34;036401bcdf2daa471574782cc5d5a1d3a9b6ee4a347134ba1a84a0fbf68c4d493fe4f3e9ccf3467f5af8e7249165d87bea59af6539f964ec7023d600d48a732be2c8a6f7111ec11ced3ad3bc072442cbfc563fb767da6fe7d6addba5752fdddc7963e486d49bc1c0fa68f10e4c3dbc1269be054fa0b54a92c5f404bfd7d11547\u0026#34; #对paragms进行加密 def get_params(data): first = enc_paragms(data,g) second = enc_paragms(first,i) return second def to_16(data): pad = 16 - len(data) % 16 data += chr(pad) * pad return data #机密函数 def enc_paragms(data,key): iv = \u0026#34;0102030405060708\u0026#34; data = to_16(data) aes = AES.new(key=key.encode(\u0026#39;utf-8\u0026#39;) ,IV=iv.encode(\u0026#39;utf-8\u0026#39;),mode=AES.MODE_CBC) #定义加密器 bs = aes.encrypt(data.encode(\u0026#39;utf-8\u0026#39;)) #加密，加密的字符串的长度必须为16的倍数,见to_16函数 “123456char(10)” return str(b64encode(bs),\u0026#39;utf-8\u0026#39;) #转化称字符串 res = requests.post(url=url,data={\u0026#39;params\u0026#39;:get_params(json.dumps(data)),\u0026#39;encSecKey\u0026#39;:get_encSecKey()},headers=header).json() for line in res[\u0026#34;data\u0026#34;][\u0026#39;comments\u0026#39;]: if line[\u0026#39;user\u0026#39;][\u0026#39;nickname\u0026#39;]: print(\u0026#34;{}---{}\u0026#34;.format(line[\u0026#39;user\u0026#39;][\u0026#39;nickname\u0026#39;],line[\u0026#39;content\u0026#39;])) else: print(line[\u0026#39;content\u0026#39;]) ",
-  "keywords": [
-    
-  ],
-  "articleBody": "分析网站 第一步，查看网站信息\n第二步，通过一个一个接口检查，发现最终返回的评论信息在这个请求返回中\n第三步，分析这个请求\n发现这个请求需要携带参数，并且是加密的\n第四步，获取加密信息\n查看调用栈信息 点击最后一个调用栈，跳转到对应的js代码位置，打一个点，重新刷新页面，一个一个请求查看到对应的请求信息\n刷新网页，一步一步调试分析，直到找到对应的url为止\n从上面网页第二步请求分析可知所要调的url为：\n通过几次调试，找到了返回评论数据的请求url\n下一步，开始往回找，找到data数据加密的位置\n找参数：\n代码实现：\nimport requests from lxml import etree #AES加密函数,需要安装pycrypto from Crypto.Cipher import AES #进行base64数据转换 from base64 import b64encode import json url = 'https://music.163.com/weapi/comment/resource/comments/get?csrf_token=' header = { 'user-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36' } #对js代码进行解析然后把data进行加密（必须要使用网易云的逻辑），params \u003e\u003eencTEXT encSecKsy \u003e\u003eencSecKey (都是在window.asrsea中加的密) #真实参数 data = { 'csrf_token': \"\", 'cursor': \"-1\", 'offset': \"0\", 'orderType': \"1\", 'pageNo': \"2\", 'pageSize': \"20\", 'rid': \"R_SO_4_2158973221\", 'threadId': \"R_SO_4_2158973221\", } #找到对应调用的函数并且处理加密过程 \"\"\" function a(a) { 返回随机的16位字符串 var d, e, b = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\", c = \"\"; for (d = 0; a \u003e d; d += 1) #循环16次 e = Math.random() * b.length, #随机数 e = Math.floor(e), #取整 c += b.charAt(e); #去字符串中的xxx位置 return c function b(a, b) { var c = CryptoJS.enc.Utf8.parse(b) , d = CryptoJS.enc.Utf8.parse(\"0102030405060708\") , e = CryptoJS.enc.Utf8.parse(a) , f = CryptoJS.AES.encrypt(e, c, { iv: d, mode: CryptoJS.mode.CBC }); return f.toString() } function c(a, b, c) { var d, e; return setMaxDigits(131), d = new RSAKeyPair(b,\"\",c), e = encryptedString(d, a) } #实际调用的加密函数算法 四个参数：d:对应data数据,e:'010001',f:'00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7',g:'0CoJUm6Qyw8W8jud' function d(d, e, f, g) { var h = {} #空对象 , i = a(16); #16位的随机值 return h.encText = b(d, g), h.encText = b(h.encText, i), #返回的就是encTEXT h.encSecKey = c(i, e, f), #返回的就是encSecKey，e，f是定死的，i是变的，此时把i固定 h } function e(a, b, d, e) { var f = {}; return f.encText = c(a + e, b, d), f } \"\"\" e = '010001' f = '00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7' g = '0CoJUm6Qyw8W8jud' i = \"nJaSvmCuZFEAORCi\" def get_encSecKey(): return \"036401bcdf2daa471574782cc5d5a1d3a9b6ee4a347134ba1a84a0fbf68c4d493fe4f3e9ccf3467f5af8e7249165d87bea59af6539f964ec7023d600d48a732be2c8a6f7111ec11ced3ad3bc072442cbfc563fb767da6fe7d6addba5752fdddc7963e486d49bc1c0fa68f10e4c3dbc1269be054fa0b54a92c5f404bfd7d11547\" #对paragms进行加密 def get_params(data): first = enc_paragms(data,g) second = enc_paragms(first,i) return second def to_16(data): pad = 16 - len(data) % 16 data += chr(pad) * pad return data #机密函数 def enc_paragms(data,key): iv = \"0102030405060708\" data = to_16(data) aes = AES.new(key=key.encode('utf-8') ,IV=iv.encode('utf-8'),mode=AES.MODE_CBC) #定义加密器 bs = aes.encrypt(data.encode('utf-8')) #加密，加密的字符串的长度必须为16的倍数,见to_16函数 “123456char(10)” return str(b64encode(bs),'utf-8') #转化称字符串 res = requests.post(url=url,data={'params':get_params(json.dumps(data)),'encSecKey':get_encSecKey()},headers=header).json() for line in res[\"data\"]['comments']: if line['user']['nickname']: print(\"{}---{}\".format(line['user']['nickname'],line['content'])) else: print(line['content']) ",
-  "wordCount" : "302",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="http://127.0.0.1:1314/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -309,42 +218,42 @@ import requests from lxml import etree #AES加密函数,需要安装pycrypto fro
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="/k8s/" title="Kubernetes">
+                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/docker/" title="Docker">
+                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/go/" title="Go">
+                        <a href="http://127.0.0.1:1314/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/linux/" title="Linux">
+                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/python/" title="Python">
+                        <a href="http://127.0.0.1:1314/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/cicd/" title="CI/CD">
+                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/log/" title="日志">
+                        <a href="http://127.0.0.1:1314/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/middleware/" title="中间件">
+                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -553,7 +462,7 @@ import requests from lxml import etree #AES加密函数,需要安装pycrypto fro
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/">
+  <a class="prev" href="http://127.0.0.1:1314/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/">
     <span class="title">« Prev</span>
     <span>模块合集</span>
   </a>
@@ -564,7 +473,7 @@ import requests from lxml import etree #AES加密函数,需要安装pycrypto fro
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
 
     
     
@@ -616,6 +525,69 @@ import requests from lxml import etree #AES加密函数,需要安装pycrypto fro
 
     headings.forEach((item) => observer.observe(item.heading));
     links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+<script>
+  (() => {
+    const images = Array.from(document.querySelectorAll('.post-content img'));
+    if (!images.length) return;
+
+    let scale = 1;
+    let activeImage = null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'kb-image-lightbox';
+    overlay.innerHTML = '<button class="kb-image-lightbox-close" type="button" aria-label="关闭图片预览">×</button><img alt="">';
+    document.body.appendChild(overlay);
+
+    const preview = overlay.querySelector('img');
+    const closeButton = overlay.querySelector('button');
+
+    function applyScale() {
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    function closePreview() {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('kb-lightbox-open');
+      preview.removeAttribute('src');
+      preview.alt = '';
+      activeImage = null;
+      scale = 1;
+      applyScale();
+    }
+
+    function openPreview(image) {
+      activeImage = image;
+      scale = 1;
+      preview.src = image.currentSrc || image.src;
+      preview.alt = image.alt || '';
+      applyScale();
+      overlay.classList.add('is-active');
+      document.body.classList.add('kb-lightbox-open');
+    }
+
+    images.forEach((image) => {
+      image.addEventListener('click', () => openPreview(image));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePreview();
+    });
+
+    closeButton.addEventListener('click', closePreview);
+
+    overlay.addEventListener('wheel', (event) => {
+      if (!activeImage) return;
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      scale = Math.min(4, Math.max(0.5, scale + direction * 0.12));
+      applyScale();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && activeImage) closePreview();
+    });
   })();
 </script>
 
@@ -678,6 +650,53 @@ import requests from lxml import etree #AES加密函数,需要安装pycrypto fro
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

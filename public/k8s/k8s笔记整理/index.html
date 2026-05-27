@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>k8s笔记整理 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="kubernete 之路
@@ -98,16 +98,16 @@ kubectl: 命令行接口，用于对 Kubernetes 集群运行命令  https://kube
 
 资源类型与apiVersion对照表">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.2c49dba8c55ad70a0bfeba08a1a657e5924382231df9e5e54a02a9df21649dc5.css" integrity="sha256-LEnbqMVa1woL/roIoaZX5ZJDgiMd&#43;eXlSgKp3yFkncU=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="http://127.0.0.1:1314/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
+<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
+<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
 <noscript>
     <style>
         #theme-toggle,
@@ -153,104 +153,17 @@ kubectl: 命令行接口，用于对 Kubernetes 集群运行命令  https://kube
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="k8s笔记整理">
-  <meta property="og:description" content="kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？
-跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？
-跨主机容器间互相调用，配置如何写？写死固定IP&#43;端口？
-如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？
-容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?
-如何实现滚动升级保证业务的连续性？
-容器调度管理平台 ​	Docker Swarm Mesos Google Kubernetes
-​	2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀
-​	https://kubernetes.io/
-二、架构介绍 架构图 区分组件与资源
-核心组件 **ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据 ApiServer: API服务器,集群资源访问控制入口,提供restAPI及安全访问控制 **Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。 **Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account &amp; Token 控制器等。 Replication Controller Node controller ResourceQuota Controller Namespace Controller ServiceAccount Controller Tocken Controller Service Controller Endpoints Controller **kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理” pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。 容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理. 容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要 CNI实现: 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信 kubectl: 命令行接口，用于对 Kubernetes 集群运行命令 https://kubernetes.io/zh/docs/reference/kubectl/ 各个资源与apiserver对应表 apiVersion 含义 alpha 进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s beta 已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。 stable 可安全使用的稳定版本 v1 stable 版本之后的首个版本，包含了更多的核心对象 apps/v1 使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本 资源类型与apiVersion对照表">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="k8s笔记整理">
-  <meta name="twitter:description" content="kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？
-跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？
-跨主机容器间互相调用，配置如何写？写死固定IP&#43;端口？
-如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？
-容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?
-如何实现滚动升级保证业务的连续性？
-容器调度管理平台 ​	Docker Swarm Mesos Google Kubernetes
-​	2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀
-​	https://kubernetes.io/
-二、架构介绍 架构图 区分组件与资源
-核心组件 **ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据 ApiServer: API服务器,集群资源访问控制入口,提供restAPI及安全访问控制 **Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。 **Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account &amp; Token 控制器等。 Replication Controller Node controller ResourceQuota Controller Namespace Controller ServiceAccount Controller Tocken Controller Service Controller Endpoints Controller **kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理” pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。 容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理. 容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要 CNI实现: 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信 kubectl: 命令行接口，用于对 Kubernetes 集群运行命令 https://kubernetes.io/zh/docs/reference/kubectl/ 各个资源与apiserver对应表 apiVersion 含义 alpha 进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s beta 已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。 stable 可安全使用的稳定版本 v1 stable 版本之后的首个版本，包含了更多的核心对象 apps/v1 使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本 资源类型与apiVersion对照表">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "k8s笔记整理",
-      "item": "/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "k8s笔记整理",
-  "name": "k8s笔记整理",
-  "description": "kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？\n跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？\n跨主机容器间互相调用，配置如何写？写死固定IP+端口？\n如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？\n容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?\n如何实现滚动升级保证业务的连续性？\n容器调度管理平台 ​\tDocker Swarm Mesos Google Kubernetes\n​\t2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀\n​\thttps://kubernetes.io/\n二、架构介绍 架构图 区分组件与资源\n核心组件 **ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据 ApiServer: API服务器,集群资源访问控制入口,提供restAPI及安全访问控制 **Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。 **Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account \u0026amp; Token 控制器等。 Replication Controller Node controller ResourceQuota Controller Namespace Controller ServiceAccount Controller Tocken Controller Service Controller Endpoints Controller **kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理” pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。 容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理. 容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要 CNI实现: 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信 kubectl: 命令行接口，用于对 Kubernetes 集群运行命令 https://kubernetes.io/zh/docs/reference/kubectl/ 各个资源与apiserver对应表 apiVersion 含义 alpha 进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s beta 已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。 stable 可安全使用的稳定版本 v1 stable 版本之后的首个版本，包含了更多的核心对象 apps/v1 使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本 资源类型与apiVersion对照表\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？\n跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？\n跨主机容器间互相调用，配置如何写？写死固定IP+端口？\n如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？\n容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?\n如何实现滚动升级保证业务的连续性？\n容器调度管理平台 ​\tDocker Swarm Mesos Google Kubernetes\n​\t2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀\n​\thttps://kubernetes.io/\n二、架构介绍 架构图 区分组件与资源\n核心组件 **ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据 ApiServer: API服务器,集群资源访问控制入口,提供restAPI及安全访问控制 **Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。 **Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account \u0026 Token 控制器等。 Replication Controller Node controller ResourceQuota Controller Namespace Controller ServiceAccount Controller Tocken Controller Service Controller Endpoints Controller **kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理” pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。 容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理. 容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要 CNI实现: 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信 kubectl: 命令行接口，用于对 Kubernetes 集群运行命令 https://kubernetes.io/zh/docs/reference/kubectl/ 各个资源与apiserver对应表 apiVersion 含义 alpha 进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s beta 已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。 stable 可安全使用的稳定版本 v1 stable 版本之后的首个版本，包含了更多的核心对象 apps/v1 使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本 资源类型与apiVersion对照表\nKind apiVersion ClusterRoleBinding rbac.authorization.k8s.io/v1 ClusterRole rbac.authorization.k8s.io/v1 ConfigMap v1 CronJob batch/v1beta1 DaemonSet extensions/v1beta1 Node v1 Namespace v1 Secret v1 PersistentVolume v1 PersistentVolumeClaim v1 Pod v1 Deployment v1、apps/v1、apps/v1beta1、apps/v1beta2 Service v1 Ingress extensions/v1beta1 ReplicaSet apps/v1、apps/v1beta2 Job batch/v1 StatefulSet apps/v1、apps/v1beta1、apps/v1beta2 三、kubectl命令合集 配置各节点可用kubectl # 1. 将 master 节点中 /etc/kubernetes/admin.conf 拷贝到需要运行的服务器的 /etc/kubernetes 目录中 scp /etc/kubernetes/admin.conf root@k8s-node1:/etc/kubernetes # 2. 在对应的服务器上配置环境变量 echo \"export KUBECONFIG=/etc/kubernetes/admin.conf\" \u003e\u003e ~/.bash_profile source ~/.bash_profile 常用命令\n创建对象 $ kubectl create -f ./my-manifest.yaml # 创建资源 $ kubectl create -f ./my1.yaml -f ./my2.yaml # 使用多个文件创建资源 $ kubectl create -f ./dir # 使用目录下的所有清单文件来创建资源 $ kubectl create -f https://git.io/vPieo # 使用 url 来创建资源 $ kubectl run nginx --image=nginx # 启动一个 nginx 实例 $ kubectl explain pods,svc # 获取 pod 和 svc 的文档 显示和查找资源 # Get commands with basic output $ kubectl get services # 列出所有 namespace 中的所有 service $ kubectl get pods --all-namespaces # 列出所有 namespace 中的所有 pod $ kubectl get pods -o wide # 列出所有 pod 并显示详细信息 $ kubectl get deployment my-dep # 列出指定 deployment $ kubectl get pods --include-uninitialized # 列出该 namespace 中的所有 pod 包括未初始化的 # 使用详细输出来描述命令 $ kubectl describe nodes my-node $ kubectl describe pods my-pod $ kubectl get services --sort-by=.metadata.name # List Services Sorted by Name # 根据重启次数排序列出 pod $ kubectl get pods --sort-by='.status.containerStatuses[0].restartCount' # 获取所有具有 app=cassandra 的 pod 中的 version 标签 $ kubectl get pods --selector=app=cassandra rc -o \\ jsonpath='{.items[*].metadata.labels.version}' # 获取所有节点的 ExternalIP $ kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type==\"ExternalIP\")].address}' # 列出属于某个 PC 的 Pod 的名字 # “jq”命令用于转换复杂的 jsonpath，参考 https://stedolan.github.io/jq/ $ sel=${$(kubectl get rc my-rc --output=json | jq -j '.spec.selector | to_entries | .[] | \"\\(.key)=\\(.value),\"')%?} $ echo $(kubectl get pods --selector=$sel --output=jsonpath={.items..metadata.name}) # 查看哪些节点已就绪 $ JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}' \\ \u0026\u0026 kubectl get nodes -o jsonpath=\"$JSONPATH\" | grep \"Ready=True\" # 列出当前 Pod 中使用的 Secret $ kubectl get pods -o json | jq '.items[].spec.containers[].env[]?.valueFrom.secretKeyRef.name' | grep -v null | sort | uniq 更新资源 $ kubectl rolling-update frontend-v1 -f frontend-v2.json # 滚动更新 pod frontend-v1 $ kubectl rolling-update frontend-v1 frontend-v2 --image=image:v2 # 更新资源名称并更新镜像 $ kubectl rolling-update frontend --image=image:v2 # 更新 frontend pod 中的镜像 $ kubectl rolling-update frontend-v1 frontend-v2 --rollback # 退出已存在的进行中的滚动更新 $ cat pod.json | kubectl replace -f - # 基于 stdin 输入的 JSON 替换 pod # 强制替换，删除后重新创建资源。会导致服务中断。 $ kubectl replace --force -f ./pod.json # 为 nginx RC 创建服务，启用本地 80 端口连接到容器上的 8000 端口 $ kubectl expose rc nginx --port=80 --target-port=8000 # 更新单容器 pod 的镜像版本（tag）到 v4 $ kubectl get pod mypod -o yaml | sed 's/\\(image: myimage\\):.*$/\\1:v4/' | kubectl replace -f - $ kubectl label pods my-pod new-label=awesome # 添加标签 $ kubectl annotate pods my-pod icon-url=http://goo.gl/XXBTWq # 添加注解 $ kubectl autoscale deployment foo --min=2 --max=10 # 自动扩展 deployment “foo” 修补资源 $ kubectl patch node k8s-node-1 -p '{\"spec\":{\"unschedulable\":true}}' # 部分更新节点 # 更新容器镜像； spec.containers[*].name 是必须的，因为这是合并的关键字 $ kubectl patch pod valid-pod -p '{\"spec\":{\"containers\":[{\"name\":\"kubernetes-serve-hostname\",\"image\":\"new image\"}]}}' # 使用具有位置数组的 json 补丁更新容器镜像 $ kubectl patch pod valid-pod --type='json' -p='[{\"op\": \"replace\", \"path\": \"/spec/containers/0/image\", \"value\":\"new image\"}]' # 使用具有位置数组的 json 补丁禁用 deployment 的 livenessProbe $ kubectl patch deployment valid-deployment --type json -p='[{\"op\": \"remove\", \"path\": \"/spec/template/spec/containers/0/livenessProbe\"}]' 编辑资源 $ kubectl edit svc/docker-registry # 编辑名为 docker-registry 的 service $ KUBE_EDITOR=\"nano\" kubectl edit svc/docker-registry # 使用其它编辑器 扩展副本 $ kubectl scale --replicas=3 rs/foo # Scale a replicaset named 'foo' to 3 $ kubectl scale --replicas=3 -f foo.yaml # Scale a resource specified in \"foo.yaml\" to 3 $ kubectl scale --current-replicas=2 --replicas=3 deployment/mysql # If the deployment named mysql's current size is 2, scale mysql to 3 $ kubectl scale --replicas=5 rc/foo rc/bar rc/baz # Scale multiple replication controllers 删除资源 $ kubectl delete -f ./pod.json # 删除 pod.json 文件中定义的类型和名称的 pod $ kubectl delete pod,service baz foo # 删除名为“baz”的 pod 和名为“foo”的 service $ kubectl delete pods,services -l name=myLabel # 删除具有 name=myLabel 标签的 pod 和 serivce $ kubectl delete pods,services -l name=myLabel --include-uninitialized # 删除具有 name=myLabel 标签的 pod 和 service，包括尚未初始化的 $ kubectl -n my-ns delete po,svc --all # 删除 my-ns namespace 下的所有 pod 和 serivce，包括尚未初始化的 与运行的pod交互 $ kubectl logs my-pod # dump 输出 pod 的日志（stdout） $ kubectl logs my-pod -c my-container # dump 输出 pod 中容器的日志（stdout，pod 中有多个容器的情况下使用） $ kubectl logs -f my-pod # 流式输出 pod 的日志（stdout） $ kubectl logs -f my-pod -c my-container # 流式输出 pod 中容器的日志（stdout，pod 中有多个容器的情况下使用） $ kubectl run -i --tty busybox --image=busybox -- sh # 交互式 shell 的方式运行 pod $ kubectl attach my-pod -i # 连接到运行中的容器 $ kubectl port-forward my-pod 5000:6000 # 转发 pod 中的 6000 端口到本地的 5000 端口 $ kubectl exec my-pod -- ls / # 在已存在的容器中执行命令（只有一个容器的情况下） $ kubectl exec my-pod -c my-container -- ls / # 在已存在的容器中执行命令（pod 中有多个容器的情况下） $ kubectl top pod POD_NAME --containers # 显示指定 pod 和容器的指标度量 节点操作 $ kubectl cordon my-node # 标记 my-node 不可调度 $ kubectl drain my-node # 清空 my-node 以待维护 $ kubectl uncordon my-node # 标记 my-node 可调度 $ kubectl top node my-node # 显示 my-node 的指标度量 $ kubectl cluster-info # 显示 master 和服务的地址 $ kubectl cluster-info dump # 将当前集群状态输出到 stdout $ kubectl cluster-info dump --output-directory=/path/to/cluster-state # 将当前集群状态输出到 /path/to/cluster-state # 如果该键和影响的污点（taint）已存在，则使用指定的值替换 $ kubectl taint nodes foo dedicated=special-user:NoSchedule 四、资源介绍 pod 基本概念 ​\t最小调度单元 Pod\ndocker调度的是容器，在k8s集群中，最小的调度单元是Pod（豆荚）\n引入Pod\n与容器引擎解耦\nDocker、Rkt。平台设计与引擎的具体的实现解耦\n多容器共享网络|存储|进程 空间, 支持的业务场景更加灵活\n创建一个pod的流程 用户准备一个资源文件（记录了业务应用的名称、镜像地址等信息），通过调用APIServer执行创建Pod APIServer收到用户的Pod创建请求，通知controller-manager将Pod信息写入到etcd中 etcd存好信息后反馈回给api-server api-server告知调度器（scheduler）事件信息，scheduler通过watch机制持续监听，发现有新的pod数据，但还没有绑定到某一个节点中 调度器通过资源清单信息以及调度算法，计算出最适合该pod运行的节点，将pod和node的绑定信息告诉api-erver api-server将调度结果更新到etcd中，更新好pod信息之后，继续反馈回给api-server kubelet组件（目标node）同样通过watch方式，发现有新的pod调度到本机的节点了，根据pod的描述信息，拉取镜像，启动容器，同时生成事件信息 同时，kubelet反馈pod创建结果，把容器的信息、事件及状态给api-server，并且写入到etcd中 如何理解namespace：\n命名空间，集群内一个虚拟的概念，类似于资源池的概念，一个池子里可以有各种资源类型，绝大多数的资源都必须属于某一个namespace。集群初始化安装好之后，会默认有如下几个namespace：\n$ kubectl get namespaces NAME STATUS AGE default Active 84m kube-node-lease Active 84m kube-public Active 84m kube-system Active 84m kubernetes-dashboard Active 71m 所有NAMESPACED的资源，在创建的时候都需要指定namespace，若不指定，默认会在default命名空间下 相同namespace下的同类资源不可以重名，不同类型的资源可以重名 不同namespace下的同类资源可以重名 通常在项目使用的时候，我们会创建带有业务含义的namespace来做逻辑上的整合 如何编写资源yaml 拿来主义，从机器中已有的资源中拿\n$ kubectl -n kube-system get po,deployment,ds 学会在官网查找， https://kubernetes.io/docs/home/\n从kubernetes-api文档中查找， https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#pod-v1-core\nkubectl explain 查看具体字段含义\n快速获得资源和版本\n$ kubectl explain pod $ kubectl explain Pod.apiVersion 创建访问编辑删除Pod ## 创建namespace, namespace是逻辑上的资源池 $ kubectl create namespace demo ## 使用指定文件创建Pod $ kubectl create -f demo-pod.yaml ## 查看pod，可以简写po ## 所有的操作都需要指定namespace，如果是在default命名空间下，则可以省略 $ kubectl -n demo get pods -o wide NAME READY STATUS RESTARTS AGE IP NODE myblog 2/2 Running 0 3m 10.244.1.146 k8s-slave1 ## 使用Pod Ip访问服务,3306和8002 $ curl 10.244.1.146:8002/blog/index/ ## 进入容器,执行初始化, 不必到对应的主机执行docker exec $ kubectl -n demo exec -ti myblog -c myblog bash / # env / # python3 manage.py migrate $ kubectl -n demo exec -ti myblog -c mysql bash / # mysql -p123456 ## 再次访问服务,3306和8002 $ curl 10.244.1.146:8002/blog/index/ ## 查看pod调度节点及pod_ip $ kubectl -n demo get pods -o wide ## 查看完整的yaml $ kubectl -n demo get po myblog -o yaml ## 查看pod的明细信息及事件 $ kubectl -n demo describe pod myblog #进入Pod内的容器 $ kubectl -n exec -c -ti /bin/sh #查看Pod内容器日志,显示标准或者错误输出日志 $ kubectl -n logs -f -c # 更新pod $ kubectl apply -f demo-pod.yaml #根据文件删除 $ kubectl delete -f demo-pod.yaml #根据pod_name删除 $ kubectl -n delete pod Pause容器(Infra) Pause容器或Infra容器，每个Pod里都会运行一个特殊的被称之为Pause的容器，而其他容器则为业务容器。这些业务容器共享Pause容器的网络栈和Volume挂载卷，使得它们之间的通信和数据交换更为高效。\n作用与功能：\n共享网络：Pod下的所有容器共享同一个网络命名空间，而Infra容器就是实现这一功能的关键。它使得同一个Pod里的容器之间仅需通过localhost就能互相通信。\nLinux命名空间共享的基础：在Pod中，Infra容器担任Linux命名空间共享的基础。它使得Pod中的不同应用程序可以看到其他应用程序的进程ID（PID）。\n启用pid命名空间和开启init进程：Infra容器还负责启用pid命名空间并开启init进程，为Pod中的容器提供必要的运行环境。\n解决网络故障问题：在某些情况下，如给Pod注入网络故障以模拟网络延迟或丢包时，可能会出现目标容器重启进而导致故障恢复失败的问题。此时，重启相应的Pod可能是恢复故障的唯一方法。而Infra容器作为Pod的基础设施，其稳定性和可靠性对于整个Pod的正常运行至关重要。\n生命周期：Pod的生命周期从初始化容器开始，而Infra容器作为Pod的一部分，其生命周期与Pod相同。当Pod被创建时，Infra容器也会被创建；当Pod被删除时，Infra容器也会被相应地删除。\n示例\n# pod：myblog中有三个容器，mysql和myblog程序以及Infra容器 ## 登录master节点，查看pod内部的容器ip均相同，为pod ip $ kubectl -n demo exec -ti myblog -c myblog bash / # ifconfig $ kubectl -n demo exec -ti myblog -c mysql bash / # ifconfig pod 健康检查 检测容器服务是否健康的手段，若不健康，会根据设置的重启策略（restartPolicy）进行操作，两种检测机制可以分别单独设置，若不设置，默认认为Pod是健康的。\n两种机制：\nLivenessProbe探针\n用于判断容器是否存活，即Pod是否为running状态，如果LivenessProbe探针探测到容器不健康，则kubelet将kill掉容器，并根据容器的重启策略是否重启，如果一个容器不包含LivenessProbe探针，则Kubelet认为容器的LivenessProbe探针的返回值永远成功。\nReadinessProbe探针\n用于判断容器是否正常提供服务，即容器的Ready是否为True，是否可以接收请求，如果ReadinessProbe探测失败，则容器的Ready将为False，控制器将此Pod的Endpoint从对应的service的Endpoint列表中移除，从此不再将任何请求调度此Pod上，直到下次探测成功。（剔除此pod不参与接收请求不会将流量转发给此Pod）。\nstartupProbe探针\n由于有时候不能准确预估应用一定是多长时间启动成功，因此配置另外两种方式不方便配置初始化时长来检测，而配置了 statupProbe 后，只有在应用启动成功了，才会执行另外两种探针，可以更加方便的结合使用另外两种探针使用。\n三种类型：\nexecAction：通过执行命令来检查服务是否正常，回值为0则表示容器健康 httpGet方式：通过发送http请求检查服务是否正常，返回200-399状态码则表明容器健康 tcpSocket：通过容器的IP和Port执行TCP检查，如果能够建立TCP连接，则表明容器健康 示例：\ncontainers: - name: myblog image: 172.21.32.6:5000/myblog ports: - containerPort: 8002 livenessProbe: # 这里使用livenessProbe为例子，举例配置语法，其他两种探针一样 httpGet: # httpGet方式 path: /blog/index/ port: 8002 scheme: HTTP # HTTP or HTTPS httpHeaders: # 可选, 检查的请求头 - name: xxx value: xxx failureThreshold: 3 # 探测成功后，最少连续探测失败多少次才被认定为失败。默认是3，最小值是1。 successThreshold: 1 # 检查成功为 1 次表示就绪 initialDelaySeconds: 10 # 容器启动后第一次执行探测，需要等待多少秒 periodSeconds: 15 # 执行探测的频率，默认是10秒，最小1秒。 timeoutSeconds: 2\t# 探测超时时间默认1秒，最小1秒。 ################# # tcp连接检测 livenessProbe: tcpSocket: port: 80 ################# # 执行命令方式 livenessProbe: exec: command: - cat - /health 结合探针使用：\n会存在特殊情况：比如服务A启动时间很慢，需要60s。这个时候如果还是用上面的livenessProbe探针就会进入死循环，因为上面的探针10s后就开始探测，这时候我们服务并没有起来，发现探测失败就会触发restartPolicy。这时候可能会想到把initialDelaySeconds调成60s，但是我们并不能保证这个服务每次起来都是60s，假如新的版本起来要70s，甚至更多的时间，就不好控制。\n这时候把startupProbe和livenessProbe结合起来使用就可以很大程度上解决我们的问题，startupProbe探测成功后再交给livenessProbe。如下配置：startupProbe配置的是10*5s，也就是说只要应用在50s内启动都是OK的，而且应用挂掉了10s就会发现问题。\napiVersion: v1 # API 的版本号 kind: Pod # 类型 Pod metadata: # 元数据 name: nginx-startup # Pod 名称 spec: # 用于定义 Pod 的详细信息 containers: # 必选，容器列表 - name: nginx image: nginx:1.15.12 # 容器所用的镜像的地址 imagePullPolicy: IfNotPresent command: # 容器启动执行的命令 - sh - -c - sleep 20; nginx -g \"daemon off;\" ports: # 容器需要暴露的端口号列表 - containerPort: 80 # 端口号 startupProbe: tcpSocket: port: 80 initialDelaySeconds: 10 # 初始化时间, 健康检查延迟执行时间 timeoutSeconds: 2 # 超时时间 periodSeconds: 10 # 检测间隔 successThreshold: 1 # 检查成功为 1 次表示就绪 failureThreshold: 5 # 检测失败 3 次表示未就绪 readinessProbe: httpGet: # 接口检测方式 path: /index.html # 检查路径 port: 80 scheme: HTTP # HTTP or HTTPS #httpHeaders: # 可选, 检查的请求头 #- name: xxx # value: xxx initialDelaySeconds: 10 # 初始化时间, 健康检查延迟执行时间 timeoutSeconds: 2 # 超时时间 periodSeconds: 3 # 检测间隔 successThreshold: 1 # 检查成功为 1 次表示就绪 failureThreshold: 2 # 检测失败 2 次表示未就绪 livenessProbe: tcpSocket: # 端口检测方式 port: 80 initialDelaySeconds: 10 # 初始化时间 timeoutSeconds: 2 # 超时时间 periodSeconds: 3 # 检测间隔 successThreshold: 1 # 检查成功为1次表示就绪 failureThreshold: 2 # 检测失败2次表示未就绪 restartPolicy: Always #重启策略，失败时总会重启 Pod 重启策略 Pod的重启策略（RestartPolicy）应用于Pod内的所有容器，并且仅在Pod所处的Node上由kubelet进行判断和重启操作。当某个容器异常退出或者健康检查失败时，kubelet将根据RestartPolicy的设置来进行相应的操作。 Pod的重启策略包括Always、OnFailure和Never，默认值为Always。\nAlways：当容器失败时，由kubelet自动重启该容器； OnFailure：当容器终止运行且退出码不为0时，有kubelet自动重启该容器； Never：不论容器运行状态如何，kubelet都不会重启该容器。 Pod 镜像拉取策略 spec: containers: - name: myblog image: 172.21.32.6:5000/demo/myblog imagePullPolicy: IfNotPresent 设置镜像的拉取策略，默认为IfNotPresent\nAlways，总是拉取镜像，即使本地有镜像也从仓库拉取 IfNotPresent ，本地有则使用本地镜像，本地没有则去仓库拉取 Never，只使用本地镜像，本地没有则报错 Pod 资源限制 为了保证充分利用集群资源，且确保重要容器在运行周期内能够分配到足够的资源稳定运行，因此平台需要具备\nPod的资源限制的能力。 对于一个pod来说，资源最基础的2个的指标就是：CPU和内存。\nKubernetes提供了个采用requests和limits 两种类型参数对资源进行预分配和使用限制。\npod-with-resourcelimits.yaml\n... containers: - name: myblog image: 172.21.32.6:5000/myblog env: - name: MYSQL_HOST # 指定root用户的用户名 value: \"127.0.0.1\" - name: MYSQL_PASSWD value: \"123456\" ports: - containerPort: 8002 resources: requests: memory: 100Mi cpu: 50m limits: memory: 500Mi cpu: 100m ... requests：\n容器使用的最小资源需求,作用于schedule阶段，作为容器调度时资源分配的判断依赖 只有当前节点上可分配的资源量 \u003e= request 时才允许将容器调度到该节点 request参数不限制容器的最大可使用资源 requests.cpu被转成docker的–cpu-shares参数，与cgroup cpu.shares功能相同 (无论宿主机有多少个cpu或者内核，–cpu-shares选项都会按照比例分配cpu资源） requests.memory没有对应的docker参数，仅作为k8s调度依据 limits：\n容器能使用资源的最大值 设置为0表示对使用的资源不做限制, 可无限的使用 当pod 内存超过limit时，会被oom 当cpu超过limit时，不会被kill，但是会限制不超过limit值 limits.cpu会被转换成docker的–cpu-quota参数。与cgroup cpu.cfs_quota_us功能相同 limits.memory会被转换成docker的–memory参数。用来限制容器使用的最大内存 对于 CPU，我们知道计算机里 CPU 的资源是按“时间片”的方式来进行分配的，系统里的每一个操作都需要 CPU 的处理，所以，哪个任务要是申请的 CPU 时间片越多，那么它得到的 CPU 资源就越多。\n然后还需要了解下 CGroup 里面对于 CPU 资源的单位换算：\n1 CPU = 1000 millicpu（1 Core = 1000m） 这里的 m 就是毫、毫核的意思，Kubernetes 集群中的每一个节点可以通过操作系统的命令来确认本节点的 CPU 内核数量，然后将这个数量乘以1000，得到的就是节点总 CPU 总毫数。比如一个节点有四核，那么该节点的 CPU 总毫量为 4000m。\ndocker run命令和 CPU 限制相关的所有选项如下：\n选项 描述 --cpuset-cpus=\"\" 允许使用的 CPU 集，值可以为 0-3,0,1 -c,--cpu-shares=0 CPU 共享权值（相对权重） cpu-period=0 限制 CPU CFS 的周期，范围从 100ms~1s，即[1000, 1000000] --cpu-quota=0 限制 CPU CFS 配额，必须不小于1ms，即 \u003e= 1000，绝对限制 docker run -it --cpu-period=50000 --cpu-quota=25000 ubuntu:16.04 /bin/bash 将 CFS 调度的周期设为 50000，将容器在每个周期内的 CPU 配额设置为 25000，表示该容器每 50ms 可以得到 50% 的 CPU 运行时间。\n注意：若内存使用超出限制，会引发系统的OOM机制，因CPU是可压缩资源，不会引发Pod退出或重建\npod 状态与生命周期 Pod的状态如下表所示：\n状态值 描述 Pending API Server已经创建该Pod，等待调度器调度 ContainerCreating 镜像正在创建 Running Pod内容器均已创建，且至少有一个容器处于运行状态、正在启动状态或正在重启状态 Succeeded Pod内所有容器均已成功执行退出，且不再重启 Failed Pod内所有容器均已退出，但至少有一个容器退出为失败状态 CrashLoopBackOff Pod内有容器启动失败，比如配置文件丢失导致主进程启动失败 Unknown 由于某种原因无法获取该Pod的状态，可能由于网络通信不畅导致 生命周期：\n我们一般将pod对象从创建至终的这段时间范围称为pod的生命周期，它主要包含下面的过程：\npod创建过程 运行初始化容器（init container）过程 运行主容器（main container） 容器启动后钩子（post start）、容器终止前钩子（pre stop） 容器的存活性探测（liveness probe）、就绪性探测（readiness probe） pod终止过程 生命周期示意图：\n启动和关闭示意：\napiVersion: v1 kind: Pod metadata: name: demo-start-stop namespace: demo labels: component: demo-start-stop spec: initContainers: - name: init image: busybox command: ['sh', '-c', 'echo $(date +%s): INIT \u003e\u003e /loap/timing'] volumeMounts: - mountPath: /loap name: timing containers: - name: main image: busybox command: ['sh', '-c', 'echo $(date +%s): START \u003e\u003e /loap/timing; sleep 10; echo $(date +%s): END \u003e\u003e /loap/timing;'] volumeMounts: - mountPath: /loap name: timing livenessProbe: exec: command: ['sh', '-c', 'echo $(date +%s): LIVENESS \u003e\u003e /loap/timing'] readinessProbe: exec: command: ['sh', '-c', 'echo $(date +%s): READINESS \u003e\u003e /loap/timing'] lifecycle: postStart: exec: command: ['sh', '-c', 'echo $(date +%s): POST-START \u003e\u003e /loap/timing'] preStop: exec: command: ['sh', '-c', 'echo $(date +%s): PRE-STOP \u003e\u003e /loap/timing'] volumes: - name: timing hostPath: path: /tmp/loap 创建pod测试：\n$ kubectl create -f demo-pod-start.yaml ## 查看demo状态 $ kubectl -n demo get po -o wide -w ## 查看调度节点的/tmp/loap/timing $ cat /tmp/loap/timing 1585424708: INIT 1585424746: START 1585424746: POST-START 1585424754: READINESS 1585424756: LIVENESS 1585424756: END 须主动杀掉 Pod 才会触发 pre-stop hook，如果是 Pod 自己 Down 掉，则不会执行 pre-stop hook\n小结\n实现k8s平台与特定的容器运行时解耦，提供更加灵活的业务部署方式，引入了Pod概念 k8s使用yaml格式定义资源文件，yaml中Map与List的语法，与json做类比 通过kubectl create | get | exec | logs | delete 等操作k8s资源，必须指定namespace 每启动一个Pod，为了实现网络空间共享，会先创建Infra容器，并把其他容器网络加入该容器 通过livenessProbe和readinessProbe实现Pod的存活性和就绪健康检查 通过requests和limit分别限定容器初始资源申请与最高上限资源申请 通过Pod IP访问具体的Pod服务，实现是 Pod 控制器 只使用Pod, 将会面临如下需求:\n业务应用启动多个副本 Pod重建后IP会变化，外部如何访问Pod服务 运行业务Pod的某个节点挂了，可以自动帮我把Pod转移到集群中的可用节点启动起来 我的业务应用功能是收集节点监控数据,需要把Pod运行在k8集群的各个节点上 Workload (工作负载)\n控制器又称工作负载是用于实现管理pod的中间层，确保pod资源符合预期的状态，pod的资源出现故障时，会尝试 进行重启，当根据重启策略无效，则会重新新建pod的资源。\nReplicaSet: 代用户创建指定数量的pod副本数量，确保pod副本数量符合预期状态，并且支持滚动式自动扩容和缩容功能 Deployment：工作在ReplicaSet之上，用于管理无状态应用，目前来说最好的控制器。支持滚动更新和回滚功能，还提供声明式配置 DaemonSet：用于确保集群中的每一个节点只运行特定的pod副本，通常用于实现系统级后台任务。比如ELK服务 Job：只要完成就立即退出，不需要重启或重建 Cronjob：周期性任务控制，不需要持续后台运行 StatefulSet：管理有状态应用 Pod 驱逐策略 K8S 有个特色功能叫 pod eviction，它在某些场景下如节点 NotReady，或者资源不足时，把 pod 驱逐至其它节点，这也是出于业务保护的角度去考虑的。\nKube-controller-manager: 周期性检查所有节点状态，当节点处于 NotReady 状态超过一段时间后，驱逐该节点上所有 pod。停掉kubelet\npod-eviction-timeout：NotReady 状态节点超过该时间后，执行驱逐，默认 5 min Kubelet: 周期性检查本节点资源，当资源不足时，按照优先级驱逐部分 pod\nmemory.available：节点可用内存 nodefs.available：节点根盘可用存储空间 nodefs.inodesFree：节点inodes可用数量 imagefs.available：镜像存储盘的可用空间 imagefs.inodesFree：镜像存储盘的inodes可用数量 pod 调度策略 NodeSelector 标签匹配，label是kubernetes中一个非常重要的概念，用户可以非常灵活的利用 label 来管理集群中的资源，POD 的调度可以根据节点的 label 进行特定的部署。\n查看节点的label：\n$ kubectl get nodes --show-labels 为节点打label：\n$ kubectl label node k8s-master disktype=ssd 当 node 被打上了相关标签后，在调度的时候就可以使用这些标签了，只需要在spec 字段中添加nodeSelector字段，里面是我们需要被调度的节点的 label。\n... spec: hostNetwork: true\t# 声明pod的网络模式为host模式，效果通docker run --net=host volumes: - name: mysql-data hostPath: path: /opt/mysql/data nodeSelector: # 使用节点选择器将Pod调度到指定label的节点 component: mysql containers: - name: mysql image: 172.21.32.6:5000/demo/mysql:5.7 ... 亲和性 ​\t**nodeAffinity：**节点亲和性 ， 比上面的nodeSelector更加灵活，它可以进行一些简单的逻辑组合，不只是简单的相等匹配 。\n​\t**PodAffinity：**Pod 亲和力，将与指定 pod 亲和力相匹配的 pod 部署在同一节点。\n​\t**PodAntiAffinity：**Pod 反亲和力，根据策略尽量部署或不部署到一块。\n分别都有两种特性：\n**preferredDuringSchedulingIgnoredDuringExecution**：软策略，如果你没有满足调度要求的节点的话，Pod就会忽略这条规则，继续完成调度过程，说白了就是满足条件最好了，没有满足就忽略掉的策略。 **requiredDuringSchedulingIgnoredDuringExecution** ： 硬策略，如果没有满足条件的节点的话，就不断重试直到满足条件为止，简单说就是你必须满足我的要求，不然我就不会调度Pod。 节点亲和性配置示例：\n#示例一： apiVersion: v1 kind: Pod metadata: name: with-node-affinity spec: affinity: # 亲和力配置 nodeAffinity: # 节点亲和力 requiredDuringSchedulingIgnoredDuringExecution: # 节点必须匹配下方配置 nodeSelectorTerms: # 选择器 - matchExpressions: # 匹配表达式 - key: topology.kubernetes.io/zone # 匹配 label 的 key operator: In # 匹配方式，只要匹配成功下方的一个 value 即可 values: - antarctica-east1 # 匹配的 value - antarctica-west1 # 匹配的 value preferredDuringSchedulingIgnoredDuringExecution: # 节点尽量匹配下方配置 - weight: 1 # 权重[1,100]，按照匹配规则对所有节点累加权重，最终之和会加入优先级评分，优先级越高被调度的可能性越高 preference: matchExpressions: # 匹配表达式 - key: another-node-label-key # label 的 key operator: In # 匹配方式，满足一个即可 values: - another-node-label-value # 匹配的 value # - weight: 20 ...... containers: - name: with-node-affinity image: pause:2.0 pod亲和力与反亲和力：\n# pod亲和力与反亲和力示例2： apiVersion: v1 kind: Pod metadata: name: with-pod-affinity spec: affinity: # 亲和力配置 podAffinity: # pod 亲和力配置 requiredDuringSchedulingIgnoredDuringExecution: # 当前 pod 必须匹配到对应条件 pod 所在的 node 上 - labelSelector: # 标签选择器 matchExpressions: # 匹配表达式 - key: security # 匹配的 key operator: In # 匹配方式 values: # 匹配其中的一个 value - S1 topologyKey: topology.kubernetes.io/zone podAntiAffinity: # pod 反亲和力配置 preferredDuringSchedulingIgnoredDuringExecution: #尽量不要将当前节点部署到匹配下列参数的pod所在的node 上 - weight: 100 # 权重 podAffinityTerm: # pod 亲和力配置条件 labelSelector: # 标签选择器 matchExpressions: # 匹配表达式 - key: security # 匹配的 key operator: In # 匹配的方式 values: - S2 # 匹配的 value topologyKey: topology.kubernetes.io/zone containers: - name: with-pod-affinity image: pause:2.0 这里的匹配逻辑是 label 的值在某个列表中，现在Kubernetes提供的操作符有下面的几种：\nIn：label 的值在某个列表中 NotIn：label 的值不在某个列表中 Gt：label 的值大于某个值 Lt：label 的值小于某个值 Exists：某个 label 存在 DoesNotExist：某个 label 不存在 如果nodeSelectorTerms下面有多个选项的话，满足任何一个条件就可以了；如果matchExpressions有多个选项的话，则必须同时满足这些条件才能正常调度 Pod\n污点(Taints)与容忍(tolerations) 对于nodeAffinity无论是硬策略还是软策略方式，都是调度 Pod 到预期节点上，而Taints恰好与之相反，如果一个节点标记为 Taints ，除非 Pod 也被标识为可以容忍污点节点，否则该 Taints 节点不会被调度Pod。\nTaints(污点)是Node的一个属性，设置了Taints(污点)后，因为有了污点，所以Kubernetes是不会将Pod调度到这个Node上的。于是Kubernetes就给Pod设置了个属性Tolerations(容忍)，只要Pod能够容忍Node上的污点，那么Kubernetes就会忽略Node上的污点，就能够(不是必须)把Pod调度过去。\n比如用户希望把 Master 节点保留给 Kubernetes 系统组件使用，或者把一组具有特殊资源预留给某些 Pod，则污点就很有用了，Pod 不会再被调度到 taint 标记过的节点。taint 标记节点举例如下：\n设置污点：\n$ kubectl taint node [node_name] key=value:[effect] 其中[effect] 可取值： [ NoSchedule | PreferNoSchedule | NoExecute ] NoSchedule：一定不能被调度。 PreferNoSchedule：尽量不要调度。 NoExecute：不仅不会调度，还会驱逐Node上已有的Pod。 示例：kubectl taint node k8s-master smoke=true:NoSchedule 去除污点：\n去除指定key及其effect： kubectl taint nodes [node_name] key:[effect]- #这里的key不用指定value 去除指定key所有的effect: kubectl taint nodes node_name key- 示例： kubectl taint node k8s-master smoke=true:NoSchedule kubectl taint node k8s-master smoke:NoExecute- kubectl taint node k8s-master smoke- 污点演示：\n## 给k8s-slave1打上污点，smoke=true:NoSchedule $ kubectl taint node k8s-slave1 smoke=true:NoSchedule $ kubectl taint node k8s-slave2 drunk=true:NoSchedule ## 扩容myblog的Pod，观察新Pod的调度情况 $ kuebctl -n demo scale deploy myblog --replicas=3 $ kubectl -n demo get po -w ## pending Pod容忍污点示例：myblog/deployment/deploy-myblog-taint.yaml\n... spec: containers: - name: demo image: 172.21.32.6:5000/demo/myblog tolerations: #设置容忍性 - key: \"smoke\" operator: \"Equal\" #如果操作符为Exists，那么value属性可省略,不指定operator，默认为Equal value: \"true\" effect: \"NoSchedule\" - key: \"drunk\" operator: \"Equal\" #如果操作符为Exists，那么value属性可省略,不指定operator，默认为Equal value: \"true\" effect: \"NoSchedule\" #意思是这个Pod要容忍的有污点的Node的key是smoke Equal true,效果是NoSchedule， #tolerations属性下各值必须使用引号，容忍的值都是设置Node的taints时给的值。 $ kubectl apply -f deploy-myblog-taint.yaml spec: containers: - name: demo image: 172.21.32.6:5000/demo/myblog tolerations: - operator: \"Exists\" Pod 控制器 Pod是kubernetes的最小管理单元，在kubernetes中，按照pod的创建方式可以将其分为两类：\n自主式pod：kubernetes直接创建出来的Pod，这种pod删除后就没有了，也不会重建 控制器创建的pod：kubernetes通过控制器创建的pod，这种pod删除了之后还会自动重建 什么是Pod控制器：\n​\tPod控制器是管理pod的中间层，使用Pod控制器之后，只需要告诉Pod控制器，想要多少个什么样的Pod就可以了，它会创建出满足条件的Pod并确保每一个Pod资源处于用户期望的目标状态。如果Pod资源在运行中出现故障，它会基于指定策略重新编排Pod。\n在kubernetes中，有很多类型的pod控制器，每种都有自己的适合的场景，常见的有下面这些：\nReplicationController：比较原始的pod控制器，已经被废弃，由ReplicaSet替代 ReplicaSet：保证副本数量一直维持在期望值，并支持pod数量扩缩容，镜像版本升级 Deployment：通过控制ReplicaSet来控制Pod，并支持滚动升级、回退版本 Horizontal Pod Autoscaler：可以根据集群负载自动水平调整Pod的数量，实现削峰填谷 DaemonSet：在集群中的指定Node上运行且仅运行一个副本，一般用于守护进程类的任务 Job：它创建出来的pod只要完成任务就立即退出，不需要重启或重建，用于执行一次性任务 Cronjob：它创建的Pod负责周期性任务控制，不需要持续后台运行 StatefulSet：管理有状态应用 ReplicaSet(RS) ​\tReplicaSet的主要作用是保证一定数量的pod正常运行，它会持续监听这些Pod的运行状态，一旦Pod发生故障，就会重启或重建。同时它还支持对pod数量的扩缩容和镜像版本的升降级。\n配置文件示例：\napiVersion: apps/v1 # 版本号 kind: ReplicaSet # 类型 metadata: # 元数据 name: # rs名称 namespace: # 所属命名空间 labels: #标签 controller: rs spec: # 详情描述 replicas: 3 # 副本数量 selector: # 选择器，通过它指定该控制器管理哪些pod matchLabels: # Labels匹配规则 app: nginx-pod matchExpressions: # Expressions匹配规则 - {key: app, operator: In, values: [nginx-pod]} template: # 模板，当副本数量不足时，会根据下面的模板创建pod副本 metadata: labels: app: nginx-pod spec: containers: - name: nginx image: nginx:1.17.1 ports: - containerPort: 80 在这里面，需要新了解的配置项就是spec下面几个选项：\nreplicas：指定副本数量，其实就是当前rs创建出来的pod的数量，默认为1\nselector：选择器，它的作用是建立pod控制器和pod之间的关联关系，采用的Label Selector机制\n在pod模板上定义label，在控制器上定义选择器，就可以表明当前控制器能管理哪些pod了\ntemplate：模板，就是当前控制器创建pod所使用的模板板，里面其实就是前一章学过的pod的定义\n对RS资源进行操作\n扩缩容\n1、命令操作：\nkubectl -n dev scale deploy xxx --replicas=3 2、修改yaml配置文件\nkubectl edit deploy xxx -n dev # 或者编辑yaml文件，更改replicas后，重新进行applay 3、镜像升级\n# 配置文件升级 kubectl edit rs pc-replicaset -n dev # 直接命令行操作 kubectl set image rs pc-replicaset nginx=nginx:1.17.1 -n dev 4、删除操作\n# 使用kubectl delete命令会删除此RS以及它管理的Pod # 在kubernetes删除RS前，会将RS的replicasclear调整为0，等待所有的Pod被删除后，在执行RS对象的删除 kubectl delete rs pc-replicaset -n dev # 如果希望仅仅删除RS对象（保留Pod），可以使用kubectl delete命令时添加--cascade=false选项（不推荐）。 kubectl delete rs pc-replicaset -n dev --cascade=false # 也可以使用yaml直接删除(推荐) kubectl delete -f pc-replicaset.yaml Deployment(deploy) 为了更好的解决服务编排的问题，kubernetes在V1.2版本开始，引入了Deployment控制器。值得一提的是，这种控制器并不直接管理pod，而是通过管理ReplicaSet来简介管理Pod，即：Deployment管理ReplicaSet，ReplicaSet管理Pod。所以Deployment比ReplicaSet功能更加强大。\nDeployment主要功能有下面几个：\n支持ReplicaSet的所有功能 支持发布的停止、继续 支持滚动升级和回滚版本 配置示例：\napiVersion: apps/v1 # 版本号 kind: Deployment # 类型 metadata: # 元数据 name: # rs名称 namespace: # 所属命名空间 labels: #标签 controller: deploy spec: # 详情描述 replicas: 3 # 副本数量 revisionHistoryLimit: 3 # 保留历史版本 paused: false # 暂停部署，默认是false progressDeadlineSeconds: 600 # 部署超时时间（s），默认是600 strategy: # 策略 type: RollingUpdate # 滚动更新策略 rollingUpdate: # 滚动更新 maxSurge: 30% # 最大额外可以存在的副本数，可以为百分比，也可以为整数 maxUnavailable: 30% # 最大不可用状态的 Pod 的最大值，可以为百分比，也可以为整数 selector: # 选择器，通过它指定该控制器管理哪些pod matchLabels: # Labels匹配规则 app: nginx-pod matchExpressions: # Expressions匹配规则 - {key: app, operator: In, values: [nginx-pod]} template: # 模板，当副本数量不足时，会根据下面的模板创建pod副本 metadata: labels: app: nginx-pod spec: containers: - name: nginx image: nginx:1.17.1 ports: - containerPort: 80 扩缩容 # 命令操作 kubectl -n dev scale deploy xxx --replicas=3 # 在线修改yaml配置文件，或者编辑yaml文件，更改replicas后，重新进行applay kubectl edit deploy xxx -n dev 更新升级 deployment支持两种更新策略:重建更新和滚动更新,可以通过strategy指定策略类型,支持两个属性:\nstrategy：指定新的Pod替换旧的Pod的策略， 支持两个属性： type：指定策略类型，支持两种策略 Recreate：在创建出新的Pod之前会先杀掉所有已存在的Pod RollingUpdate：滚动更新，就是杀死一部分，就启动一部分，在更新过程中，存在两个版本Pod rollingUpdate：当type为RollingUpdate时生效，用于为RollingUpdate设置参数，支持两个属性： maxUnavailable：用来指定在升级过程中不可用Pod的最大数量，默认为25%。 maxSurge： 用来指定在升级过程中可以超过期望的Pod的最大数量，默认为25%。 回退 deployment支持版本升级过程中的暂停、继续功能以及版本回退等诸多功能，下面具体来看.\nkubectl rollout： 版本升级相关功能，支持下面的选项：\nstatus 显示当前升级状态 history 显示 升级历史记录 pause 暂停版本升级过程 resume 继续已经暂停的版本升级过程 restart 重启版本升级过程 undo 回滚到上一级版本（可以使用–to-revision回滚到指定版本） # 查看当前升级版本的状态 kubectl rollout status deploy pc-deployment -n dev # 查看升级历史记录 [root@k8s-master01 ~]# kubectl rollout history deploy pc-deployment -n dev deployment.apps/pc-deployment REVISION CHANGE-CAUSE 1 kubectl create --filename=pc-deployment.yaml --record=true 2 kubectl create --filename=pc-deployment.yaml --record=true 3 kubectl create --filename=pc-deployment.yaml --record=true # 查到版本记录之后，进行回滚 # 这里直接使用--to-revision=1回滚到了1版本， 如果省略这个选项，就是回退到上个版本，就是2版本 [root@k8s-master01 ~]# kubectl rollout undo deployment pc-deployment --to-revision=1 -n dev # 查看rs，发现第一个rs中有4个pod运行，后面两个版本的rs中pod为运行 # 其实deployment之所以可是实现版本的回滚，就是通过记录下历史rs来实现的， # 一旦想回滚到哪个版本，只需要将当前版本pod数量降为0，然后将回滚版本的pod提升为目标数量就可以了 [root@k8s-master01 ~]# kubectl get rs -n dev NAME DESIRED CURRENT READY AGE pc-deployment-6696798b78 4 4 4 78m pc-deployment-966bf7f44 0 0 0 37m pc-deployment-c848d767 0 0 0 71m 灰度发布 灰度发布：又称金丝雀发布，一种平滑过渡的发布方式。它允许在产品更新过程中，将新版本的功能逐步推送给用户，而不是一次性全面更新。通过这种方式，可以在初始阶段就发现并调整问题，以保证整体系统的稳定。灰度发布的核心在于控制新版本功能的推送范围，从一小部分用户开始，逐步扩大，直到所有用户都迁移到新版本。\n比如有一批新的Pod资源创建完成后立即暂停更新过程，此时，仅存在一部分新版本的应用，主体部分还是旧的版本。然后，再筛选一小部分的用户请求路由到新版本的Pod应用，继续观察能否稳定地按期望的方式运行。确定没问题之后再继续完成余下的Pod资源滚动更新，否则立即回滚更新操作。这就是所谓的金丝雀发布。\nDeployment控制器支持控制更新过程中的控制，如“暂停(pause)”或“继续(resume)”更新操作。\n# 更新deployment的版本，并配置暂停deployment [root@k8s-master01 ~]# kubectl set image deploy pc-deployment nginx=nginx:1.17.4 -n dev \u0026\u0026 kubectl rollout pause deployment pc-deployment -n dev deployment.apps/pc-deployment image updated deployment.apps/pc-deployment paused #观察更新状态，监控更新的过程，可以看到已经新增了一个资源，但是并未按照预期的状态去删除一个旧的资源，就是因为使用了pause暂停命令 [root@k8s-master01 ~]# kubectl rollout status deploy pc-deployment -n dev　Waiting for deployment \"pc-deployment\" rollout to finish: 2 out of 4 new replicas have been updated... [root@k8s-master01 ~]# kubectl get rs -n dev -o wide NAME DESIRED CURRENT READY AGE CONTAINERS IMAGES pc-deployment-5d89bdfbf9 3 3 3 19m nginx nginx:1.17.1 pc-deployment-675d469f8b 0 0 0 14m nginx nginx:1.17.2 pc-deployment-6c9f56fcfb 2 2 2 3m16s nginx nginx:1.17.4 [root@k8s-master01 ~]# kubectl get pods -n dev NAME READY STATUS RESTARTS AGE pc-deployment-5d89bdfbf9-rj8sq 1/1 Running 0 7m33s pc-deployment-5d89bdfbf9-ttwgg 1/1 Running 0 7m35s pc-deployment-5d89bdfbf9-v4wvc 1/1 Running 0 7m34s pc-deployment-6c9f56fcfb-996rt 1/1 Running 0 3m31s pc-deployment-6c9f56fcfb-j2gtj 1/1 Running 0 3m31s # 确保更新的pod没问题了，继续更新 [root@k8s-master01 ~]# kubectl rollout resume deploy pc-deployment -n dev deployment.apps/pc-deployment resumed # 查看最后的更新情况 [root@k8s-master01 ~]# kubectl get rs -n dev -o wide NAME DESIRED CURRENT READY AGE CONTAINERS IMAGES pc-deployment-5d89bdfbf9 0 0 0 21m nginx nginx:1.17.1 pc-deployment-675d469f8b 0 0 0 16m nginx nginx:1.17.2 pc-deployment-6c9f56fcfb 4 4 4 5m11s nginx nginx:1.17.4 [root@k8s-master01 ~]# kubectl get pods -n dev NAME READY STATUS RESTARTS AGE pc-deployment-6c9f56fcfb-7bfwh 1/1 Running 0 37s pc-deployment-6c9f56fcfb-996rt 1/1 Running 0 5m27s pc-deployment-6c9f56fcfb-j2gtj 1/1 Running 0 5m27s pc-deployment-6c9f56fcfb-rf84v 1/1 Running 0 37s StatefulSet 管理有状态应用，需要进行持久化存储\n示例：\n--- apiVersion: v1 kind: Service metadata: name: nginx labels: app: nginx spec: ports: - port: 80 name: web clusterIP: None selector: app: nginx --- apiVersion: apps/v1 kind: StatefulSet metadata: name: web spec: serviceName: \"nginx\" replicas: 2 template: metadata: labels: app: nginx spec: containers: - name: nginx image: nginx:1.7.9 ports: - containerPort: 80 name: web volumeMounts: - name: www mountPath: /usr/share/nginx/html volumeClaimTemplates: # StatefulSet资源独有配置，一种声明性方式，它会根据模板自动创建PVC - metadata: name: www annotations: volume.alpha.kubernetes.io/storage-class: \"managed-nfs-storage\" # 指定StorageClass，会自动创建对应的pvc spec: accessModes: [ \"ReadWriteOnce\" ] resources: requests: storage: 1Gi HPA(Horizontal Pod Autoscaler) 原理架构 HPA可以获取每个Pod的cpu，内存利用率，然后和HPA中定义的指标进行对比，同时计算出需要伸缩的具体值，最后实现Pod的数量的调整。其实HPA与之前的Deployment一样，也属于一种Kubernetes资源对象，它通过追踪分析RC控制的所有目标Pod的负载变化情况，来确定是否需要针对性地调整目标Pod的副本数，这是HPA的实现原理。\nHorizontalPodAutoscaler 会指示工作负载资（Deployment、StatefulSet 或其他类似资源）扩容或缩减。由于DaemonSet会在每个节点上都会部署，不适用于水平Pod自动扩缩。\n在每个时间段内，控制器管理器都会根据每个 HorizontalPodAutoscaler 定义中指定的指标查询资源利用率：\n控制器管理器找到由 scaleTargetRef 定义的目标资源 根据目标资源的 .spec.selector 标签选择 Pod 从资源指标 API（针对每个 Pod 的资源指标）或自定义指标获取指标 API（适用于所有其他指标） Pod水平自动扩缩注意事项有以下方面：\n必须安装metrics-server或其他自定义metrics-server 必须配置requests参数 不能扩容无法缩放的对象，比如DaemonSet 查看所有Pod水平自动扩缩接口类型：\n$ kubectl get apiservices | grep autoscal v1.autoscaling Local True 37d v2.autoscaling Local True 37d v2beta1.autoscaling Local True 37d v2beta2.autoscaling Local True 37d v1：稳定版自动水平伸缩，只支持CPU指标 v2beta1:支持CPU、内存和自定义指标 v2beta2:支持CPU、内存、自定义指标Custom和额外指标ExternalMetrics Metrics Server Kubernetes Metrics Server 是一个聚合和提供集群中资源使用情况数据的 API 服务。它收集并存储了关于节点和容器的度量数据，如 CPU、内存使用情况等，并通过 API 公开这些数据供其他组件和工具使用。\n主要特点：\n资源使用情况监控： Metrics Server 收集并存储了关于节点和容器的资源使用情况数据，包括 CPU 使用率、内存使用量、文件系统容量等。 提供 API 接口： Metrics Server 提供了一个 RESTful API，允许用户查询和获取节点和容器的资源使用情况数据。 水平扩展： Metrics Server 可以根据集群规模进行水平扩展，以处理大规模的度量数据。 与 HPA 集成： Metrics Server 通常用于与 Horizontal Pod Autoscaler (HPA) 等控制器一起使用，根据资源使用情况自动调整 Pod 的副本数量。 轻量级和稳定性： Metrics Server 的设计目标是轻量级和稳定，以便于在 Kubernetes 集群中运行，并提供资源监控数据。 工作原理：\nMetrics Server 会定期(默认15s，可更改参数- –metric-resolution，进行指定)从 kubelet 中收集节点和容器的度量数据。\n这些数据通过 API 公开，可以通过 kubectl top 命令或其他 API 客户端查询。\nHPA 等控制器可以使用 Metrics Server 提供的数据来自动调整 Pod 的副本数量。\n安装\n官方文档：https://github.com/kubernetes-sigs/metrics-server\n获取到yaml文件\nwget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/ 修改配置文件\n默认开启了LTS认证，如果不改，将会有如下报错\nI0425 10:02:45.361797 1 server.go:191] \"Failed probe\" probe=\"metric-storage-ready\" err=\"no metrics to serve\" I0425 10:02:55.357319 1 server.go:191] \"Failed probe\" probe=\"metric-storage-ready\" err=\"no metrics to serve\" E0425 10:02:59.290947 1 scraper.go:149] \"Failed to scrape node\" err=\"Get \\\"https://192.168.9.30:10250/metrics/resource\\\": tls: failed to verify certificate: x509: cannot validate certificate for 192.168.9.30 because it doesn't contain any IP SANs\" node=\"k8s-master1\" E0425 10:02:59.298406 1 scraper.go:149] \"Failed to scrape node\" err=\"Get \\\"https://192.168.9.31:10250/metrics/resource\\\": tls: failed to verify certificate: x509: cannot validate certificate for 192.168.9.31 because it doesn't contain any IP SANs\" node=\"k8s-node1\" E0425 10:02:59.320046 1 scraper.go:149] \"Failed to scrape node\" err=\"Get \\\"https://192.168.9.32:10250/metrics/resource\\\": tls: failed to verify certificate: x509: cannot validate certificate for 192.168.9.32 because it doesn't contain any IP SANs\" node=\"k8s-node2\" ...... spec: containers: - args: - --cert-dir=/tmp - --secure-port=10250 - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname - --kubelet-use-node-status-port - --metric-resolution=15s - --kubelet-insecure-tls #添加配置，禁用lts证书验证，生产环境不建议 image: registry.k8s.io/metrics-server/metrics-server:v0.7.1 ...... kubectl apply -f components.yaml HPA示例 Tips：使用HPA 必须要在pod中配置资源限制才生效，从 Kubernetes v1.12 版本开始我们可以通过设置 kube-controller-manager 组件的--horizontal-pod-autoscaler-downscale-stabilization 参数来设置一个持续时间，用于指定在当前操作完成后，HPA 必须等待多长时间才能执行另一次缩放操作。默认为5分钟，也就是默认需要等待5分钟后才会开始自动缩放。\n命令创建HPA基于cpu自动扩缩\nkubectl autoscale deployment myapp-cpu --cpu-percent=10 --min=1 --max=10 --cpu-percent=10：指定 Deployment 的目标 CPU 利用率百分比。水平 Pod 自动缩放器将根据当前CPU利用率超过10%时进行自动调整副本数量，以尝试维持此目标。 --min=1：指定 Deployment 应具有的最小副本数。即使 CPU 利用率很低，水平 Pod 自动缩放器也不会将 Deployment 缩小到此数以下。 --max=10：指定 Deployment 应具有的最大副本数。如果 CPU 利用率非常高，水平 Pod 自动缩放器也不会将 Deployment 扩展到此数以上。 # 查看HorizontalPodAutoscaler的当前状态 kubectl get hpa myapp-cpu autoscaling/v1 定义yaml清单文件\n# cat hpa.yaml # cpu apiVersion: autoscaling/v1 kind: HorizontalPodAutoscaler metadata: name: hpa namespace: default spec: scaleTargetRef: # 定义目标作用对象，可以是Deployment、RS apiVersion: apps/v1 kind: Deployment name: hpa-demo labelSelector: # 匹配标签选择（如有多个需全部满足） matchLabels: app: my-app # 这里是部署的标签 maxReplicas: 5 # 最大副本数 minReplicas: 1 # 最小副本数 targetCPUUtilizationPercentage: 10 # CPU利用率超过10%时进行自动调整副本数量，以尝试维持此目标 autoscaling/v2beta1 # 内存 apiVersion: autoscaling/v2beta1 # 内存必须是v2版本 kind: HorizontalPodAutoscaler metadata: name: hpa-mem-demo namespace: default spec: scaleTargetRef: # 指定对应的控制器 apiVersion: apps/v1 kind: Deployment name: hpa-mem-demo maxReplicas: 5 # 最大副本数 minReplicas: 1 # 最小副本数 metrics: # 指定一个内存的配置 - type: Resource # 指标数据由metrics-server采集并提供给HPA控制器 resource: name: memory targetAverageUtilization: 20 # 不能超过20%的使用率 其中type字段可为： Resource：基于资源的指标值，指标数据由metrics-server采集并提供给HPA控制器，可以通过metrics.k8s.io这个API查询 Pods：基于Pod的指标 Object：基于某种资源对象，如ingress或者任意自定义的指标，Pods与Object是自定义指标，需要搭建自定义的Metrics Server和监控工具进行指标采集。指标数据通过custom.metrics.k8s.io进行查询，必须先启动自定义的Metrics Server。 type=pods\n指标数据来源于Pod对象本身，target指标只能是AverageValue。\nmetrics: - type: Pods pods: metrics: name: packet-per-second target: type: AverageValue averageValue: 1k type=object\n指标数据来自其他资源或者是自定义的指标。target指标为Value或者是AverageValue\n#指标名称为requests-per-second，其值来源于Ingress\"main-route\"的目标值，即Ingress每秒请求量达到2000时触发扩容操作 metrics： - type: Object object: metric: name: requests-per-second describeObject: apiVersion: extensions/v1beta1 kind: Ingress name: main-route target: type: Value value: 2k #指标名称为requests-per-second，其值来源于Ingress\"main-route\"的目标值，即Ingress每秒请求量达到2000时触发扩容操作 metrics： - type: Object object: metric: name: 'http_requests' selector: 'verb=GET' target: type: AverageValue averageValue: 500 DaemonSet(DS) DaemonSet类型的控制器可以保证在集群中的每一台（或指定）节点上都运行一个副本。一般适用于日志收集、节点监控等场景。也就是说，如果一个Pod提供的功能是节点级别的（每个节点都需要且只需要一个），那么这类Pod就适合使用DaemonSet类型的控制器创建。\nDaemonSet控制器的特点：\n每当向集群中添加一个节点时，指定的 Pod 副本也将添加到该节点上 当节点从集群中移除时，Pod 也就被垃圾回收了 配置示例：\napiVersion: apps/v1 # 版本号 kind: DaemonSet # 类型 metadata: # 元数据 name: # rs名称 namespace: # 所属命名空间 labels: #标签 controller: daemonset spec: # 详情描述 revisionHistoryLimit: 3 # 保留历史版本 updateStrategy: # 更新策略 type: RollingUpdate # 滚动更新策略 rollingUpdate: # 滚动更新 maxUnavailable: 1 # 最大不可用状态的 Pod 的最大值，可以为百分比，也可以为整数 selector: # 选择器，通过它指定该控制器管理哪些pod matchLabels: # Labels匹配规则 app: nginx-pod matchExpressions: # Expressions匹配规则 - {key: app, operator: In, values: [nginx-pod]} template: # 模板，当副本数量不足时，会根据下面的模板创建pod副本 metadata: labels: app: nginx-pod spec: containers: - name: nginx image: nginx:1.17.1 ports: - containerPort: 80 Job Job，主要用于负责**批量处理(一次要处理指定数量任务)短暂的一次性(每个任务仅运行一次就结束)**任务。Job特点如下：\n当Job创建的pod执行成功结束时，Job将记录成功结束的pod数量 当成功结束的pod达到指定的数量时，Job将完成执行 配置示例\napiVersion: batch/v1 # 版本号 kind: Job # 类型 metadata: # 元数据 name: # rs名称 namespace: # 所属命名空间 labels: #标签 controller: job spec: # 详情描述 completions: 1 # 指定job需要成功运行Pods的次数。默认值: 1 parallelism: 1 # 指定job在任一时刻应该并发运行Pods的数量。默认值: 1 activeDeadlineSeconds: 30 # 指定job可运行的时间期限，超过时间还未结束，系统将会尝试进行终止。 backoffLimit: 6 # 指定job失败后进行重试的次数。默认是6 manualSelector: true # 是否可以使用selector选择器选择pod，默认是false selector: # 选择器，通过它指定该控制器管理哪些pod matchLabels: # Labels匹配规则 app: counter-pod matchExpressions: # Expressions匹配规则 - {key: app, operator: In, values: [counter-pod]} template: # 模板，当副本数量不足时，会根据下面的模板创建pod副本 metadata: labels: app: counter-pod spec: restartPolicy: Never # 重启策略只能设置为Never或者OnFailure containers: - name: counter image: busybox:1.30 command: [\"bin/sh\",\"-c\",\"for i in 9 8 7 6 5 4 3 2 1; do echo $i;sleep 2;done\"] CronJob CronJob控制器以 Job控制器资源为其管控对象，并借助它管理pod资源对象，Job控制器定义的作业任务在其控制器资源创建之后便会立即执行，但CronJob可以以类似于Linux操作系统的周期性任务作业计划的方式控制其运行时间点及重复运行的方式。也就是说，CronJob可以在特定的时间点(反复的)去运行job任务。\n配置示例：\napiVersion: batch/v1beta1 # 版本号 kind: CronJob # 类型 metadata: # 元数据 name: # rs名称 namespace: # 所属命名空间 labels: #标签 controller: cronjob spec: # 详情描述 schedule: # cron格式的作业调度运行时间点,用于控制任务在什么时间执行 concurrencyPolicy: # 并发执行策略，用于定义前一次作业运行尚未完成时是否以及如何运行后一次的作业 failedJobHistoryLimit: # 为失败的任务执行保留的历史记录数，默认为1 successfulJobHistoryLimit: # 为成功的任务执行保留的历史记录数，默认为3 startingDeadlineSeconds: # 启动作业错误的超时时长 jobTemplate: # job控制器模板，用于为cronjob控制器生成job对象;下面其实就是job的定义 metadata: spec: completions: 1 parallelism: 1 activeDeadlineSeconds: 30 backoffLimit: 6 manualSelector: true selector: matchLabels: app: counter-pod matchExpressions: 规则 - {key: app, operator: In, values: [counter-pod]} template: metadata: labels: app: counter-pod spec: restartPolicy: Never containers: - name: counter image: busybox:1.30 command: [\"bin/sh\",\"-c\",\"for i in 9 8 7 6 5 4 3 2 1; do echo $i;sleep 20;done\"] 注意\n需要重点解释的几个选项： schedule: cron表达式，用于指定任务的执行时间 */1 * * * * \u003c分钟\u003e \u003c小时\u003e \u003c日\u003e \u003c月份\u003e \u003c星期\u003e 分钟 值从 0 到 59. 小时 值从 0 到 23. 日 值从 1 到 31. 月 值从 1 到 12. 星期 值从 0 到 6, 0 代表星期日 多个时间可以用逗号隔开； 范围可以用连字符给出；*可以作为通配符； /表示每... concurrencyPolicy: Allow: 允许Jobs并发运行(默认) Forbid: 禁止并发运行，如果上一次运行尚未完成，则跳过下一次运行 Replace: 替换，取消当前正在运行的作业并用新作业替换它 Service 介绍 service：负责东西流量（同层级/内部服务网络通信）的通信，相当于一组pod的LB，负责将请求分发给对应的pod。service会为这个LB提供一个IP，一般称为cluster IP 。\nservice很多时候只是一个概念，真正起到作用的其实是kube-proxy进程服务，每个节点上运行着一个kube-proxy 服务进程，当创建service的时候，会通过apiServer向etcd写入创建service的信息，而kube-proxy会基于监听(watch)的机制，当发现service变动时，它会将最新的service信息转换成对应的访问规则，每个节点上都会生成。\nkube-proxy kube-proxy的主要职责包括两大块：一块是侦听service更新事件，并更新service相关的访问规则，一块是侦听endpoint更新事件，更新endpoint相关的访问规则（如 KUBE-SVC-链中的规则），然后将包请求转入endpoint对应的Pod。如果某个service尚没有Pod创建，那么针对此service的请求将会被drop掉。\n工作模式：\nuserspace 模式：（1.1版本之前的默认模式） ​\tuserspace模式下，kube-proxy会为每一个Service创建一个监听端口，发向Cluster IP的请求被Iptables规则重定向到kube-proxy监听的端口上，kube-proxy根据LB算法选择一个提供服务的Pod并和其建立链接，以将请求转发到Pod上。 该模式下，kube-proxy充当了一个四层负责均衡器的角色。由于kube-proxy运行在userspace中，在进行转发处理时会增加内核和用户空间之间的数据拷贝，虽然比较稳定，但是效率比较低。\niptables 模式：（1.1-1.10版本的默认模式） ​\tiptables模式下，kube-proxy为service后端的每个Pod创建对应的iptables规则，直接将发向Cluster IP的请求重定向到一个Pod IP。 该模式下kube-proxy不承担四层负责均衡器的角色，只负责创建iptables规则。该模式的优点是较userspace模式效率更高，但不能提供灵活的LB策略，当后端Pod不可用时也无法进行重试。\n​\tiptables是把一些特定规则以“链”的形式挂载到每个Hook点，这些链的规则是固定的，而是是比较通用的，可以通过iptables命令在用户层动态的增删，这些链必须串行的执行。执行到某条规则，如果不匹配，则继续执行下一条，如果匹配，根据规则，可能继续向下执行，也可能跳到某条规则上，也可能下面的规则都跳过。\n其核心功能：通过API Server的Watch接口实时跟踪Service与Endpoint的变更信息，并更新对应的iptables规则，Client的请求流量则通过iptables的NAT机制“直接路由”到目标Pod。\n​\t其实需要在宿主机上设置相当多的 iptables 规则。而且，kube-proxy 还需要在控制循环里不断地刷新这些规则来确保它们始终是正确的。不难想到，当你的宿主机上有大量 Pod 的时候，成百上千条 iptables 规则不断地被刷新，由于是线性查找匹配、全量更新等特点，其性能会显著下降，还会大量占用该宿主机的 CPU 资源，甚至会让宿主机“卡”在这个过程中。所以说，一直以来，基于 iptables 的 Service 实现，都是制约 Kubernetes 项目承载更多量级的 Pod 的主要障碍。\nipvs 模式:（1.11版本之后的默认模式，需要安装开启宿主机的ipvs模块，如果不启用，自动回退为iptables模式） ​\tipvs模式和iptables类似，kube-proxy监控Pod的变化并创建相应的ipvs规则。ipvs相对iptables转发效率更高。除此以外，ipvs支持更多的LB算法。\nIPVS则专门用于高性能负载均衡，并使用更高效的数据结构（Hash表）存访问规则，允许几乎无限的规模扩张，因此被kube-proxy采纳为最新模式。\n在IPVS模式下，使用iptables的扩展ipset，而不是直接调用iptables来生成规则链。iptables规则链是一个线性的数据结构，ipset则引入了带索引的数据结构，因此当规则很多时，也可以很高效地查找和匹配。可以将ipset简单理解为一个IP（段）的集合，这个集合的内容可以是IP地址、IP网段、端口等，iptables可以直接添加规则对这个“可变的集合”进行操作，这样做的好处在于可以大大减少iptables规则的数量，从而减少性能损耗。\n查看当前集群使用的模式\n# 1、查看配置文件中的mode配置 kubectl get configmap kube-proxy -n kube-system -o yaml | grep mode kubectl edit cm kube-proxy -n kube-system # 2、查看日志 kubectl logs -n kube-system kube-proxy-xxxx | grep \"Using\" I0221 02:44:50.829527 1 server_others.go:236] \"Using ipvs Proxier\" # 3、访问kube-proxy接口，通常不适用于生产环境，因为可能会暴露敏感信息 curl localhost:10249/proxyMode ipvs的负载均衡策略：\nService负载分发的策略有：\n​\t**RoundRobin：**默认为轮询模式，即轮询将请求转发到后端的各个Pod上。\n​\t**SessionAffinity：**基于客户端IP地址进行会话保持的模式，即第1次将某个客户端发起的请求转发到后端的某个Pod上，之后从相同的客户端发起的请求在10800s内都将被转发到后端相同的Pod上。此模式可以使在spec中添加sessionAffinity:ClientIP选项\n# 此模式必须在所有master、node节点上安装ipvs内核模块，否则会降级为iptables yum -y install ipset ipvsadm # 配置ipvsadm模块开机自动执行加载相关模块 cat \u003e /etc/sysconfig/modules/ipvs.modules \u003c",
-  "wordCount" : "8786",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="http://127.0.0.1:1314/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -261,42 +174,42 @@ kubectl: 命令行接口，用于对 Kubernetes 集群运行命令  https://kube
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="/k8s/" title="Kubernetes">
+                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/docker/" title="Docker">
+                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/go/" title="Go">
+                        <a href="http://127.0.0.1:1314/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/linux/" title="Linux">
+                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/python/" title="Python">
+                        <a href="http://127.0.0.1:1314/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/cicd/" title="CI/CD">
+                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/log/" title="日志">
+                        <a href="http://127.0.0.1:1314/log/" title="日志">
                             <span>日志</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/middleware/" title="中间件">
+                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
                             <span>中间件</span>
                         </a>
                     </li>
@@ -4554,11 +4467,11 @@ server（V3已将Tiller的删除，通过ApiServer与k8s交互）是托管运行
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/">
+  <a class="prev" href="http://127.0.0.1:1314/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/">
     <span class="title">« Prev</span>
     <span>k8s安装-二进制</span>
   </a>
-  <a class="next" href="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
+  <a class="next" href="http://127.0.0.1:1314/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
     <span class="title">Next »</span>
     <span>k8s问题排查手册</span>
   </a>
@@ -4569,7 +4482,7 @@ server（V3已将Tiller的删除，通过ApiServer与k8s交互）是托管运行
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
 
     
     
@@ -4621,6 +4534,69 @@ server（V3已将Tiller的删除，通过ApiServer与k8s交互）是托管运行
 
     headings.forEach((item) => observer.observe(item.heading));
     links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+<script>
+  (() => {
+    const images = Array.from(document.querySelectorAll('.post-content img'));
+    if (!images.length) return;
+
+    let scale = 1;
+    let activeImage = null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'kb-image-lightbox';
+    overlay.innerHTML = '<button class="kb-image-lightbox-close" type="button" aria-label="关闭图片预览">×</button><img alt="">';
+    document.body.appendChild(overlay);
+
+    const preview = overlay.querySelector('img');
+    const closeButton = overlay.querySelector('button');
+
+    function applyScale() {
+      preview.style.transform = `scale(${scale})`;
+    }
+
+    function closePreview() {
+      overlay.classList.remove('is-active');
+      document.body.classList.remove('kb-lightbox-open');
+      preview.removeAttribute('src');
+      preview.alt = '';
+      activeImage = null;
+      scale = 1;
+      applyScale();
+    }
+
+    function openPreview(image) {
+      activeImage = image;
+      scale = 1;
+      preview.src = image.currentSrc || image.src;
+      preview.alt = image.alt || '';
+      applyScale();
+      overlay.classList.add('is-active');
+      document.body.classList.add('kb-lightbox-open');
+    }
+
+    images.forEach((image) => {
+      image.addEventListener('click', () => openPreview(image));
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePreview();
+    });
+
+    closeButton.addEventListener('click', closePreview);
+
+    overlay.addEventListener('wheel', (event) => {
+      if (!activeImage) return;
+      event.preventDefault();
+      const direction = event.deltaY > 0 ? -1 : 1;
+      scale = Math.min(4, Math.max(0.5, scale + direction * 0.12));
+      applyScale();
+    }, { passive: false });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && activeImage) closePreview();
+    });
   })();
 </script>
 
@@ -4683,6 +4659,53 @@ server（V3已将Tiller的删除，通过ApiServer与k8s交互）是托管运行
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

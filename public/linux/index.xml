@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Linux on 探无止境</title>
-    <link>/linux/</link>
+    <link>http://127.0.0.1:1314/linux/</link>
     <description>Recent content in Linux on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/linux/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://127.0.0.1:1314/linux/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>ansible</title>
-      <link>/linux/ansible/</link>
+      <link>http://127.0.0.1:1314/linux/ansible/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/linux/ansible/</guid>
+      <guid>http://127.0.0.1:1314/linux/ansible/</guid>
       <description>&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;管理机器：
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好
@@ -94,9 +94,9 @@
     </item>
     <item>
       <title>rsync</title>
-      <link>/linux/rsync/</link>
+      <link>http://127.0.0.1:1314/linux/rsync/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/linux/rsync/</guid>
+      <guid>http://127.0.0.1:1314/linux/rsync/</guid>
       <description>&lt;h1 id=&#34;安装使用&#34;&gt;安装使用&lt;/h1&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum -y install rsync
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;两种传输方式：&lt;/p&gt;
@@ -131,9 +131,9 @@
     </item>
     <item>
       <title>supervisor</title>
-      <link>/linux/supervisor/</link>
+      <link>http://127.0.0.1:1314/linux/supervisor/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/linux/supervisor/</guid>
+      <guid>http://127.0.0.1:1314/linux/supervisor/</guid>
       <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
 &lt;p&gt;Supervisor (&lt;a href=&#34;https://link.jianshu.com/?t=http://supervisord.org/&#34;&gt;http://supervisord.org&lt;/a&gt;) 是一个用 [Python] 写的进程管理工具，可以很方便的用来启动、重启、关闭进程(不仅仅是 Python 进程)。除了对单个进程的控制，还可以同时启动、关闭多个进程，比如很不幸的服务器出问题导致所有应用程序都被杀死，此时可以用 supervisor 同时启动所有应用程序而不是一个一个地敲命令启动&lt;/p&gt;
 &lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
@@ -172,9 +172,9 @@
     </item>
     <item>
       <title>基操</title>
-      <link>/linux/%E5%9F%BA%E6%93%8D/</link>
+      <link>http://127.0.0.1:1314/linux/%E5%9F%BA%E6%93%8D/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/linux/%E5%9F%BA%E6%93%8D/</guid>
+      <guid>http://127.0.0.1:1314/linux/%E5%9F%BA%E6%93%8D/</guid>
       <description>&lt;h1 id=&#34;配置主机间免密ssh&#34;&gt;配置主机间免密ssh&lt;/h1&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 主机安装：openssh-server&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum -y install openssh-server
