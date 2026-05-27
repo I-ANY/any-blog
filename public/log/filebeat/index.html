@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>filebeat | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="介绍
+官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html
+​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。
+特点
+（1）轻量型日志采集器，占用资源更少，对机器配置要求极低。
+（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。
+（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\data\registry文件来记录日志的偏移量）。
+（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。
+（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。
+Filebeat与Logstash对比
+（1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。
+（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。
+（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。
+工作机制
+filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive
+关闭harvester可以会产生的结果：
+
+文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。
+只有在scan_frequency结束之后，才会再次启动文件的收集。
+如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续
+
+　　一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件
+模块
+input
+Filebeat 从 7.x 版本开始引入了新的配置方式 filebeat.inputs，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 filebeat.inputs 和 filebeat.prospectors 之间的主要区别：
+log（常用）：用于监视和收集文本日志文件，例如应用程序日志。
+- type: log
+  paths:
+    - /var/log/*.log
+stdin：用于从标准输入（stdin）收集数据。
+- type: stdin
+syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。
+- type: syslog
+  port: 514
+  protocol.udp: true
+filestream：用于收集 Windows 上的文件日志数据。
+- type: filestream
+  enabled: true
+httpjson：用于通过 HTTP 请求从 JSON API 收集数据。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/log/filebeat/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/log/filebeat/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/log/filebeat/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="filebeat">
+  <meta property="og:description" content="介绍 官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html
+​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。
+特点 （1）轻量型日志采集器，占用资源更少，对机器配置要求极低。
+（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。
+（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\data\registry文件来记录日志的偏移量）。
+（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。
+（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。
+Filebeat与Logstash对比 （1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。
+（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。
+（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。
+工作机制 filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive
+关闭harvester可以会产生的结果：
+文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。 只有在scan_frequency结束之后，才会再次启动文件的收集。 如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续 一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件
+模块 input Filebeat 从 7.x 版本开始引入了新的配置方式 filebeat.inputs，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 filebeat.inputs 和 filebeat.prospectors 之间的主要区别：
+log（常用）：用于监视和收集文本日志文件，例如应用程序日志。
+- type: log paths: - /var/log/*.log stdin：用于从标准输入（stdin）收集数据。
+- type: stdin syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。
+- type: syslog port: 514 protocol.udp: true filestream：用于收集 Windows 上的文件日志数据。
+- type: filestream enabled: true httpjson：用于通过 HTTP 请求从 JSON API 收集数据。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="log">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="filebeat">
+  <meta name="twitter:description" content="介绍 官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html
+​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。
+特点 （1）轻量型日志采集器，占用资源更少，对机器配置要求极低。
+（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。
+（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\data\registry文件来记录日志的偏移量）。
+（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。
+（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。
+Filebeat与Logstash对比 （1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。
+（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。
+（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。
+工作机制 filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive
+关闭harvester可以会产生的结果：
+文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。 只有在scan_frequency结束之后，才会再次启动文件的收集。 如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续 一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件
+模块 input Filebeat 从 7.x 版本开始引入了新的配置方式 filebeat.inputs，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 filebeat.inputs 和 filebeat.prospectors 之间的主要区别：
+log（常用）：用于监视和收集文本日志文件，例如应用程序日志。
+- type: log paths: - /var/log/*.log stdin：用于从标准输入（stdin）收集数据。
+- type: stdin syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。
+- type: syslog port: 514 protocol.udp: true filestream：用于收集 Windows 上的文件日志数据。
+- type: filestream enabled: true httpjson：用于通过 HTTP 请求从 JSON API 收集数据。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "日志系统",
+      "item": "/log/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "filebeat",
+      "item": "/log/filebeat/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "filebeat",
+  "name": "filebeat",
+  "description": "介绍 官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html\n​\tFilebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。\n特点 （1）轻量型日志采集器，占用资源更少，对机器配置要求极低。\n（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。\n（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\\data\\registry文件来记录日志的偏移量）。\n（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。\n（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。\nFilebeat与Logstash对比 （1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。\n（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。\n（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。\n工作机制 filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive\n关闭harvester可以会产生的结果：\n文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。 只有在scan_frequency结束之后，才会再次启动文件的收集。 如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续 一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件\n模块 input Filebeat 从 7.x 版本开始引入了新的配置方式 filebeat.inputs，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 filebeat.inputs 和 filebeat.prospectors 之间的主要区别：\nlog（常用）：用于监视和收集文本日志文件，例如应用程序日志。\n- type: log paths: - /var/log/*.log stdin：用于从标准输入（stdin）收集数据。\n- type: stdin syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。\n- type: syslog port: 514 protocol.udp: true filestream：用于收集 Windows 上的文件日志数据。\n- type: filestream enabled: true httpjson：用于通过 HTTP 请求从 JSON API 收集数据。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "介绍 官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html\n​\tFilebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。\n特点 （1）轻量型日志采集器，占用资源更少，对机器配置要求极低。\n（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。\n（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\\data\\registry文件来记录日志的偏移量）。\n（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。\n（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。\nFilebeat与Logstash对比 （1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。\n（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。\n（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。\n工作机制 filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive\n关闭harvester可以会产生的结果：\n文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。 只有在scan_frequency结束之后，才会再次启动文件的收集。 如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续 一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件\n模块 input Filebeat 从 7.x 版本开始引入了新的配置方式 filebeat.inputs，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 filebeat.inputs 和 filebeat.prospectors 之间的主要区别：\nlog（常用）：用于监视和收集文本日志文件，例如应用程序日志。\n- type: log paths: - /var/log/*.log stdin：用于从标准输入（stdin）收集数据。\n- type: stdin syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。\n- type: syslog port: 514 protocol.udp: true filestream：用于收集 Windows 上的文件日志数据。\n- type: filestream enabled: true httpjson：用于通过 HTTP 请求从 JSON API 收集数据。\n- type: httpjson enabled: true urls: - http://example.com/api/data tcp 和 udp：用于通过 TCP 或 UDP 协议收集网络数据。\n- type: tcp enabled: true host: \"localhost\" port: 12345 #################### - type: udp enabled: true host: \"localhost\" port: 12345 总的来说，filebeat.inputs 提供了更灵活的方式来配置不同类型的输入，更容易组织和管理配置。如果您使用的是较新版本的 Filebeat，推荐使用 filebeat.inputs 配置方式。但对于向后兼容性，旧版的 filebeat.prospectors 仍然可以使用。\nprocessors processors 是Filebeat配置中的一个部分，用于定义在事件传输到输出目标之前对事件数据进行预处理的操作。您可以使用 processors 来修改事件数据、添加字段、删除字段，以及执行其他自定义操作。以下是一些常见的 processors 配置示例和说明：\n添加字段（Add Fields）： 可以使用 add_fields 处理器将自定义字段添加到事件中，以丰富事件的信息。例如，将应用程序名称和环境添加到事件中：\nprocessors: - add_fields: target: \"project\" # 目标字段（添加到哪个key里面），如果为空，就写到顶层 fields: # key: value app: myapp env: production # 输出变成： { \"project\": { \"app\": \"myapp\", \"env\": \"production\" } } 删除字段（Drop Fields）： 使用 drop_fields 处理器可以删除事件中的指定字段。以下示例删除名为 “sensitive_data” 的字段：\nprocessors: - drop_fields: fields: [\"sensitive_data\"] 解码 JSON 字段（Decode JSON Fields）： 如果事件中包含JSON格式的字段，您可以使用 decode_json_fields 处理器将其解码为结构化数据。以下示例将名为 “json_data” 的字段解码为结构化数据：\nprocessors: - decode_json_fields: fields: [\"message\",\"resp\"] # 需要解码的字段 #max_depth: 2 # 解码深度,解码所有的嵌套层级，直到没有更多的嵌套为止 target: \"\" # 为空的话，将解码后的字段合并到顶层，而不是创建一个嵌套的字段，也可以指定字段 overwrite_keys: true # 是否覆盖原来的key add_error_key: true # 对字段进行属性更改 processors: - decode_json: fields: - field: \"message\" filters: - {target_field: \"timelocal\",type: \"string\",filter_keys: [\"timestamp\"]} - {target_field: \"response_time\",type: \"string\",filter_keys: [\"response_time\"]} 丢弃消息事件（drop_event）\n# 单个条件 processors: - drop_event: when.equals: # 使用when条件，丢弃包含有level: \"DEBUG\"新的消息或者日志 level: \"DEBUG\" # 多个条件 processors: - drop_event: when: or: # 使用 or 条件来检查多个条件，丢弃包含有level: \"DEBUG\"或者level: \"ERROR\"事件消息 - contains: level: \"DEBUG\" - contains: level: \"WARNING\" include_fields: 指定哪些属性 (字段) 不删除，其他的都会被删除 # 除了message属性，其他属性全部删除 processors: - include_fields: fields: [\"message\"] 字段重命名（Rename Fields）： 可以使用 rename 处理器重命名事件中的字段。例如，将 “old_field” 重命名为 “new_field”：\nprocessors: - rename: fields: - from: old_field to: new_field # 也可 # 将log下的file字段名称改为aaa processors: - rename: fields: - from: \"log.file\" - to: \"log.aaa\" 条件处理（Conditional Processing）： 使用 if 条件可以根据事件的特定字段或属性来选择是否应用某个处理器。以下示例根据事件中的 “log_level” 字段，仅在 “error” 日志级别时添加 “error” 标签：\n# 1、相等 when: equals: http.response.code: 200 # 2、包含 contains condition checks if a value is part of a field. # fields 可以是string 或 array ; value必须是sting when: contains: status: \"Specific error\" # 3、正则匹配 when: regexp: system.process.name: \"^foo.*\" # 4、范围匹配,支持：gt,gte,lt,lte，只支持integer or float 值 when: range: http.response.code: gte: 400 # 或者可以写为 http.response.code.gte: 400 # 在两个值范围内，可直接配置为： system.cpu.user.pct.gte: 0.5 system.cpu.user.pct.lt: 0.8 # 5. 与 when: and: - equals: http.response.code: 200 - equals: atus: OK # 6. 或 when: or: - equals: http.response.code: 304 - equals: http.response.code: 404 # 7. 非 when: not: equals: status: OK # 示例 processors: - add_tags: tags: [\"error\"] when: equals: log_level: \"error\" （dissect）将字段按照指定表达式来解析，将解析出来的内容添加到事件的属性中 tokenizer: 指定表达式\nfield: 表达式匹配哪个字段\ntarget_prefix: 添加到哪个属性下\n# 使用空格分割message字段的内容%{xxx}代表新的key的名称,需要自定义。将key1和key2添加到事件的属性中 # 例如日志格式为：[2023-12-15 15:10:57][WARRING][{\"tid\":\"nacos-grpc-client-executor-nacos-cluster-svc.ywtools.svc.cluster.local-14570\"}] processors: - dissect: field: \"message\" tokenizer: \"[%{time}][%{log_level}][%{service_name}]\" target_prefix: \"\" 时间处理（timestamp）\n- timestamp: field: timelocal target_field: timestamp timezone: \"Asia/Shanghai\" target_layout: \"UNIX_MS\" layouts: - '2006-01-02 15:04:05.999' 多个处理器（Multiple Processors）： 您可以配置多个处理器，它们将按照顺序依次应用于事件数据。例如，您可以先添加字段，然后删除字段，最后重命名字段。\noutput output.kafka output.kafka 是Filebeat配置文件中的一个部分，用于配置将事件数据发送到Kafka消息队列的相关设置。以下是 output.kafka 部分的常见参数及其解释：\noutput.kafka: hosts: [\"kafka-broker1:9092\", \"kafka-broker2:9092\"] topic: \"my-log-topic\" partition.round_robin: reachable_only: false required_acks: 1 compression: gzip max_message_bytes: 1000000 以下是各个参数的详细解释： hosts（必需）：Kafka broker 的地址和端口列表。在示例中，我们指定了两个Kafka broker：kafka-broker1:9092 和 kafka-broker2:9092。Filebeat将使用这些地址来连接到Kafka集群。 topic（必需）：要发送事件到的Kafka主题（topic）的名称。在示例中，主题名称为 “my-log-topic”。Filebeat将会将事件发送到这个主题。 partition.round_robin：事件分区策略的配置。这里的配置是将事件平均分布到所有分区，不仅仅是可达的分区。reachable_only 设置为 false，表示即使分区不可达也会发送数据。如果设置为 true，则只会发送到可达的分区。 required_acks：Kafka的确认机制。指定要等待的确认数，1 表示只需要得到一个分区的确认就认为消息已经成功发送。更高的值表示更多的确认。通常，1 是常见的设置，因为它具有较低的延迟。 compression：数据的压缩方式。在示例中，数据被gzip压缩。这有助于减小传输数据的大小，降低网络带宽的使用。 max_message_bytes：Kafka消息的最大字节数。如果事件的大小超过此限制，Filebeat会将事件拆分为多个消息。 配置文件 type: log #input类型为log enable: true #表示是该log类型配置生效 paths： #指定要监控的日志，目前按照Go语言的glob函数处理。没有对配置目录做递归处理，比如配置的如果是： - /var/log/* /*.log #则只会去/var/log目录的所有子目录中寻找以\".log\"结尾的文件，而不会寻找/var/log目录下以\".log\"结尾的文件。 recursive_glob.enabled: #启用全局递归模式，例如/foo/**包括/foo, /foo/*, /foo/*/* encoding： #指定被监控的文件的编码类型，使用plain和utf-8都是可以处理中文日志的 exclude_lines: ['^DBG'] #不包含匹配正则的行 include_lines: ['^ERR', '^WARN'] #包含匹配正则的行 harvester_buffer_size: 16384 #每个harvester在获取文件时使用的缓冲区的字节大小 max_bytes: 10485760 #单个日志消息可以拥有的最大字节数。max_bytes之后的所有字节都被丢弃而不发送。默认值为10MB (10485760) exclude_files: ['\\.gz$'] #用于匹配希望Filebeat忽略的文件的正则表达式列表 ingore_older: 0 #默认为0，表示禁用，可以配置2h，2m等，注意ignore_older必须大于close_inactive的值.表示忽略超过设置值未更新的文件或者文件从来没有被harvester收集 close_* #close_ *配置选项用于在特定标准或时间之后关闭harvester。 关闭harvester意味着关闭文件处理程序。 如果在harvester关闭后文件被更新，则在scan_frequency过后，文件将被重新拾取。 但是，如果在harvester关闭时移动或删除文件，Filebeat将无法再次接收文件，并且harvester未读取的任何数据都将丢失。 close_inactive #启动选项时，如果在制定时间没有被读取，将关闭文件句柄读取的最后一条日志定义为下一次读取的起始点，而不是基于文件的修改时间如果关闭的文件发生变化，一个新的harverster将在scan_frequency运行后被启动建议至少设置一个大于读取日志频率的值，配置多个prospector来实现针对不同更新速度的日志文件使用内部时间戳机制，来反映记录日志的读取，每次读取到最后一行日志时开始倒计时使用2h 5m 来表示 close_rename #当选项启动，如果文件被重命名和移动，filebeat关闭文件的处理读取 close_removed #当选项启动，文件被删除时，filebeat关闭文件的处理读取这个选项启动后，必须启动clean_removed close_eof #适合只写一次日志的文件，然后filebeat关闭文件的处理读取 close_timeout #当选项启动时，filebeat会给每个harvester设置预定义时间，不管这个文件是否被读取，达到设定时间后，将被关闭 close_timeout #不能等于ignore_older,会导致文件更新时，不会被读取如果output一直没有输出日志事件，这个timeout是不会被启动的，至少要要有一个事件发送，然后haverter将被关闭设置0 表示不启动 clean_inactived #从注册表文件中删除先前收获的文件的状态设置必须大于ignore_older+scan_frequency，以确保在文件仍在收集时没有删除任何状态配置选项有助于减小注册表文件的大小，特别是如果每天都生成大量的新文件此配置选项也可用于防止在Linux上重用inode的Filebeat问题 clean_removed #启动选项后，如果文件在磁盘上找不到，将从注册表中清除filebeat如果关闭close removed 必须关闭clean removed scan_frequency #prospector检查指定用于收获的路径中的新文件的频率,默认10s tail_files： #如果设置为true，Filebeat从文件尾开始监控文件新增内容，把新增的每一行文件作为一个事件依次发送，而不是从文件开始处重新发送所有内容。 symlinks： #符号链接选项允许Filebeat除常规文件外,可以收集符号链接。收集符号链接时，即使报告了符号链接的路径，Filebeat也会打开并读取原始文件。 backoff： #backoff选项指定Filebeat如何积极地抓取新文件进行更新。默认1s，backoff选项定义Filebeat在达到EOF之后再次检查文件之间等待的时间。 max_backoff： #在达到EOF之后再次检查文件之前Filebeat等待的最长时间 backoff_factor： #指定backoff尝试等待时间几次，默认是2 harvester_limit： #harvester_limit选项限制一个prospector并行启动的harvester数量，直接影响文件打开数 tags #列表中添加标签，用过过滤，例如：tags: [\"json\"] fields #可选字段，选择额外的字段进行输出可以是标量值，元组，字典等嵌套类型默认在sub-dictionary位置 filebeat.inputs: fields: app_id: query_engine_12 fields_under_root #如果值为ture，那么fields存储在输出文档的顶级位置 multiline.pattern #必须匹配的regexp模式 multiline.negate #定义上面的模式匹配条件的动作是 否定的，默认是false假如模式匹配条件'^b'，默认是false模式，表示讲按照模式匹配进行匹配 将不是以b开头的日志行进行合并如果是true，表示将不以b开头的日志行进行合并 multiline.match # 指定Filebeat如何将匹配行组合成事件,在之前或者之后，取决于上面所指定的negate multiline.max_lines #可以组合成一个事件的最大行数，超过将丢弃，默认500 multiline.timeout #定义超时时间，如果开始一个新的事件在超时时间内没有发现匹配，也将发送日志，默认是5smax_procs #设置可以同时执行的最大CPU数。默认值为系统中可用的逻辑CPU的数量。name #为该filebeat指定名字，默认为主机的hostname 启动 # 进行配置文件语法检查 filebeat test config -c /path/to/your/filebeat.yml -e # 前台启动 filebeat config -c /path/to/your/filebeat.yml # 启动并且查看启动日志，-e 将启动信息输出到屏幕上 filebeat test config -c /path/to/your/filebeat.yml -e # 后台启动， # filebeat本身运行的日志默认位置${install_path}/logs/filebeat nohup ./filebeat -e -c filebeat.yml \u003e/dev/null 2\u003e\u00261 \u0026 实例 实例1：input：kafka / ouput：kafka 连接采用kerberos认证的kafka集群\nfilebeat.inputs: - type: kafka hosts: - 10.14.1.162:9092 - 10.14.3.156:9092 - 10.14.0.151:9092 topics: [\"topic-zpa-test\"] group_id: \"filebeat\" processors: # 将message中的json数据直接打散 - decode_json_fields: fields: [\"message\"] target: \"\" overwrite_keys: true add_error_key: true output.kafka: version: \"1.1.0\" enabled: true hosts: [\"10.200.37.182:21007\",\"10.200.37.69:21007\",\"10.200.37.72:21007\"] topic: 'webservice' # fail_to_topic: '%{[@logErrTopic]}' worker: 1 bulk_max_size: 16000 compression: none # 采用kerberos认证 kerberos: enabled: true auth_type: keytab service_name: kafka username: kafka_poisson keytab: /opt/kafka_2.12-3.3.1/cert/user.keytab config_path: /opt/kafka_2.12-3.3.1/cert/krb5.conf realm: AIOPS_APAAS_MRS_STREAM_302.COM domain: hadoop.aiops_apaas_mrs_stream_302.com logging.to_files: true logging.to_syslog: false logging.level: info logging.files: path: /opt/filebeat-huawei/log/ name: filebeat.log max_procs: 1 path.data: /opt/filebeat-huawei/data/ queue.mem.events: 64000 queue.mem.flush.min_events: 32000 ",
+  "wordCount" : "724",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/log/filebeat/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/log/">日志系统</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      filebeat
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e4%bb%8b%e7%bb%8d" aria-label="介绍">介绍</a><ul>
+                    
+            <li>
+                <a href="#%e7%89%b9%e7%82%b9" aria-label="特点">特点</a></li>
+            <li>
+                <a href="#filebeat%e4%b8%8elogstash%e5%af%b9%e6%af%94" aria-label="Filebeat与Logstash对比">Filebeat与Logstash对比</a></li>
+            <li>
+                <a href="#%e5%b7%a5%e4%bd%9c%e6%9c%ba%e5%88%b6" aria-label="工作机制">工作机制</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e6%a8%a1%e5%9d%97" aria-label="模块">模块</a><ul>
+                    
+            <li>
+                <a href="#input" aria-label="input">input</a></li>
+            <li>
+                <a href="#processors" aria-label="processors">processors</a><ul>
+                    <ul>
+                    
+            <li>
+                <a href="#include_fields-%e6%8c%87%e5%ae%9a%e5%93%aa%e4%ba%9b%e5%b1%9e%e6%80%a7-%e5%ad%97%e6%ae%b5-%e4%b8%8d%e5%88%a0%e9%99%a4%e5%85%b6%e4%bb%96%e7%9a%84%e9%83%bd%e4%bc%9a%e8%a2%ab%e5%88%a0%e9%99%a4" aria-label="include_fields: 指定哪些属性 (字段) 不删除，其他的都会被删除">include_fields: 指定哪些属性 (字段) 不删除，其他的都会被删除</a></li>
+            <li>
+                <a href="#dissect%e5%b0%86%e5%ad%97%e6%ae%b5%e6%8c%89%e7%85%a7%e6%8c%87%e5%ae%9a%e8%a1%a8%e8%be%be%e5%bc%8f%e6%9d%a5%e8%a7%a3%e6%9e%90%e5%b0%86%e8%a7%a3%e6%9e%90%e5%87%ba%e6%9d%a5%e7%9a%84%e5%86%85%e5%ae%b9%e6%b7%bb%e5%8a%a0%e5%88%b0%e4%ba%8b%e4%bb%b6%e7%9a%84%e5%b1%9e%e6%80%a7%e4%b8%ad" aria-label="（dissect）将字段按照指定表达式来解析，将解析出来的内容添加到事件的属性中">（dissect）将字段按照指定表达式来解析，将解析出来的内容添加到事件的属性中</a></li></ul>
+                </ul>
+            </li>
+            <li>
+                <a href="#output" aria-label="output">output</a><ul>
+                    
+            <li>
+                <a href="#outputkafka" aria-label="output.kafka">output.kafka</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6" aria-label="配置文件">配置文件</a></li>
+            <li>
+                <a href="#%e5%90%af%e5%8a%a8" aria-label="启动">启动</a></li>
+            <li>
+                <a href="#%e5%ae%9e%e4%be%8b" aria-label="实例">实例</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%9e%e4%be%8b1inputkafka--ouputkafka" aria-label="实例1：input：kafka / ouput：kafka">实例1：input：kafka / ouput：kafka</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="介绍">介绍<a hidden class="anchor" aria-hidden="true" href="#介绍">#</a></h1>
+<p>官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html</p>
+<p>​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。</p>
+<h2 id="特点">特点<a hidden class="anchor" aria-hidden="true" href="#特点">#</a></h2>
+<p>（1）轻量型日志采集器，占用资源更少，对机器配置要求极低。</p>
+<p>（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。</p>
+<p>（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\data\registry文件来记录日志的偏移量）。</p>
+<p>（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。</p>
+<p>（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。</p>
+<h2 id="filebeat与logstash对比">Filebeat与Logstash对比<a hidden class="anchor" aria-hidden="true" href="#filebeat与logstash对比">#</a></h2>
+<p>（1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。</p>
+<p>（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。</p>
+<p>（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。</p>
+<h2 id="工作机制">工作机制<a hidden class="anchor" aria-hidden="true" href="#工作机制">#</a></h2>
+<p>filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive</p>
+<p>关闭harvester可以会产生的结果：</p>
+<ul>
+<li>文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。</li>
+<li>只有在scan_frequency结束之后，才会再次启动文件的收集。</li>
+<li>如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续</li>
+</ul>
+<p>　　一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件</p>
+<h1 id="模块">模块<a hidden class="anchor" aria-hidden="true" href="#模块">#</a></h1>
+<h2 id="input">input<a hidden class="anchor" aria-hidden="true" href="#input">#</a></h2>
+<p><code>Filebeat 从 7.x</code> 版本开始引入了新的配置方式 <code>filebeat.inputs</code>，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 <code>filebeat.inputs</code> 和 <code>filebeat.prospectors</code> 之间的主要区别：</p>
+<p>log（常用）：用于监视和收集文本日志文件，例如应用程序日志。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">log</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">paths</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">/var/log/*.log</span>
+</span></span></code></pre></div><p>stdin：用于从标准输入（stdin）收集数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">stdin</span>
+</span></span></code></pre></div><p>syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">syslog</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">port</span>: <span style="color:#ae81ff">514</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">protocol.udp</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><p>filestream：用于收集 Windows 上的文件日志数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">filestream</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><p>httpjson：用于通过 HTTP 请求从 JSON API 收集数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">httpjson</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">urls</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">http://example.com/api/data</span>
+</span></span></code></pre></div><p>tcp 和 udp：用于通过 TCP 或 UDP 协议收集网络数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">tcp</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#e6db74">&#34;localhost&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">port</span>: <span style="color:#ae81ff">12345</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">####################</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">udp</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#e6db74">&#34;localhost&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">port</span>: <span style="color:#ae81ff">12345</span>
+</span></span></code></pre></div><p>总的来说，filebeat.inputs 提供了更灵活的方式来配置不同类型的输入，更容易组织和管理配置。如果您使用的是较新版本的 Filebeat，推荐使用 filebeat.inputs 配置方式。但对于向后兼容性，旧版的 filebeat.prospectors 仍然可以使用。</p>
+<h2 id="processors">processors<a hidden class="anchor" aria-hidden="true" href="#processors">#</a></h2>
+<p><code>processors</code> 是Filebeat配置中的一个部分，用于定义在事件传输到输出目标之前对事件数据进行<strong>预处理的操作</strong>。您可以使用 <code>processors</code> 来修改事件数据、添加字段、删除字段，以及执行其他自定义操作。以下是一些常见的 <code>processors</code> 配置示例和说明：</p>
+<ul>
+<li>
+<p><strong>添加字段（Add Fields）</strong>：
+可以使用 add_fields 处理器将自定义字段添加到事件中，以丰富事件的信息。例如，将应用程序名称和环境添加到事件中：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">add_fields</span>:
+</span></span><span style="display:flex;"><span>  		<span style="color:#f92672">target</span>: <span style="color:#e6db74">&#34;project&#34;</span>   <span style="color:#75715e"># 目标字段（添加到哪个key里面），如果为空，就写到顶层</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>:
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e"># key: value</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">myapp</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">env</span>: <span style="color:#ae81ff">production</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 输出变成：</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;project&#34;: </span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;app&#34;: </span><span style="color:#e6db74">&#34;myapp&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;env&#34;: </span><span style="color:#e6db74">&#34;production&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+<li>
+<p><strong>删除字段（Drop Fields）</strong>：
+使用 drop_fields 处理器可以删除事件中的指定字段。以下示例删除名为 “sensitive_data” 的字段：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">drop_fields</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>: [<span style="color:#e6db74">&#34;sensitive_data&#34;</span>]
+</span></span></code></pre></div></li>
+<li>
+<p><strong>解码 JSON 字段（Decode JSON Fields）</strong>：
+如果事件中包含JSON格式的字段，您可以使用 decode_json_fields 处理器将其解码为结构化数据。以下示例将名为 “json_data” 的字段解码为结构化数据：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">decode_json_fields</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>: [<span style="color:#e6db74">&#34;message&#34;</span>,<span style="color:#e6db74">&#34;resp&#34;</span>]    <span style="color:#75715e"># 需要解码的字段</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">#max_depth: 2  # 解码深度,解码所有的嵌套层级，直到没有更多的嵌套为止</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target</span>: <span style="color:#e6db74">&#34;&#34;</span>   <span style="color:#75715e"># 为空的话，将解码后的字段合并到顶层，而不是创建一个嵌套的字段，也可以指定字段</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">overwrite_keys</span>: <span style="color:#66d9ef">true</span>    <span style="color:#75715e"># 是否覆盖原来的key</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">add_error_key</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 对字段进行属性更改</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">decode_json</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">fields</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">field</span>: <span style="color:#e6db74">&#34;message&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">filters</span>:
+</span></span><span style="display:flex;"><span>            - {<span style="color:#f92672">target_field</span>: <span style="color:#e6db74">&#34;timelocal&#34;</span><span style="color:#f92672">,type</span>: <span style="color:#e6db74">&#34;string&#34;</span><span style="color:#f92672">,filter_keys</span>: [<span style="color:#e6db74">&#34;timestamp&#34;</span>]}
+</span></span><span style="display:flex;"><span>            - {<span style="color:#f92672">target_field</span>: <span style="color:#e6db74">&#34;response_time&#34;</span><span style="color:#f92672">,type</span>: <span style="color:#e6db74">&#34;string&#34;</span><span style="color:#f92672">,filter_keys</span>: [<span style="color:#e6db74">&#34;response_time&#34;</span>]}
+</span></span></code></pre></div></li>
+<li>
+<p><strong>丢弃消息事件（drop_event）</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#75715e"># 单个条件</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">drop_event</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">when.equals:  # 使用when条件，丢弃包含有level</span>: <span style="color:#e6db74">&#34;DEBUG&#34;</span><span style="color:#ae81ff">新的消息或者日志</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">level</span>: <span style="color:#e6db74">&#34;DEBUG&#34;</span>    
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 多个条件</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">drop_event</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">or:           # 使用 or 条件来检查多个条件，丢弃包含有level</span>: <span style="color:#e6db74">&#34;DEBUG&#34;</span><span style="color:#f92672">或者level</span>: <span style="color:#e6db74">&#34;ERROR&#34;</span><span style="color:#ae81ff">事件消息</span>
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">contains</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">level</span>: <span style="color:#e6db74">&#34;DEBUG&#34;</span>    
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">contains</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">level</span>: <span style="color:#e6db74">&#34;WARNING&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<h4 id="include_fields-指定哪些属性-字段-不删除其他的都会被删除">include_fields: 指定哪些属性 (字段) 不删除，其他的都会被删除<a hidden class="anchor" aria-hidden="true" href="#include_fields-指定哪些属性-字段-不删除其他的都会被删除">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#75715e"># 除了message属性，其他属性全部删除</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">include_fields</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>: [<span style="color:#e6db74">&#34;message&#34;</span>]
+</span></span></code></pre></div></li>
+<li>
+<p><strong>字段重命名（Rename Fields）</strong>：
+可以使用 rename 处理器重命名事件中的字段。例如，将 “old_field” 重命名为 “new_field”：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">rename</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">from</span>: <span style="color:#ae81ff">old_field</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">to</span>: <span style="color:#ae81ff">new_field</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 也可</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 将log下的file字段名称改为aaa</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">rename</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">from</span>: <span style="color:#e6db74">&#34;log.file&#34;</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">to</span>: <span style="color:#e6db74">&#34;log.aaa&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>条件处理（Conditional Processing）</strong>：
+使用 if 条件可以根据事件的特定字段或属性来选择是否应用某个处理器。以下示例根据事件中的 “log_level” 字段，仅在 “error” 日志级别时添加 “error” 标签：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#75715e"># 1、相等</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">http.response.code</span>: <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2、包含 contains condition checks if a value is part of a field.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># fields 可以是string 或 array ; value必须是sting</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">contains</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">status</span>: <span style="color:#e6db74">&#34;Specific error&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 3、正则匹配</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">regexp</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">system.process.name</span>: <span style="color:#e6db74">&#34;^foo.*&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 4、范围匹配,支持：gt,gte,lt,lte，只支持integer or float 值</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">range</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">http.response.code</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">gte</span>: <span style="color:#ae81ff">400</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 或者可以写为</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">http.response.code.gte</span>: <span style="color:#ae81ff">400</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 在两个值范围内，可直接配置为：</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">system.cpu.user.pct.gte</span>: <span style="color:#ae81ff">0.5</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">system.cpu.user.pct.lt</span>: <span style="color:#ae81ff">0.8</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 5. 与</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">and</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http.response.code</span>: <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">atus</span>: <span style="color:#ae81ff">OK</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 6. 或</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>: 
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">or</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http.response.code</span>: <span style="color:#ae81ff">304</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http.response.code</span>: <span style="color:#ae81ff">404</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 7. 非</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">not</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>    	<span style="color:#f92672">status</span>: <span style="color:#ae81ff">OK</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 示例</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">add_tags</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">tags</span>: [<span style="color:#e6db74">&#34;error&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">when</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">equals</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">log_level</span>: <span style="color:#e6db74">&#34;error&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<h4 id="dissect将字段按照指定表达式来解析将解析出来的内容添加到事件的属性中">（dissect）将字段按照指定表达式来解析，将解析出来的内容添加到事件的属性中<a hidden class="anchor" aria-hidden="true" href="#dissect将字段按照指定表达式来解析将解析出来的内容添加到事件的属性中">#</a></h4>
+<ul>
+<li>
+<p>tokenizer: 指定表达式</p>
+</li>
+<li>
+<p>field: 表达式匹配哪个字段</p>
+</li>
+<li>
+<p>target_prefix: 添加到哪个属性下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#75715e"># 使用空格分割message字段的内容%{xxx}代表新的key的名称,需要自定义。将key1和key2添加到事件的属性中</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 例如日志格式为：[2023-12-15 15:10:57][WARRING][{&#34;tid&#34;:&#34;nacos-grpc-client-executor-nacos-cluster-svc.ywtools.svc.cluster.local-14570&#34;}]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">dissect</span>:
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">field</span>: <span style="color:#e6db74">&#34;message&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">tokenizer</span>: <span style="color:#e6db74">&#34;[%{time}][%{log_level}][%{service_name}]&#34;</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">target_prefix</span>: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p><strong>时间处理（timestamp）</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span>- <span style="color:#f92672">timestamp</span>:
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">field</span>: <span style="color:#ae81ff">timelocal</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">target_field</span>: <span style="color:#ae81ff">timestamp</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">timezone</span>: <span style="color:#e6db74">&#34;Asia/Shanghai&#34;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">target_layout</span>: <span style="color:#e6db74">&#34;UNIX_MS&#34;</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#f92672">layouts</span>:
+</span></span><span style="display:flex;"><span>     - <span style="color:#e6db74">&#39;2006-01-02 15:04:05.999&#39;</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>多个处理器（Multiple Processors）</strong>：
+您可以配置多个处理器，它们将按照顺序依次应用于事件数据。例如，您可以先添加字段，然后删除字段，最后重命名字段。</p>
+</li>
+</ul>
+<h2 id="output">output<a hidden class="anchor" aria-hidden="true" href="#output">#</a></h2>
+<h3 id="outputkafka">output.kafka<a hidden class="anchor" aria-hidden="true" href="#outputkafka">#</a></h3>
+<p><code>output.kafka</code> 是Filebeat配置文件中的一个部分，用于配置将事件数据发送到Kafka消息队列的相关设置。以下是 <code>output.kafka</code> 部分的常见参数及其解释：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">output.kafka</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>: [<span style="color:#e6db74">&#34;kafka-broker1:9092&#34;</span>, <span style="color:#e6db74">&#34;kafka-broker2:9092&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">topic</span>: <span style="color:#e6db74">&#34;my-log-topic&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">partition.round_robin</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">reachable_only</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">required_acks</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">compression</span>: <span style="color:#ae81ff">gzip</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">max_message_bytes</span>: <span style="color:#ae81ff">1000000</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">以下是各个参数的详细解释：</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">hosts（必需）：Kafka broker 的地址和端口列表。在示例中，我们指定了两个Kafka broker：kafka-broker1:9092 和 kafka-broker2:9092。Filebeat将使用这些地址来连接到Kafka集群。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">topic（必需）：要发送事件到的Kafka主题（topic）的名称。在示例中，主题名称为 “my-log-topic”。Filebeat将会将事件发送到这个主题。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">partition.round_robin：事件分区策略的配置。这里的配置是将事件平均分布到所有分区，不仅仅是可达的分区。reachable_only 设置为 false，表示即使分区不可达也会发送数据。如果设置为 true，则只会发送到可达的分区。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">required_acks：Kafka的确认机制。指定要等待的确认数，1 表示只需要得到一个分区的确认就认为消息已经成功发送。更高的值表示更多的确认。通常，1 是常见的设置，因为它具有较低的延迟。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">compression：数据的压缩方式。在示例中，数据被gzip压缩。这有助于减小传输数据的大小，降低网络带宽的使用。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">max_message_bytes：Kafka消息的最大字节数。如果事件的大小超过此限制，Filebeat会将事件拆分为多个消息。</span>
+</span></span></code></pre></div><h1 id="配置文件">配置文件<a hidden class="anchor" aria-hidden="true" href="#配置文件">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">type</span>: <span style="color:#ae81ff">log</span> <span style="color:#75715e">#input类型为log</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">enable</span>: <span style="color:#66d9ef">true</span> <span style="color:#75715e">#表示是该log类型配置生效</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">paths：    </span> <span style="color:#75715e">#指定要监控的日志，目前按照Go语言的glob函数处理。没有对配置目录做递归处理，比如配置的如果是：</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#ae81ff">/var/log/* /*.log </span> <span style="color:#75715e">#则只会去/var/log目录的所有子目录中寻找以&#34;.log&#34;结尾的文件，而不会寻找/var/log目录下以&#34;.log&#34;结尾的文件。</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">recursive_glob.enabled</span>: <span style="color:#75715e">#启用全局递归模式，例如/foo/**包括/foo, /foo/*, /foo/*/*</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">encoding：</span> <span style="color:#75715e">#指定被监控的文件的编码类型，使用plain和utf-8都是可以处理中文日志的</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">exclude_lines</span>: [<span style="color:#e6db74">&#39;^DBG&#39;</span>] <span style="color:#75715e">#不包含匹配正则的行</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">include_lines</span>: [<span style="color:#e6db74">&#39;^ERR&#39;</span>, <span style="color:#e6db74">&#39;^WARN&#39;</span>]  <span style="color:#75715e">#包含匹配正则的行</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">harvester_buffer_size</span>: <span style="color:#ae81ff">16384</span> <span style="color:#75715e">#每个harvester在获取文件时使用的缓冲区的字节大小</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">max_bytes</span>: <span style="color:#ae81ff">10485760</span> <span style="color:#75715e">#单个日志消息可以拥有的最大字节数。max_bytes之后的所有字节都被丢弃而不发送。默认值为10MB (10485760)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">exclude_files</span>: [<span style="color:#e6db74">&#39;\.gz$&#39;</span>]  <span style="color:#75715e">#用于匹配希望Filebeat忽略的文件的正则表达式列表</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">ingore_older</span>: <span style="color:#ae81ff">0</span>  <span style="color:#75715e">#默认为0，表示禁用，可以配置2h，2m等，注意ignore_older必须大于close_inactive的值.表示忽略超过设置值未更新的文件或者文件从来没有被harvester收集</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_* </span> <span style="color:#75715e">#close_ *配置选项用于在特定标准或时间之后关闭harvester。 关闭harvester意味着关闭文件处理程序。 如果在harvester关闭后文件被更新，则在scan_frequency过后，文件将被重新拾取。 但是，如果在harvester关闭时移动或删除文件，Filebeat将无法再次接收文件，并且harvester未读取的任何数据都将丢失。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_inactive </span> <span style="color:#75715e">#启动选项时，如果在制定时间没有被读取，将关闭文件句柄读取的最后一条日志定义为下一次读取的起始点，而不是基于文件的修改时间如果关闭的文件发生变化，一个新的harverster将在scan_frequency运行后被启动建议至少设置一个大于读取日志频率的值，配置多个prospector来实现针对不同更新速度的日志文件使用内部时间戳机制，来反映记录日志的读取，每次读取到最后一行日志时开始倒计时使用2h 5m 来表示</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_rename</span> <span style="color:#75715e">#当选项启动，如果文件被重命名和移动，filebeat关闭文件的处理读取</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_removed</span> <span style="color:#75715e">#当选项启动，文件被删除时，filebeat关闭文件的处理读取这个选项启动后，必须启动clean_removed</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_eof</span> <span style="color:#75715e">#适合只写一次日志的文件，然后filebeat关闭文件的处理读取</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_timeout</span> <span style="color:#75715e">#当选项启动时，filebeat会给每个harvester设置预定义时间，不管这个文件是否被读取，达到设定时间后，将被关闭</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">close_timeout</span> <span style="color:#75715e">#不能等于ignore_older,会导致文件更新时，不会被读取如果output一直没有输出日志事件，这个timeout是不会被启动的，至少要要有一个事件发送，然后haverter将被关闭设置0 表示不启动</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">clean_inactived</span> <span style="color:#75715e">#从注册表文件中删除先前收获的文件的状态设置必须大于ignore_older+scan_frequency，以确保在文件仍在收集时没有删除任何状态配置选项有助于减小注册表文件的大小，特别是如果每天都生成大量的新文件此配置选项也可用于防止在Linux上重用inode的Filebeat问题</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">clean_removed</span> <span style="color:#75715e">#启动选项后，如果文件在磁盘上找不到，将从注册表中清除filebeat如果关闭close removed 必须关闭clean removed</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">scan_frequency</span> <span style="color:#75715e">#prospector检查指定用于收获的路径中的新文件的频率,默认10s</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">tail_files：</span> <span style="color:#75715e">#如果设置为true，Filebeat从文件尾开始监控文件新增内容，把新增的每一行文件作为一个事件依次发送，而不是从文件开始处重新发送所有内容。</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">symlinks：</span> <span style="color:#75715e">#符号链接选项允许Filebeat除常规文件外,可以收集符号链接。收集符号链接时，即使报告了符号链接的路径，Filebeat也会打开并读取原始文件。</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">backoff：</span> <span style="color:#75715e">#backoff选项指定Filebeat如何积极地抓取新文件进行更新。默认1s，backoff选项定义Filebeat在达到EOF之后再次检查文件之间等待的时间。</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">max_backoff：</span> <span style="color:#75715e">#在达到EOF之后再次检查文件之前Filebeat等待的最长时间</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">backoff_factor：</span> <span style="color:#75715e">#指定backoff尝试等待时间几次，默认是2</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">harvester_limit：</span> <span style="color:#75715e">#harvester_limit选项限制一个prospector并行启动的harvester数量，直接影响文件打开数</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tags #列表中添加标签，用过过滤，例如：tags</span>: [<span style="color:#e6db74">&#34;json&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">fields</span> <span style="color:#75715e">#可选字段，选择额外的字段进行输出可以是标量值，元组，字典等嵌套类型默认在sub-dictionary位置</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">filebeat.inputs</span>:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">fields</span>:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">app_id</span>: <span style="color:#ae81ff">query_engine_12</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">fields_under_root</span> <span style="color:#75715e">#如果值为ture，那么fields存储在输出文档的顶级位置</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">multiline.pattern</span> <span style="color:#75715e">#必须匹配的regexp模式</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">multiline.negate</span> <span style="color:#75715e">#定义上面的模式匹配条件的动作是 否定的，默认是false假如模式匹配条件&#39;^b&#39;，默认是false模式，表示讲按照模式匹配进行匹配 将不是以b开头的日志行进行合并如果是true，表示将不以b开头的日志行进行合并</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">multiline.match</span> <span style="color:#75715e"># 指定Filebeat如何将匹配行组合成事件,在之前或者之后，取决于上面所指定的negate</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">multiline.max_lines</span> <span style="color:#75715e">#可以组合成一个事件的最大行数，超过将丢弃，默认500</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">multiline.timeout #定义超时时间，如果开始一个新的事件在超时时间内没有发现匹配，也将发送日志，默认是5smax_procs #设置可以同时执行的最大CPU数。默认值为系统中可用的逻辑CPU的数量。name</span> <span style="color:#75715e">#为该filebeat指定名字，默认为主机的hostname</span>
+</span></span></code></pre></div><h1 id="启动">启动<a hidden class="anchor" aria-hidden="true" href="#启动">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 进行配置文件语法检查</span>
+</span></span><span style="display:flex;"><span>filebeat test config -c /path/to/your/filebeat.yml -e
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 前台启动</span>
+</span></span><span style="display:flex;"><span>filebeat config -c /path/to/your/filebeat.yml
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动并且查看启动日志，-e 将启动信息输出到屏幕上</span>
+</span></span><span style="display:flex;"><span>filebeat test config -c /path/to/your/filebeat.yml -e
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 后台启动，</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># filebeat本身运行的日志默认位置${install_path}/logs/filebeat</span>
+</span></span><span style="display:flex;"><span>nohup ./filebeat -e -c filebeat.yml &gt;/dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span> &amp;
+</span></span></code></pre></div><h1 id="实例">实例<a hidden class="anchor" aria-hidden="true" href="#实例">#</a></h1>
+<h2 id="实例1inputkafka--ouputkafka">实例1：input：kafka / ouput：kafka<a hidden class="anchor" aria-hidden="true" href="#实例1inputkafka--ouputkafka">#</a></h2>
+<p>连接采用kerberos认证的kafka集群</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">filebeat.inputs</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">type</span>: <span style="color:#ae81ff">kafka</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">10.14.1.162</span>:<span style="color:#ae81ff">9092</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">10.14.3.156</span>:<span style="color:#ae81ff">9092</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">10.14.0.151</span>:<span style="color:#ae81ff">9092</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">topics</span>: [<span style="color:#e6db74">&#34;topic-zpa-test&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">group_id</span>: <span style="color:#e6db74">&#34;filebeat&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">processors</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 将message中的json数据直接打散</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">decode_json_fields</span>: 
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">fields</span>: [<span style="color:#e6db74">&#34;message&#34;</span>]
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target</span>: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">overwrite_keys</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">add_error_key</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">output.kafka</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;1.1.0&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>: [<span style="color:#e6db74">&#34;10.200.37.182:21007&#34;</span>,<span style="color:#e6db74">&#34;10.200.37.69:21007&#34;</span>,<span style="color:#e6db74">&#34;10.200.37.72:21007&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">topic</span>: <span style="color:#e6db74">&#39;webservice&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># fail_to_topic: &#39;%{[@logErrTopic]}&#39;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">worker</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">bulk_max_size</span>: <span style="color:#ae81ff">16000</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">compression</span>: <span style="color:#ae81ff">none</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 采用kerberos认证</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kerberos</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">auth_type</span>: <span style="color:#ae81ff">keytab</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">service_name</span>: <span style="color:#ae81ff">kafka</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">username</span>: <span style="color:#ae81ff">kafka_poisson</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">keytab</span>: <span style="color:#ae81ff">/opt/kafka_2.12-3.3.1/cert/user.keytab</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">config_path</span>: <span style="color:#ae81ff">/opt/kafka_2.12-3.3.1/cert/krb5.conf</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">realm</span>: <span style="color:#ae81ff">AIOPS_APAAS_MRS_STREAM_302.COM</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">domain</span>: <span style="color:#ae81ff">hadoop.aiops_apaas_mrs_stream_302.com</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">logging.to_files</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">logging.to_syslog</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">logging.level</span>: <span style="color:#ae81ff">info</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">logging.files</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/opt/filebeat-huawei/log/</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">filebeat.log</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">max_procs</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">path.data</span>: <span style="color:#ae81ff">/opt/filebeat-huawei/data/</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">queue.mem.events</span>: <span style="color:#ae81ff">64000</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">queue.mem.flush.min_events</span>: <span style="color:#ae81ff">32000</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/log/es/">
+    <span class="title">« Prev</span>
+    <span>es</span>
+  </a>
+  <a class="next" href="/log/graylog/">
+    <span class="title">Next »</span>
+    <span>graylog</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

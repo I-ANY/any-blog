@@ -1,3 +1,53 @@
-baseURL = 'https://example.org/'
-locale = 'en-us'
-title = 'My New Hugo Project'
+baseURL = '/'
+locale = 'zh-cn'
+title = '探无止境'
+theme = 'PaperMod'
+
+[params]
+  description = 'Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等工程学习笔记。'
+  author = 'ANY'
+  defaultTheme = 'auto'
+  ShowReadingTime = true
+  ShowBreadCrumbs = true
+  ShowPostNavLinks = true
+  ShowToc = true
+  TocOpen = true
+  mainSections = ['k8s', 'docker', 'go', 'linux', 'python', 'CICD', 'log', 'middleware', 'shell', 'bigData', '前端']
+
+[menu]
+  [[menu.main]]
+    name = '首页'
+    url = '/'
+    weight = 1
+  [[menu.main]]
+    name = 'Kubernetes'
+    url = '/k8s/'
+    weight = 10
+  [[menu.main]]
+    name = 'Docker'
+    url = '/docker/'
+    weight = 20
+  [[menu.main]]
+    name = 'Go'
+    url = '/go/'
+    weight = 30
+  [[menu.main]]
+    name = 'Linux'
+    url = '/linux/'
+    weight = 40
+  [[menu.main]]
+    name = 'Python'
+    url = '/python/'
+    weight = 50
+  [[menu.main]]
+    name = 'CI/CD'
+    url = '/cicd/'
+    weight = 60
+  [[menu.main]]
+    name = '日志'
+    url = '/log/'
+    weight = 70
+  [[menu.main]]
+    name = '中间件'
+    url = '/middleware/'
+    weight = 80

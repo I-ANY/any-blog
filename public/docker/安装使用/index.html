@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>安装使用 | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="介绍
+Docker的世界
+介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。
+认识docker
+
+
+轻量、高效的虚拟化
+Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。
+（思考为啥要用Linux容器技术？）
+
+
+
+Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。
+Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。
+
+
+软件交付过程中的环境依赖
+
+
+
+知识点
+
+
+可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署
+
+
+可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）
+
+
+container容器之间相互隔离，且每个容器可以设置资源限额
+
+
+提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立
+
+
+CS架构的软件产品
+
+
+
+版本管理
+
+Docker 引擎主要有两个版本：企业版（EE）和社区版（CE）
+每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持
+每个月社区版还会通过 Edge 方式发布月度版
+从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce
+
+
+发展史
+13年成立，15年开始，迎来了飞速发展。
+
+Docker 1.8之前，使用LXC，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。
+之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。
+2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。
+OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (https://github.com/opencontainers/runc )， 目前runC已经成为一个功能强大的runtime工具。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="安装使用">
+  <meta property="og:description" content="介绍 Docker的世界 介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。
+认识docker 轻量、高效的虚拟化
+Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。
+（思考为啥要用Linux容器技术？）
+Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。
+Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。
+软件交付过程中的环境依赖
+知识点 可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署
+可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）
+container容器之间相互隔离，且每个容器可以设置资源限额
+提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立
+CS架构的软件产品
+版本管理 Docker 引擎主要有两个版本：企业版（EE）和社区版（CE） 每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持 每个月社区版还会通过 Edge 方式发布月度版 从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce 发展史 13年成立，15年开始，迎来了飞速发展。
+Docker 1.8之前，使用LXC，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。
+之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。
+2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。
+OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (https://github.com/opencontainers/runc )， 目前runC已经成为一个功能强大的runtime工具。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docker">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="安装使用">
+  <meta name="twitter:description" content="介绍 Docker的世界 介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。
+认识docker 轻量、高效的虚拟化
+Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。
+（思考为啥要用Linux容器技术？）
+Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。
+Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。
+软件交付过程中的环境依赖
+知识点 可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署
+可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）
+container容器之间相互隔离，且每个容器可以设置资源限额
+提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立
+CS架构的软件产品
+版本管理 Docker 引擎主要有两个版本：企业版（EE）和社区版（CE） 每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持 每个月社区版还会通过 Edge 方式发布月度版 从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce 发展史 13年成立，15年开始，迎来了飞速发展。
+Docker 1.8之前，使用LXC，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。
+之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。
+2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。
+OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (https://github.com/opencontainers/runc )， 目前runC已经成为一个功能强大的runtime工具。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Docker",
+      "item": "/docker/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "安装使用",
+      "item": "/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "安装使用",
+  "name": "安装使用",
+  "description": "介绍 Docker的世界 介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。\n认识docker 轻量、高效的虚拟化\nDocker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。\n（思考为啥要用Linux容器技术？）\nHypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。\nContainer Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。\n软件交付过程中的环境依赖\n知识点 可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署\n可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）\ncontainer容器之间相互隔离，且每个容器可以设置资源限额\n提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立\nCS架构的软件产品\n版本管理 Docker 引擎主要有两个版本：企业版（EE）和社区版（CE） 每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持 每个月社区版还会通过 Edge 方式发布月度版 从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce 发展史 13年成立，15年开始，迎来了飞速发展。\nDocker 1.8之前，使用LXC，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。\n之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。\n2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。\nOCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (https://github.com/opencontainers/runc )， 目前runC已经成为一个功能强大的runtime工具。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "介绍 Docker的世界 介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。\n认识docker 轻量、高效的虚拟化\nDocker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。\n（思考为啥要用Linux容器技术？）\nHypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。\nContainer Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。\n软件交付过程中的环境依赖\n知识点 可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署\n可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）\ncontainer容器之间相互隔离，且每个容器可以设置资源限额\n提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立\nCS架构的软件产品\n版本管理 Docker 引擎主要有两个版本：企业版（EE）和社区版（CE） 每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持 每个月社区版还会通过 Edge 方式发布月度版 从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce 发展史 13年成立，15年开始，迎来了飞速发展。\nDocker 1.8之前，使用LXC，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。\n之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。\n2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。\nOCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (https://github.com/opencontainers/runc )， 目前runC已经成为一个功能强大的runtime工具。\nDocker也做了架构调整。将容器运行时相关的程序从docker daemon剥离出来，形成了containerd。containerd向上为Docker Daemon提供了gRPC接口，使得Docker Daemon屏蔽下面的结构变化，确保原有接口向下兼容。向下通过containerd-shim结合runC，使得引擎可以独立升级，避免之前Docker Daemon升级会导致所有容器不可用的问题。\n也就是说\nrunC（libcontainer）是符合OCI标准的一个实现，与底层系统交互 containerd是实现了OCI之上的容器的高级功能，比如镜像管理、容器执行的调用等 Dockerd目前是最上层与CLI交互的进程，接收cli的请求并与containerd协作 小结 为了解决软件交付过程中的环境依赖，同时提供一种更加轻量的虚拟化技术，Docker出现了\nDocker是一种CS架构的软件产品，可以把代码及依赖打包成镜像，作为交付介质，并且把镜像启动成为容器，提供容器生命周期的管理\ndocker-ce，每季度发布stable版本。18.06，18.09，19.03\n发展至今，docker已经通过制定OCI标准对最初的项目做了拆分，其中runC和containerd是docker的核心项目，理解docker整个请求的流程，对我们深入理解docker有很大的帮助\n三大核心要素：镜像(Image)、容器(Container)、仓库(Registry)\n（先整体看下流程，再逐个演示）\n镜像（Image） 打包了业务代码及运行环境的包，是静态的文件，不能直接对外提供服务。\n容器（Container） 镜像的运行时，可以对外提供服务。本质上讲是利用namespace和cgroup等技术在宿主机中创建的独立的虚拟空间。\n仓库（Registry） 公有仓库，Docker Hub，阿里，网易… 私有仓库，企业内部搭建 Docker Registry，Docker官方提供的镜像仓库存储服务 Harbor, 是Docker Registry的更高级封装，它除了提供友好的Web UI界面，角色和用户权限管理，用户操作审计等功能 镜像访问地址形式 registry.devops.com/demo/hello:latest,若没有前面的url地址，则默认寻找Docker Hub中的镜像，若没有tag标签，则使用latest作为标签 公有的仓库中，一般存在这么几类镜像 操作系统基础镜像（centos，ubuntu，suse，alpine） 中间件（nginx，redis，mysql，tomcat） 语言编译环境（python，java，golang） 业务镜像（django-demo…） 安装 安装 Docker Engine-Community 版本\n配置网卡转发\n## 配置网卡转发,看值是否为1 $ sysctl -a |grep -w net.ipv4.ip_forward net.ipv4.ip_forward = 1 ## 若未配置，需要执行如下 $ cat \u003c /etc/sysctl.d/docker.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 EOF $ sysctl -p /etc/sysctl.d/docker.conf 安装所需的软件包。yum-utils 提供了 yum-config-manager ，并且 device mapper 存储驱动程序需要 device-mapper-persistent-data 和 lvm2。\nyum install -y yum-utils device-mapper-persistent-data lvm2 设置安装源\n阿里云源：\nyum-config-manager \\ --add-repo \\ https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo 清华源：\nyum-config-manager \\ --add-repo \\ https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/docker-ce.repo 查看docker版本\nyum list docker-ce --showduplicates | sort -r 安装\n# 指定版本，通过其完整的软件包名称安装特定版本，该软件包名称是软件包名称（docker-ce）加上版本字符串（第二列），从第一个冒号（:）一直到第一个连字符，并用连字符（-）分隔。例如：docker-ce-18.09.1。 yum install -y docker-ce- docker-ce-cli- 配置加速源\n## 配置源加速 ## https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors mkdir -p /etc/docker cat \u003c\u003c EOF \u003e/etc/docker/daemon.json { \"registry-mirrors\" : [ \"https://bn6ijjfd.mirror.aliyuncs.com\", ] } EOF 启动\nsystemctl start docker systemctl enable docker 删除容器、镜像、配置文件等：\nrm -rf /var/lib/docker docker命令 docker search 镜像名 docker search --filter=STARS=9000 mysql 搜索 STARS \u003e9000的 mysql 镜像 docker pull 镜像名:tag docker run 镜像名:Tag # 参数： -p 映射端口: 8080:8080 -v 挂载目录: / -e 设置环境变量：MYSQL_ROOT_PASSWORD=123456 # -it 表示 与容器进行交互式启动 -d 表示可后台运行容器 （守护式运行） --name 给要运行的容器 起的名字 /bin/bash 交互路径 docker run -it -d --name 要取的别名 镜像名:Tag /bin/bash # 查看镜像 docker images # 查看运行中的容器 docker ps # 查看所有容器 docker ps -a # 只查看获取容器id docker ps -qa # 删除容器 docker rm 容器id # 删除全部容器 docker rm `docker ps -qa` #删除镜像，删除多个就直接在后面加上即可 # 参数 -f：表示强制删除，会删除正在运行中的容器镜像 docker rmi 镜像名/镜像ID #删除全部镜像 -a 意思为显示全部, -q 意思为只显示ID docker rmi $(docker images -aq) # 杀死容器 docker kill 容器id # 删除全部容器 docker kill `docker ps -qa` # 打包镜像 docker save 镜像名/镜像ID -o 镜像保存在哪个位置与名字 # 加载镜像 docker load -i 镜像保存文件位置 # 保存更新镜像 docker commit -m=\"提交信息\" -a=\"作者信息\" 容器名/容器ID 提交后的镜像名:Tag # 打标签 docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG] # 如果省略TAG 则会为镜像默认打上latest TAG docker tag aaa bbb # 上方操作等于 docker tag aaa:latest bbb:test # 查看docker工作目录 sudo docker info | grep \"Docker Root Dir\" #查看磁盘占用情况 du -hs /var/lib/docker/ # 查看容器信息资源 docker top docker inspect docker info # docker create ：创建一个新的容器但不启动它 docker create [OPTIONS] IMAGE [COMMAND] [ARG...] docker run命令参数\n-a stdin: 指定标准输入输出内容类型，可选 STDIN/STDOUT/STDERR 三项； -d: 后台运行容器，并返回容器ID； -i: 以交互模式运行容器，通常与 -t 同时使用； -P: 随机端口映射，容器内部端口随机映射到主机的端口 -p: 指定端口映射，格式为：主机(宿主)端口:容器端口 -t: 为容器重新分配一个伪输入终端，通常与 -i 同时使用； --name=\"nginx-lb\": 为容器指定一个名称； --dns 8.8.8.8: 指定容器使用的DNS服务器，默认和宿主一致； --dns-search example.com: 指定容器DNS搜索域名，默认和宿主一致； -h \"mars\": 指定容器的hostname； -e username=\"ritchie\": 设置环境变量； --env-file=[]: 从指定文件读入环境变量； --cpuset=\"0-2\" or --cpuset=\"0,1,2\": 绑定容器到指定CPU运行； -m :设置容器使用内存最大值； --net=\"bridge\": 指定容器的网络连接类型，支持 bridge/host/none/container: 四种类型； --link=[]: 添加链接到另一个容器； --expose=[]: 开放一个端口或一组端口； --volume , -v: 绑定一个卷，/path/on/host:/path/in/container，如果主机目录为空，挂载后容器中的文件将会在主机目录中创建一个拷贝，以后对主机目录的修改不会影响容器中的文件。 Dockerfile dockerfile 支持自定义容器的初始命令 dockerfile文件指令： FROM 这个镜像的妈妈是谁？（指定基础镜像） MAINTAINER 告诉别人，谁负责养它？（指定维护者信息，可以没有） LABLE 描述，标签 COPY 复制文件（不会解压）rootfs.tar.gz ，当是目录时会把目录下的所有文件以及子目录复制到容器对应目录下 ADD 给它点创业资金（会自动解压tar） 制作docker基础的系统镜像，还能从远端拷贝 ENV 环境变量 ENTRYPOINT 容器启动后执行的命令（无法被替换，启容器的时候指定的命令，会被当成参数） CMD 奔跑吧，兄弟！（指定容器启动后的要干的事情）（容易被替换，最后一条才生效，启动容器时带有命令，此时会被覆盖） RUN 你想让它干啥（在命令前面加上RUN即可） WORKDIR 我是cd,今天刚化了妆（设置当前工作目录，即进入容器之后便直接在该目录下） VOLUME 给它一个存放行李的地方（设置卷，挂载主机目录） EXPOSE 它要打开的门是啥（指定对外的端口）(-P 随机端口) ARG 构建参数，与 ENV 作用一致。不过作用域不一样。ARG 设置的环境变量仅对 Dockerfile 内有效，也就是说只有 docker build 的过程中有效，构建好的镜像内不存在此环境变量。 构建命令 docker build 中可以用 --build-arg \u003c参数名\u003e=\u003c值\u003e 来覆盖。 USER 用于指定执行后续命令的用户和用户组，这边只是切换后续命令执行的用户（用户和用户组必须提前已经存在）。 示例：\n#基础镜像 FROM centos:7.6.1810 #maintainer 维护者信息 LABEL maintainer='zhen@123.com' #RUN 执行命令，容器镜像是分层的，执行run的时候可以把多个命令拼接起来，减少镜像层数，减少镜像大小 RUN curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo \u0026\u0026 \\ curl -o /etc/yum.repos.d/repel.repo http://mirrors.aliyun.com/repo/repel.repo \u0026\u0026 \\ yum makecache \u0026\u0026 yum install -y python36 python3-devel python3-pip gcc pcre-devel zlib-devel make net-tools openssl openssl-devel COPY tengine-2.3.0.tar.gz /opt copy /dir /opt/ ADD tengine-2.3.0.tar.gz /opt RUN cd /opt/tengine-2.3.0 \u0026\u0026 ./configure --prefix=/usr/local/nginx \u0026\u0026 make \u0026\u0026 make install \u0026\u0026 ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx EXPOSE 8080 CMD sh xx.sh 或者 CMD [\"sh\",\"xx.sh\"] docker compose Compose 是用于定义和运行多容器 Docker 应用程序的工具。通过 Compose，您可以使用 YML 文件来配置应用程序需要的所有服务。然后，使用一个命令，就可以从 YML 文件配置中创建并启动所有服务。\nCompose 使用的三个步骤：\n使用 Dockerfile 定义应用程序的环境。 使用 docker-compose.yml 定义构成应用程序的服务，这样它们可以在隔离环境中一起运行。 最后，执行 docker-compose up 命令来启动并运行整个应用程序。 安装 方式一：yum 安装\nyum install epel-release -y #（需要epel源） yum install docker-compose -y 方式二：二进制\n# 要安装其他版本的 Compose，请替换 v2.2.2。 curl -L \"https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose Docker Compose 存放在 GitHub，不太稳定。 可以也通过执行下面的命令，高速安装 Docker Compose。 curl -L https://get.daocloud.io/docker/compose/releases/download/v2.4.1/docker-compose-`uname -s`-`uname -m` \u003e /usr/local/bin/docker-compose # 将可执行权限应用于二进制文件 chmod +x /usr/local/bin/docker-compose # 创建软链 ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose # 测试安装 $ docker-compose version yaml 文件 **version：**指定本 yml 依从的 compose 哪个版本制定的\nbuild: 指定为构建镜像上下文路径，例如 webapp 服务，dockerfile文件路径为：./dir/Dockerfile ，可配置为\nversion: \"3\" services: webapp: build: ./dir 或者，作为具有在上下文指定的路径的对象，以及可选的 Dockerfile 和 args：\nversion: \"3\" services: webapp: build: context: ./dir dockerfile: Dockerfile-alternate args: buildno: 1 labels: - \"com.example.description=Accounting webapp\" - \"com.example.department=Finance\" - \"com.example.label-with-empty-value\" target: prod 参数解释：\ncontext：上下文路径。 dockerfile：指定构建镜像的 Dockerfile 文件名。 args：添加构建参数，这是只能在构建过程中访问的环境变量。 labels：设置构建镜像的标签。 target：多层构建，可以指定构建哪一层。 **command：**覆盖容器启动的默认命令。\ncommand: [\"bundle\", \"exec\", \"thin\", \"-p\", \"3000\"] **container_name：**指定自定义容器名称，而不是生成的默认名称。\ncontainer_name: my-web-container depends_on：设置依赖关系。\ndocker-compose up ：以依赖性顺序启动服务。在以下示例中，先启动 db 和 redis ，才会启动 web。 docker-compose up SERVICE ：自动包含 SERVICE 的依赖项。在以下示例中，docker-compose up web 还将创建并启动 db 和 redis。 docker-compose stop ：按依赖关系顺序停止服务。在以下示例中，web 在 db 和 redis 之前停止。 version: \"3\" services: web: build: . depends_on: - db - redis redis: image: redis db: image: postgres 注意：web 服务不会等待 redis db 完全启动 之后才启动。\n**entrypoint：**覆盖容器默认的 entrypoint。\n**env_file：**从文件添加环境变量。可以是单个值或列表的多个值。\nenv_file: .env # 列表形式 env_file: - ./common.env - ./apps/web.env - /opt/secrets.env environment：添加环境变量。您可以使用数组或字典、任何布尔值，布尔值需要用引号引起来，以确保 YML 解析器不会将其转换为 True 或 False。\nenvironment: RACK_ENV: development SHOW: 'true' **expose：**暴露端口，但不映射到宿主机，只被连接的服务访问。\n仅可以指定内部端口为参数：\nexpose: - \"3000\" - \"8000\" **image：**指定容器运行的镜像。以下格式都可以：\nimage: redis image: ubuntu:14.04 image: tutum/influxdb image: example-registry.com:4000/postgresql image: a4bc65fd # 镜像id **volumes：**将主机的数据卷或着文件挂载到容器里。\nversion: \"3.7\" services: db: image: postgres:latest volumes: - \"/localhost/postgres.sock:/var/run/postgres/postgres.sock\" - \"/localhost/data:/var/lib/postgresql/data\" 示例：\n# yaml 配置实例 version: '3' services: web: build: . ports: - \"5000:5000\" volumes: - .:/code - logvolume01:/var/log links: - redis redis: image: redis volumes: logvolume01: {} 命令 # 启动 docker-compose up # 后台启动 docker-compose up -d # 停掉并删除 docker-compose down # 关闭某一个 docker stop [容器] # 开启某一个 docker start [容器] # 重启 docker restart [容器] # 注意后面不指定表示全部 ",
+  "wordCount" : "879",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/docker/">Docker</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      安装使用
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e4%bb%8b%e7%bb%8d" aria-label="介绍">介绍</a><ul>
+                    
+            <li>
+                <a href="#docker%e7%9a%84%e4%b8%96%e7%95%8c" aria-label="Docker的世界">Docker的世界</a></li>
+            <li>
+                <a href="#%e8%ae%a4%e8%af%86docker" aria-label="认识docker">认识docker</a><ul>
+                    
+            <li>
+                <a href="#%e7%9f%a5%e8%af%86%e7%82%b9" aria-label="知识点">知识点</a></li>
+            <li>
+                <a href="#%e7%89%88%e6%9c%ac%e7%ae%a1%e7%90%86" aria-label="版本管理">版本管理</a></li>
+            <li>
+                <a href="#%e5%8f%91%e5%b1%95%e5%8f%b2" aria-label="发展史">发展史</a></li>
+            <li>
+                <a href="#%e5%b0%8f%e7%bb%93" aria-label="小结">小结</a><ul>
+                    <ul>
+                    <ul>
+                    
+            <li>
+                <a href="#%e9%95%9c%e5%83%8fimage" aria-label="镜像（Image）">镜像（Image）</a></li>
+            <li>
+                <a href="#%e5%ae%b9%e5%99%a8container" aria-label="容器（Container）">容器（Container）</a></li>
+            <li>
+                <a href="#%e4%bb%93%e5%ba%93registry" aria-label="仓库（Registry）">仓库（Registry）</a></li></ul>
+                </ul>
+                </ul>
+            </li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a></li>
+            <li>
+                <a href="#docker%e5%91%bd%e4%bb%a4" aria-label="docker命令">docker命令</a></li>
+            <li>
+                <a href="#dockerfile" aria-label="Dockerfile">Dockerfile</a></li>
+            <li>
+                <a href="#docker-compose" aria-label="docker compose">docker compose</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85-1" aria-label="安装">安装</a></li>
+            <li>
+                <a href="#yaml-%e6%96%87%e4%bb%b6" aria-label="yaml 文件">yaml 文件</a></li>
+            <li>
+                <a href="#%e5%91%bd%e4%bb%a4" aria-label="命令">命令</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="介绍">介绍<a hidden class="anchor" aria-hidden="true" href="#介绍">#</a></h1>
+<h2 id="docker的世界">Docker的世界<a hidden class="anchor" aria-hidden="true" href="#docker的世界">#</a></h2>
+<p>介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。</p>
+<h2 id="认识docker">认识docker<a hidden class="anchor" aria-hidden="true" href="#认识docker">#</a></h2>
+<ul>
+<li>
+<p>轻量、高效的虚拟化</p>
+<p>Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。</p>
+<p>（思考为啥要用Linux容器技术？）</p>
+<p><img loading="lazy" src="images%5Cdocker-differents.svg"></p>
+</li>
+</ul>
+<p>Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。</p>
+<p>Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。</p>
+<ul>
+<li>
+<p>软件交付过程中的环境依赖</p>
+<p><img loading="lazy" src="images%5Cwhy.png"></p>
+</li>
+</ul>
+<h3 id="知识点">知识点<a hidden class="anchor" aria-hidden="true" href="#知识点">#</a></h3>
+<ul>
+<li>
+<p>可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署</p>
+</li>
+<li>
+<p>可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）</p>
+</li>
+<li>
+<p>container容器之间相互隔离，且每个容器可以设置资源限额</p>
+</li>
+<li>
+<p>提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立</p>
+</li>
+<li>
+<p>CS架构的软件产品</p>
+<p><img loading="lazy" src="images%5Cdocker-engine.png"></p>
+</li>
+</ul>
+<h3 id="版本管理">版本管理<a hidden class="anchor" aria-hidden="true" href="#版本管理">#</a></h3>
+<ul>
+<li>Docker 引擎主要有两个版本：企业版（EE）和社区版（CE）</li>
+<li>每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持</li>
+<li>每个月社区版还会通过 Edge 方式发布月度版</li>
+<li>从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce</li>
+</ul>
+<p><img loading="lazy" src="images%5Cdocker-version.png"></p>
+<h3 id="发展史">发展史<a hidden class="anchor" aria-hidden="true" href="#发展史">#</a></h3>
+<p>13年成立，15年开始，迎来了飞速发展。</p>
+<p><img loading="lazy" src="images%5Cdeplpment.png"></p>
+<p>Docker 1.8之前，使用<a href="https://linuxcontainers.org/fr/lxc/introduction/">LXC</a>，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。</p>
+<p>之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。</p>
+<p>2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。</p>
+<p>OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (<a href="https://github.com/opencontainers/runc">https://github.com/opencontainers/runc</a> )， 目前runC已经成为一个功能强大的runtime工具。</p>
+<p>Docker也做了架构调整。将容器运行时相关的程序从docker daemon剥离出来，形成了<strong>containerd</strong>。containerd向上为Docker Daemon提供了<code>gRPC接口</code>，使得Docker Daemon屏蔽下面的结构变化，确保原有接口向下兼容。向下通过<code>containerd-shim</code>结合<code>runC</code>，使得引擎可以独立升级，避免之前Docker Daemon升级会导致所有容器不可用的问题。</p>
+<p><img loading="lazy" src="images%5Ccontainerd.png"></p>
+<p>也就是说</p>
+<ul>
+<li>runC（libcontainer）是符合OCI标准的一个实现，与底层系统交互</li>
+<li>containerd是实现了OCI之上的容器的高级功能，比如镜像管理、容器执行的调用等</li>
+<li>Dockerd目前是最上层与CLI交互的进程，接收cli的请求并与containerd协作</li>
+</ul>
+<h3 id="小结">小结<a hidden class="anchor" aria-hidden="true" href="#小结">#</a></h3>
+<ol>
+<li>
+<p>为了解决软件交付过程中的环境依赖，同时提供一种更加轻量的虚拟化技术，Docker出现了</p>
+</li>
+<li>
+<p>Docker是一种CS架构的软件产品，可以把代码及依赖打包成镜像，作为交付介质，并且把镜像启动成为容器，提供容器生命周期的管理</p>
+</li>
+<li>
+<p>docker-ce，每季度发布stable版本。18.06，18.09，19.03</p>
+</li>
+<li>
+<p>发展至今，docker已经通过制定OCI标准对最初的项目做了拆分，其中runC和containerd是docker的核心项目，理解docker整个请求的流程，对我们深入理解docker有很大的帮助</p>
+</li>
+<li>
+<p>三大核心要素：镜像(Image)、容器(Container)、仓库(Registry)</p>
+<p>（先整体看下流程，再逐个演示）</p>
+<h6 id="镜像image">镜像（Image）<a hidden class="anchor" aria-hidden="true" href="#镜像image">#</a></h6>
+<p>打包了业务代码及运行环境的包，是静态的文件，不能直接对外提供服务。</p>
+<h6 id="容器container">容器（Container）<a hidden class="anchor" aria-hidden="true" href="#容器container">#</a></h6>
+<p>镜像的运行时，可以对外提供服务。本质上讲是利用namespace和cgroup等技术在宿主机中创建的独立的虚拟空间。</p>
+<h6 id="仓库registry">仓库（Registry）<a hidden class="anchor" aria-hidden="true" href="#仓库registry">#</a></h6>
+<ul>
+<li>公有仓库，Docker Hub，阿里，网易&hellip;</li>
+<li>私有仓库，企业内部搭建
+<ul>
+<li>Docker Registry，Docker官方提供的镜像仓库存储服务</li>
+<li>Harbor, 是Docker Registry的更高级封装，它除了提供友好的Web UI界面，角色和用户权限管理，用户操作审计等功能</li>
+</ul>
+</li>
+<li>镜像访问地址形式 registry.devops.com/demo/hello:latest,若没有前面的url地址，则默认寻找Docker Hub中的镜像，若没有tag标签，则使用latest作为标签</li>
+<li>公有的仓库中，一般存在这么几类镜像
+<ul>
+<li>操作系统基础镜像（centos，ubuntu，suse，alpine）</li>
+<li>中间件（nginx，redis，mysql，tomcat）</li>
+<li>语言编译环境（python，java，golang）</li>
+<li>业务镜像（django-demo&hellip;）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><img alt="image-20231202153718877" loading="lazy" src="/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/image-20231202153718877.png"></p>
+<h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<p>安装 Docker Engine-Community 版本</p>
+<p>配置网卡转发</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">## 配置网卡转发,看值是否为1</span>
+</span></span><span style="display:flex;"><span>$ sysctl -a |grep -w net.ipv4.ip_forward
+</span></span><span style="display:flex;"><span>net.ipv4.ip_forward <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## 若未配置，需要执行如下</span>
+</span></span><span style="display:flex;"><span>$ cat <span style="color:#e6db74">&lt;&lt;EOF &gt;  /etc/sysctl.d/docker.conf
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">net.bridge.bridge-nf-call-ip6tables = 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">net.bridge.bridge-nf-call-iptables = 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">net.ipv4.ip_forward=1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>$ sysctl -p /etc/sysctl.d/docker.conf
+</span></span></code></pre></div><p>安装所需的软件包。yum-utils 提供了 yum-config-manager ，并且 device mapper 存储驱动程序需要 device-mapper-persistent-data 和 lvm2。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum install -y yum-utils device-mapper-persistent-data lvm2
+</span></span></code></pre></div><p>设置安装源</p>
+<p>阿里云源：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum-config-manager <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --add-repo <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+</span></span></code></pre></div><p>清华源：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum-config-manager <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    --add-repo <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>    https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/docker-ce.repo
+</span></span></code></pre></div><p>查看docker版本</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum list docker-ce --showduplicates | sort -r
+</span></span></code></pre></div><p>安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 指定版本，通过其完整的软件包名称安装特定版本，该软件包名称是软件包名称（docker-ce）加上版本字符串（第二列），从第一个冒号（:）一直到第一个连字符，并用连字符（-）分隔。例如：docker-ce-18.09.1。</span>
+</span></span><span style="display:flex;"><span>yum install -y docker-ce-&lt;VERSION_STRING&gt; docker-ce-cli-&lt;VERSION_STRING&gt;
+</span></span></code></pre></div><p>配置加速源</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">## 配置源加速</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">## https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors</span>
+</span></span><span style="display:flex;"><span>mkdir -p /etc/docker
+</span></span><span style="display:flex;"><span>cat <span style="color:#e6db74">&lt;&lt; EOF &gt;/etc/docker/daemon.json
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &#34;registry-mirrors&#34; : [
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;https://bn6ijjfd.mirror.aliyuncs.com&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><p>启动</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>systemctl start docker
+</span></span><span style="display:flex;"><span>systemctl enable docker
+</span></span></code></pre></div><p>删除容器、镜像、配置文件等：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rm -rf /var/lib/docker
+</span></span></code></pre></div><h1 id="docker命令">docker命令<a hidden class="anchor" aria-hidden="true" href="#docker命令">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker search 镜像名
+</span></span><span style="display:flex;"><span>docker search --filter<span style="color:#f92672">=</span>STARS<span style="color:#f92672">=</span><span style="color:#ae81ff">9000</span> mysql 搜索 STARS &gt;9000的 mysql 镜像
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker pull 镜像名:tag
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker run 镜像名:Tag
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 参数：</span>
+</span></span><span style="display:flex;"><span>	-p 映射端口: 8080:8080
+</span></span><span style="display:flex;"><span>	-v 挂载目录: /
+</span></span><span style="display:flex;"><span>	-e 设置环境变量：MYSQL_ROOT_PASSWORD<span style="color:#f92672">=</span><span style="color:#ae81ff">123456</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># -it 表示 与容器进行交互式启动 -d 表示可后台运行容器 （守护式运行）  --name 给要运行的容器 起的名字  /bin/bash  交互路径</span>
+</span></span><span style="display:flex;"><span>docker run -it -d --name 要取的别名 镜像名:Tag /bin/bash 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看镜像</span>
+</span></span><span style="display:flex;"><span>docker images 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看运行中的容器</span>
+</span></span><span style="display:flex;"><span>docker ps
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看所有容器</span>
+</span></span><span style="display:flex;"><span>docker ps -a
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 只查看获取容器id</span>
+</span></span><span style="display:flex;"><span>docker ps -qa
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 删除容器</span>
+</span></span><span style="display:flex;"><span>docker rm 容器id
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 删除全部容器</span>
+</span></span><span style="display:flex;"><span>docker rm <span style="color:#e6db74">`</span>docker ps -qa<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#删除镜像，删除多个就直接在后面加上即可</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 参数 -f：表示强制删除，会删除正在运行中的容器镜像</span>
+</span></span><span style="display:flex;"><span>docker rmi 镜像名/镜像ID
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#删除全部镜像  -a 意思为显示全部, -q 意思为只显示ID</span>
+</span></span><span style="display:flex;"><span>docker rmi <span style="color:#66d9ef">$(</span>docker images -aq<span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 杀死容器</span>
+</span></span><span style="display:flex;"><span>docker kill 容器id
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 删除全部容器</span>
+</span></span><span style="display:flex;"><span>docker kill <span style="color:#e6db74">`</span>docker ps -qa<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 打包镜像</span>
+</span></span><span style="display:flex;"><span>docker save 镜像名/镜像ID -o 镜像保存在哪个位置与名字
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 加载镜像</span>
+</span></span><span style="display:flex;"><span>docker load -i 镜像保存文件位置
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 保存更新镜像</span>
+</span></span><span style="display:flex;"><span>docker commit -m<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;提交信息&#34;</span> -a<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;作者信息&#34;</span> 容器名/容器ID 提交后的镜像名:Tag
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 打标签</span>
+</span></span><span style="display:flex;"><span>docker tag SOURCE_IMAGE<span style="color:#f92672">[</span>:TAG<span style="color:#f92672">]</span> TARGET_IMAGE<span style="color:#f92672">[</span>:TAG<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 如果省略TAG 则会为镜像默认打上latest TAG</span>
+</span></span><span style="display:flex;"><span>docker tag aaa bbb
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 上方操作等于 docker tag aaa:latest bbb:test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看docker工作目录</span>
+</span></span><span style="display:flex;"><span>sudo docker info | grep <span style="color:#e6db74">&#34;Docker Root Dir&#34;</span>
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#查看磁盘占用情况</span>
+</span></span><span style="display:flex;"><span>du -hs /var/lib/docker/ 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看容器信息资源</span>
+</span></span><span style="display:flex;"><span>docker top
+</span></span><span style="display:flex;"><span>docker inspect
+</span></span><span style="display:flex;"><span>docker info
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># docker create ：创建一个新的容器但不启动它</span>
+</span></span><span style="display:flex;"><span>docker create <span style="color:#f92672">[</span>OPTIONS<span style="color:#f92672">]</span> IMAGE <span style="color:#f92672">[</span>COMMAND<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>ARG...<span style="color:#f92672">]</span>
+</span></span></code></pre></div><p>docker run命令参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>-a stdin: 指定标准输入输出内容类型，可选 STDIN/STDOUT/STDERR 三项；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-d: 后台运行容器，并返回容器ID；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-i: 以交互模式运行容器，通常与 -t 同时使用；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-P: 随机端口映射，容器内部端口随机映射到主机的端口
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-p: 指定端口映射，格式为：主机<span style="color:#f92672">(</span>宿主<span style="color:#f92672">)</span>端口:容器端口
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-t: 为容器重新分配一个伪输入终端，通常与 -i 同时使用；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;nginx-lb&#34;</span>: 为容器指定一个名称；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--dns 8.8.8.8: 指定容器使用的DNS服务器，默认和宿主一致；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--dns-search example.com: 指定容器DNS搜索域名，默认和宿主一致；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-h <span style="color:#e6db74">&#34;mars&#34;</span>: 指定容器的hostname；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-e username<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ritchie&#34;</span>: 设置环境变量；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--env-file<span style="color:#f92672">=[]</span>: 从指定文件读入环境变量；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--cpuset<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0-2&#34;</span> or --cpuset<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0,1,2&#34;</span>: 绑定容器到指定CPU运行；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>-m :设置容器使用内存最大值；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--net<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;bridge&#34;</span>: 指定容器的网络连接类型，支持 bridge/host/none/container: 四种类型；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--link<span style="color:#f92672">=[]</span>: 添加链接到另一个容器；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--expose<span style="color:#f92672">=[]</span>: 开放一个端口或一组端口；
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>--volume , -v: 绑定一个卷，/path/on/host:/path/in/container，如果主机目录为空，挂载后容器中的文件将会在主机目录中创建一个拷贝，以后对主机目录的修改不会影响容器中的文件。 
+</span></span></code></pre></div><h1 id="dockerfile">Dockerfile<a hidden class="anchor" aria-hidden="true" href="#dockerfile">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>dockerfile 支持自定义容器的初始命令
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>dockerfile文件指令：
+</span></span><span style="display:flex;"><span>  FROM 这个镜像的妈妈是谁？（指定基础镜像）
+</span></span><span style="display:flex;"><span>  MAINTAINER 告诉别人，谁负责养它？（指定维护者信息，可以没有）
+</span></span><span style="display:flex;"><span>  LABLE 描述，标签
+</span></span><span style="display:flex;"><span>  COPY 复制文件（不会解压）rootfs.tar.gz ，当是目录时会把目录下的所有文件以及子目录复制到容器对应目录下
+</span></span><span style="display:flex;"><span>  ADD 给它点创业资金（会自动解压tar） 制作docker基础的系统镜像，还能从远端拷贝
+</span></span><span style="display:flex;"><span>  ENV 环境变量 
+</span></span><span style="display:flex;"><span>  ENTRYPOINT 容器启动后执行的命令（无法被替换，启容器的时候指定的命令，会被当成参数）
+</span></span><span style="display:flex;"><span>  CMD 奔跑吧，兄弟！（指定容器启动后的要干的事情）（容易被替换，最后一条才生效，启动容器时带有命令，此时会被覆盖）
+</span></span><span style="display:flex;"><span>  RUN 你想让它干啥（在命令前面加上RUN即可）
+</span></span><span style="display:flex;"><span>  WORKDIR 我是cd,今天刚化了妆（设置当前工作目录，即进入容器之后便直接在该目录下）
+</span></span><span style="display:flex;"><span>  VOLUME 给它一个存放行李的地方（设置卷，挂载主机目录）
+</span></span><span style="display:flex;"><span>  EXPOSE 它要打开的门是啥（指定对外的端口）<span style="color:#f92672">(</span>-P 随机端口<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  ARG 构建参数，与 ENV 作用一致。不过作用域不一样。ARG 设置的环境变量仅对 Dockerfile 内有效，也就是说只有 docker build 的过程中有效，构建好的镜像内不存在此环境变量。
+</span></span><span style="display:flex;"><span>	构建命令 docker build 中可以用 --build-arg &lt;参数名&gt;<span style="color:#f92672">=</span>&lt;值&gt; 来覆盖。
+</span></span><span style="display:flex;"><span>	USER 用于指定执行后续命令的用户和用户组，这边只是切换后续命令执行的用户（用户和用户组必须提前已经存在）。
+</span></span></code></pre></div><p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#基础镜像</span>
+</span></span><span style="display:flex;"><span>FROM centos:7.6.1810
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#maintainer 维护者信息</span>
+</span></span><span style="display:flex;"><span>LABEL maintainer<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;zhen@123.com&#39;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#RUN 执行命令，容器镜像是分层的，执行run的时候可以把多个命令拼接起来，减少镜像层数，减少镜像大小</span>
+</span></span><span style="display:flex;"><span>RUN curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>curl -o /etc/yum.repos.d/repel.repo http://mirrors.aliyun.com/repo/repel.repo <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>yum makecache <span style="color:#f92672">&amp;&amp;</span> yum install -y python36 python3-devel python3-pip gcc pcre-devel zlib-devel make net-tools openssl openssl-devel
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>COPY tengine-2.3.0.tar.gz /opt
+</span></span><span style="display:flex;"><span>copy /dir /opt/
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>ADD tengine-2.3.0.tar.gz /opt
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>RUN cd /opt/tengine-2.3.0 <span style="color:#f92672">&amp;&amp;</span> ./configure --prefix<span style="color:#f92672">=</span>/usr/local/nginx <span style="color:#f92672">&amp;&amp;</span> make <span style="color:#f92672">&amp;&amp;</span> make install <span style="color:#f92672">&amp;&amp;</span> ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>EXPOSE <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>CMD sh xx.sh 或者 CMD <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;sh&#34;</span>,<span style="color:#e6db74">&#34;xx.sh&#34;</span><span style="color:#f92672">]</span>
+</span></span></code></pre></div><h1 id="docker-compose">docker compose<a hidden class="anchor" aria-hidden="true" href="#docker-compose">#</a></h1>
+<p>Compose 是用于定义和运行多容器 Docker 应用程序的工具。通过 Compose，您可以使用 YML 文件来配置应用程序需要的所有服务。然后，使用一个命令，就可以从 YML 文件配置中创建并启动所有服务。</p>
+<p>Compose 使用的三个步骤：</p>
+<ul>
+<li>使用 Dockerfile 定义应用程序的环境。</li>
+<li>使用 docker-compose.yml 定义构成应用程序的服务，这样它们可以在隔离环境中一起运行。</li>
+<li>最后，执行 docker-compose up 命令来启动并运行整个应用程序。</li>
+</ul>
+<h2 id="安装-1">安装<a hidden class="anchor" aria-hidden="true" href="#安装-1">#</a></h2>
+<p>方式一：yum 安装</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>yum install epel-release -y
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#（需要epel源）</span>
+</span></span><span style="display:flex;"><span>yum install docker-compose -y 
+</span></span></code></pre></div><p>方式二：二进制</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 要安装其他版本的 Compose，请替换 v2.2.2。</span>
+</span></span><span style="display:flex;"><span>curl -L <span style="color:#e6db74">&#34;https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-</span><span style="color:#66d9ef">$(</span>uname -s<span style="color:#66d9ef">)</span><span style="color:#e6db74">-</span><span style="color:#66d9ef">$(</span>uname -m<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span> -o /usr/local/bin/docker-compose
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Docker Compose 存放在 GitHub，不太稳定。
+</span></span><span style="display:flex;"><span>可以也通过执行下面的命令，高速安装 Docker Compose。
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>curl -L https://get.daocloud.io/docker/compose/releases/download/v2.4.1/docker-compose-<span style="color:#e6db74">`</span>uname -s<span style="color:#e6db74">`</span>-<span style="color:#e6db74">`</span>uname -m<span style="color:#e6db74">`</span> &gt; /usr/local/bin/docker-compose
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 将可执行权限应用于二进制文件</span>
+</span></span><span style="display:flex;"><span>chmod +x /usr/local/bin/docker-compose
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建软链</span>
+</span></span><span style="display:flex;"><span>ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 测试安装</span>
+</span></span><span style="display:flex;"><span>$ docker-compose version
+</span></span></code></pre></div><h2 id="yaml-文件">yaml 文件<a hidden class="anchor" aria-hidden="true" href="#yaml-文件">#</a></h2>
+<p>**version：**指定本 yml 依从的 compose 哪个版本制定的</p>
+<p><strong>build:</strong> 指定为构建镜像上下文路径，例如 webapp 服务，dockerfile文件路径为：./dir/Dockerfile ，可配置为</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;3&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">webapp</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">build</span>: <span style="color:#ae81ff">./dir</span>
+</span></span></code></pre></div><p>或者，作为具有在上下文指定的路径的对象，以及可选的 Dockerfile 和 args：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;3&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">webapp</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">build</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">context</span>: <span style="color:#ae81ff">./dir</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">dockerfile</span>: <span style="color:#ae81ff">Dockerfile-alternate</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">buildno</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#e6db74">&#34;com.example.description=Accounting webapp&#34;</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#e6db74">&#34;com.example.department=Finance&#34;</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#e6db74">&#34;com.example.label-with-empty-value&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">target</span>: <span style="color:#ae81ff">prod</span>
+</span></span></code></pre></div><p>参数解释：</p>
+<ul>
+<li>context：上下文路径。</li>
+<li>dockerfile：指定构建镜像的 Dockerfile 文件名。</li>
+<li>args：添加构建参数，这是只能在构建过程中访问的环境变量。</li>
+<li>labels：设置构建镜像的标签。</li>
+<li>target：多层构建，可以指定构建哪一层。</li>
+</ul>
+<p>**command：**覆盖容器启动的默认命令。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>command: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;bundle&#34;</span>, <span style="color:#e6db74">&#34;exec&#34;</span>, <span style="color:#e6db74">&#34;thin&#34;</span>, <span style="color:#e6db74">&#34;-p&#34;</span>, <span style="color:#e6db74">&#34;3000&#34;</span><span style="color:#f92672">]</span>
+</span></span></code></pre></div><p>**container_name：**指定自定义容器名称，而不是生成的默认名称。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>container_name: my-web-container
+</span></span></code></pre></div><p><strong>depends_on</strong>：设置依赖关系。</p>
+<ul>
+<li>docker-compose up ：以依赖性顺序启动服务。在以下示例中，先启动 db 和 redis ，才会启动 web。</li>
+<li>docker-compose up SERVICE ：自动包含 SERVICE 的依赖项。在以下示例中，docker-compose up web 还将创建并启动 db 和 redis。</li>
+<li>docker-compose stop ：按依赖关系顺序停止服务。在以下示例中，web 在 db 和 redis 之前停止。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">version</span>: <span style="color:#e6db74">&#34;3&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">web</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">build</span>: <span style="color:#ae81ff">.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">depends_on</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ae81ff">db</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">redis</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">db</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">postgres</span>
+</span></span></code></pre></div><p>注意：web 服务不会等待 redis db 完全启动 之后才启动。</p>
+<p>**entrypoint：**覆盖容器默认的 entrypoint。</p>
+<p>**env_file：**从文件添加环境变量。可以是单个值或列表的多个值。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">env_file</span>: <span style="color:#ae81ff">.env</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 列表形式</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">env_file</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">./common.env</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">./apps/web.env</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">/opt/secrets.env</span>
+</span></span></code></pre></div><p><strong>environment</strong>：添加环境变量。您可以使用数组或字典、任何布尔值，布尔值需要用引号引起来，以确保 YML 解析器不会将其转换为 True 或 False。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">environment</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">RACK_ENV</span>: <span style="color:#ae81ff">development</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">SHOW</span>: <span style="color:#e6db74">&#39;true&#39;</span>
+</span></span></code></pre></div><p>**expose：**暴露端口，但不映射到宿主机，只被连接的服务访问。</p>
+<p>仅可以指定内部端口为参数：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">expose</span>:
+</span></span><span style="display:flex;"><span> - <span style="color:#e6db74">&#34;3000&#34;</span>
+</span></span><span style="display:flex;"><span> - <span style="color:#e6db74">&#34;8000&#34;</span>
+</span></span></code></pre></div><p>**image：**指定容器运行的镜像。以下格式都可以：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">image</span>: <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">image</span>: <span style="color:#ae81ff">ubuntu:14.04</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">image</span>: <span style="color:#ae81ff">tutum/influxdb</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">image</span>: <span style="color:#ae81ff">example-registry.com:4000/postgresql</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">image</span>: <span style="color:#ae81ff">a4bc65fd</span> <span style="color:#75715e"># 镜像id</span>
+</span></span></code></pre></div><p>**volumes：**将主机的数据卷或着文件挂载到容器里。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>version: <span style="color:#e6db74">&#34;3.7&#34;</span>
+</span></span><span style="display:flex;"><span>services:
+</span></span><span style="display:flex;"><span>  db:
+</span></span><span style="display:flex;"><span>    image: postgres:latest
+</span></span><span style="display:flex;"><span>    volumes:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#34;/localhost/postgres.sock:/var/run/postgres/postgres.sock&#34;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#34;/localhost/data:/var/lib/postgresql/data&#34;</span>
+</span></span></code></pre></div><p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># yaml 配置实例</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">version</span>: <span style="color:#e6db74">&#39;3&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">web</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">build</span>: <span style="color:#ae81ff">.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#34;5000:5000&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">.:/code</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">logvolume01:/var/log</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">links</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">redis</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">redis</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">logvolume01</span>: {}
+</span></span></code></pre></div><h2 id="命令">命令<a hidden class="anchor" aria-hidden="true" href="#命令">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 启动 </span>
+</span></span><span style="display:flex;"><span>docker-compose up 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 后台启动 </span>
+</span></span><span style="display:flex;"><span>docker-compose up -d
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 停掉并删除 </span>
+</span></span><span style="display:flex;"><span>docker-compose down
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 关闭某一个 </span>
+</span></span><span style="display:flex;"><span>docker stop <span style="color:#f92672">[</span>容器<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 开启某一个 </span>
+</span></span><span style="display:flex;"><span>docker start <span style="color:#f92672">[</span>容器<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 重启 </span>
+</span></span><span style="display:flex;"><span>docker restart <span style="color:#f92672">[</span>容器<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 注意后面不指定表示全部</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/python/%E5%AE%89%E8%A3%85/">
+    <span class="title">« Prev</span>
+    <span>安装</span>
+  </a>
+  <a class="next" href="/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/">
+    <span class="title">Next »</span>
+    <span>模块合集</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

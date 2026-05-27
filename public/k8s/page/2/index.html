@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Kubernetes | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="Kubernetes 相关学习笔记。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="/k8s/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="/k8s/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="Kubernetes">
+  <meta property="og:description" content="Kubernetes 相关学习笔记。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Kubernetes">
+  <meta name="twitter:description" content="Kubernetes 相关学习笔记。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span class="active">Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+  <header class="kb-list-header"><nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <p class="kb-eyebrow">Module</p>
+    <h1>Kubernetes</h1>
+      <div class="kb-list-description"><p>Kubernetes 相关学习笔记。</p>
+</div>
+  </header>
+  <section class="kb-list-grid" aria-label="Kubernetes 文章列表">
+      <article class="kb-list-card">
+        <a href="/k8s/promethues/">
+          <div>
+            <h2>promethues</h2>
+              <p>前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus
+并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样…
+prometheus 架构 组件： …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/traefik/">
+          <div>
+            <h2>traefik</h2>
+              <p>参考博客：https://www.cuiliangblog.cn/detail/section/94663774
+简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/velero/">
+          <div>
+            <h2>velero</h2>
+              <p>简介 参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/">
+          <div>
+            <h2>一些k8s 面试题</h2>
+              <p>1. 简述etcd及其特点？ etcd 是 CoreOS 团队发起的开源项目，是一个管理配置信息和服务发现（service discovery）的项目，它的目标是构建一个高可用的分布式键值（key-value）数据库，基于 Go 语言实现。 特点：
+简单：支持 REST 风格的 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
+          <div>
+            <h2>业务迁移k8s案例</h2>
+              <p>参考博客：https://www.cuiliangblog.cn/detail/article/52
+基本流程 第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。 再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+  </section>
+    <footer class="page-footer">
+      <nav class="pagination">
+          <a class="prev" href="/k8s/">« 上一页</a>
+      </nav>
+    </footer>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

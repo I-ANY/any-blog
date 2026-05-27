@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>velero | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="简介
+参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。
+
+开源地址：https://github.com/vmware-tanzu/velero
+官方文档：https://velero.io/docs/v1.11/
+
+
+版本支持列表：
+
+Velero 组件一共分两部分，分别是服务端和客户端。
+
+服务端：运行在你 Kubernetes 的集群中
+客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上
+
+velero备份流程：
+
+velero客户端调用kubernetes API Server创建backup任务
+Backup控制器基于watch机制通过Api Server获取到备份任务
+Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据
+Backup 控制器将获取到的数据备份到指定的对象存储server端
+
+
+Velero后端存储：
+Velero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。
+
+BackupStorageLocation
+
+​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。
+
+VolumeSnapshotLocation
+
+​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。
+安装
+minio客户端
+在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/velero/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/k8s/velero/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/velero/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="velero">
+  <meta property="og:description" content="简介 参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。
+开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：
+Velero 组件一共分两部分，分别是服务端和客户端。
+服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：
+velero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：
+Velero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。
+BackupStorageLocation ​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。
+VolumeSnapshotLocation ​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。
+安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="velero">
+  <meta name="twitter:description" content="简介 参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。
+开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：
+Velero 组件一共分两部分，分别是服务端和客户端。
+服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：
+velero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：
+Velero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。
+BackupStorageLocation ​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。
+VolumeSnapshotLocation ​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。
+安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "velero",
+      "item": "/k8s/velero/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "velero",
+  "name": "velero",
+  "description": "简介 参考博客：https://www.cnblogs.com/nf01/p/18118159\nVelero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。\n开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：\nVelero 组件一共分两部分，分别是服务端和客户端。\n服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：\nvelero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：\nVelero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。\nBackupStorageLocation ​\t主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。\nVolumeSnapshotLocation ​\t主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。\n安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "简介 参考博客：https://www.cnblogs.com/nf01/p/18118159\nVelero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。\n开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：\nVelero 组件一共分两部分，分别是服务端和客户端。\n服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：\nvelero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：\nVelero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。\nBackupStorageLocation ​\t主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。\nVolumeSnapshotLocation ​\t主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。\n安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1\n版本列表：https://github.com/vmware-tanzu/velero/releases\n$ wget https://github.com/vmware-tanzu/velero/releases/download/v1.11.1/velero-v1.11.1-linux-amd64.tar.gz $ tar zxf velero-v1.11.1-linux-amd64.tar.gz $ mv velero-v1.11.1-linux-amd64/velero /usr/bin/ $ velero -h # 启用命令补全 $ source \u003c(velero completion bash) $ velero completion bash \u003e /etc/bash_completion.d/velero minio服务端 使用minio作为后端存储（安装可参考minio篇）\nVelero支持很多种存储插件，可查看：Velero Docs - Providers获取插件信息，这里使用minio作为S3兼容的对象存储提供程序。也可以在任意地方部署Minio对象存储，只需要保证K8S集群可以访问到即可。\n可以使用 velero 客户端来安装服务端，也可以使用 Helm Chart 来进行安装，这里用客户端来安装，velero 命令默认读取 kubectl 配置的集群上下文，所以前提是 velero 客户端所在的节点有可访问集群的 kubeconfig 配置。\n创建密钥 首先准备密钥文件，在当前目录建立一个空白文本文件，内容如下所示：\n$ cat \u003e credentials-velero \u003c",
+  "wordCount" : "565",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/velero/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/k8s/">Kubernetes</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      velero
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e7%ae%80%e4%bb%8b" aria-label="简介">简介</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a><ul>
+                    
+            <li>
+                <a href="#minio%e5%ae%a2%e6%88%b7%e7%ab%af" aria-label="minio客户端">minio客户端</a></li>
+            <li>
+                <a href="#minio%e6%9c%8d%e5%8a%a1%e7%ab%af" aria-label="minio服务端">minio服务端</a><ul>
+                    
+            <li>
+                <a href="#%e5%88%9b%e5%bb%ba%e5%af%86%e9%92%a5" aria-label="创建密钥">创建密钥</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85velero%e5%88%b0k8s%e9%9b%86%e7%be%a4" aria-label="安装velero到k8s集群">安装velero到k8s集群</a></li>
+            <li>
+                <a href="#%e5%8d%b8%e8%bd%bdvelero" aria-label="卸载velero">卸载velero</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e5%a4%87%e4%bb%bd" aria-label="备份">备份</a><ul>
+                    
+            <li>
+                <a href="#%e7%a4%ba%e4%be%8b%e6%b5%8b%e8%af%95" aria-label="示例测试">示例测试</a></li>
+            <li>
+                <a href="#%e5%ae%9a%e6%97%b6%e5%a4%87%e4%bb%bd" aria-label="定时备份">定时备份</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e6%81%a2%e5%a4%8d" aria-label="恢复">恢复</a></li>
+            <li>
+                <a href="#%e9%a1%b9%e7%9b%ae%e8%bf%81%e7%a7%bb" aria-label="项目迁移">项目迁移</a><ul>
+                    
+            <li>
+                <a href="#%e9%a1%b9%e7%9b%ae%e4%bb%8b%e7%bb%8d" aria-label="项目介绍">项目介绍</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="简介">简介<a hidden class="anchor" aria-hidden="true" href="#简介">#</a></h1>
+<p>参考博客：https://www.cnblogs.com/nf01/p/18118159</p>
+<p>Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。</p>
+<ul>
+<li>开源地址：https://github.com/vmware-tanzu/velero</li>
+<li>官方文档：https://velero.io/docs/v1.11/</li>
+</ul>
+<p><img alt="image-20240430173735648" loading="lazy" src="/k8s/velero/images/image-20240430173735648.png"></p>
+<p>版本支持列表：</p>
+<!-- raw HTML omitted -->
+<p>Velero 组件一共分两部分，分别是服务端和客户端。</p>
+<ul>
+<li><strong>服务端</strong>：运行在你 Kubernetes 的集群中</li>
+<li><strong>客户端</strong>：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上</li>
+</ul>
+<p><strong>velero备份流程：</strong></p>
+<ol>
+<li>velero客户端调用kubernetes API Server创建backup任务</li>
+<li>Backup控制器基于watch机制通过Api Server获取到备份任务</li>
+<li>Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据</li>
+<li>Backup 控制器将获取到的数据备份到指定的对象存储server端</li>
+</ol>
+<p><img alt="image-20240430173757657" loading="lazy" src="/k8s/velero/images/image-20240430173757657.png"></p>
+<p><strong>Velero后端存储：</strong></p>
+<p><code>Velero</code>支持两种关于后端存储的<code>CRD</code>，分别是<code>BackupStorageLocation</code>和<code>VolumeSnapshotLocation</code>。</p>
+<ul>
+<li>BackupStorageLocation</li>
+</ul>
+<p>​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。</p>
+<ul>
+<li>VolumeSnapshotLocation</li>
+</ul>
+<p>​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 <code>Restic</code>，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。</p>
+<h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<h2 id="minio客户端">minio客户端<a hidden class="anchor" aria-hidden="true" href="#minio客户端">#</a></h2>
+<p>在 <a href="https://github.com/vmware-tanzu/velero/releases">Github Release 页面</a>下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 <code>v1.11.1</code></p>
+<p>版本列表：https://github.com/vmware-tanzu/velero/releases</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ wget https://github.com/vmware-tanzu/velero/releases/download/v1.11.1/velero-v1.11.1-linux-amd64.tar.gz
+</span></span><span style="display:flex;"><span>$ tar zxf velero-v1.11.1-linux-amd64.tar.gz
+</span></span><span style="display:flex;"><span>$ mv velero-v1.11.1-linux-amd64/velero /usr/bin/
+</span></span><span style="display:flex;"><span>$ velero -h
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启用命令补全</span>
+</span></span><span style="display:flex;"><span>$ source &lt;<span style="color:#f92672">(</span>velero completion bash<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>$ velero completion bash &gt; /etc/bash_completion.d/velero
+</span></span></code></pre></div><h2 id="minio服务端">minio服务端<a hidden class="anchor" aria-hidden="true" href="#minio服务端">#</a></h2>
+<p>使用minio作为后端存储（安装可参考minio篇）</p>
+<p>Velero支持很多种存储插件，可查看：<a href="https://velero.io/docs/v1.13/supported-providers/">Velero Docs - Providers</a>获取插件信息，这里使用minio作为S3兼容的对象存储提供程序。也可以在任意地方部署Minio对象存储，只需要保证K8S集群可以访问到即可。</p>
+<p>可以使用 velero 客户端来安装服务端，也可以使用 Helm Chart 来进行安装，这里用客户端来安装，velero 命令默认读取 kubectl 配置的集群上下文，所以前提是 velero 客户端所在的节点有可访问集群的 kubeconfig 配置。</p>
+<h3 id="创建密钥">创建密钥<a hidden class="anchor" aria-hidden="true" href="#创建密钥">#</a></h3>
+<p>首先准备密钥文件，在当前目录建立一个空白文本文件，内容如下所示：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat &gt; credentials-velero <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[default]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">aws_access_key_id = minio
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">aws_secret_access_key = minio123
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><h3 id="安装velero到k8s集群"><a href="https://github.com/vmware-tanzu/velero-plugin-for-aws#setup">安装velero到k8s集群</a><a hidden class="anchor" aria-hidden="true" href="#安装velero到k8s集群">#</a></h3>
+<p>替换为之前步骤中 minio 的对应 access key id 和 secret access key如果 minio 安装在 kubernetes 集群内时按照如下命令安装 velero 服务端:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ velero install <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --provider aws <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --image velero/velero:v1.11.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --plugins velero/velero-plugin-for-aws:v1.7.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --bucket velero <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --secret-file ./credentials-velero <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --use-node-agent <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --use-volume-snapshots<span style="color:#f92672">=</span>false <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --namespace velero <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --backup-location-config region<span style="color:#f92672">=</span>minio,s3ForcePathStyle<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;true&#34;</span>,s3Url<span style="color:#f92672">=</span>http://minio:9000 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --wait
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行install命令后会创建一系列清单，包括CustomResourceDefinition、Namespace、Deployment等。</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># velero install .... --dry-run -o yaml &gt; velero_deploy.yaml 如果为私仓，可以通过--dry-run 导出 YAML 文件调整在应用。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 可使用如下命令查看运行日志</span>
+</span></span><span style="display:flex;"><span>$ kubectl logs deployment/velero -n velero
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看velero创建的api对象</span>
+</span></span><span style="display:flex;"><span>$ kubectl api-versions | grep velero
+</span></span><span style="display:flex;"><span>velero.io/v1
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看备份位置</span>
+</span></span><span style="display:flex;"><span>$ velero backup-location get
+</span></span><span style="display:flex;"><span>NAME      PROVIDER   BUCKET/PREFIX   PHASE       LAST VALIDATED                  ACCESS MODE   DEFAULT
+</span></span><span style="display:flex;"><span>default   aws        velero          Available   2023-03-28 15:45:30 +0800 CST   ReadWrite     true
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#卸载命令</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># velero uninstall --namespace velero</span>
+</span></span><span style="display:flex;"><span>You are about to uninstall Velero.
+</span></span><span style="display:flex;"><span>Are you sure you want to <span style="color:#66d9ef">continue</span> <span style="color:#f92672">(</span>Y/N<span style="color:#f92672">)</span>? y
+</span></span><span style="display:flex;"><span>Waiting <span style="color:#66d9ef">for</span> velero namespace <span style="color:#e6db74">&#34;velero&#34;</span> to be deleted
+</span></span><span style="display:flex;"><span>............................................................................................................................................................................................
+</span></span><span style="display:flex;"><span>Velero namespace <span style="color:#e6db74">&#34;velero&#34;</span> deleted
+</span></span><span style="display:flex;"><span>Velero uninstalled ⛵
+</span></span></code></pre></div><p>参数说明</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>--kubeconfig<span style="color:#f92672">(</span>可选<span style="color:#f92672">)</span>：指定kubeconfig认证文件，默认使用.kube/config；
+</span></span><span style="display:flex;"><span>--provider：定义插件提供方；
+</span></span><span style="display:flex;"><span>--image：定义运行velero的镜像，默认与velero客户端一致；
+</span></span><span style="display:flex;"><span>--plugins：指定使用aws s3兼容的插件镜像；
+</span></span><span style="display:flex;"><span>--bucket：指定对象存储Bucket桶名称；
+</span></span><span style="display:flex;"><span>--secret-file：指定对象存储认证文件；
+</span></span><span style="display:flex;"><span>--use-node-agent：创建Velero Node Agent守护进程，托管FSB模块；
+</span></span><span style="display:flex;"><span>--use-volume-snapshots：是否启使用快照；
+</span></span><span style="display:flex;"><span>--namespace：指定部署的namespace名称，默认为velero；
+</span></span><span style="display:flex;"><span>--backup-location-config：指定对象存储地址信息；
+</span></span></code></pre></div><p>aws插件与velero版本对应关系：</p>
+<p><a href="https://github.com/vmware-tanzu/velero-plugin-for-aws">https://github.com/vmware-tanzu/velero-plugin-for-aws</a></p>
+<!-- raw HTML omitted -->
+<h3 id="卸载velero">卸载velero<a hidden class="anchor" aria-hidden="true" href="#卸载velero">#</a></h3>
+<p>如果您想从集群中完全卸载Velero，则以下命令将删除由<code>velero install</code>创建的所有资源:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl delete namespace/velero clusterrolebinding/velero
+</span></span><span style="display:flex;"><span>kubectl delete crds -l component<span style="color:#f92672">=</span>velero
+</span></span></code></pre></div><h1 id="备份">备份<a hidden class="anchor" aria-hidden="true" href="#备份">#</a></h1>
+<p>备份命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>velero create backup NAME <span style="color:#f92672">[</span>flags<span style="color:#f92672">]</span>
+</span></span></code></pre></div><p><strong>backup选项：</strong></p>
+<ul>
+<li><code>--exclude-namespaces stringArray</code> : 要从备份中排除的名称空间</li>
+<li><code>--exclude-resources stringArray</code>: 要从备份中排除的资源，如<code>storageclasses.storage.k8s.io</code></li>
+<li><code>--include-cluster-resources optionalBool[=true]</code>: 包含集群资源类型</li>
+<li><code>--include-namespaces stringArray</code>: 要包含在备份中的名称空间(默认&rsquo;*')</li>
+<li><code>--include-resources stringArray</code>: 备份中要包括的资源</li>
+<li><code>--labels mapStringString</code>: 给这个备份加上标签</li>
+<li><code>-o, --output string</code>: 指定输出格式，支持&rsquo;table&rsquo;、&lsquo;json&rsquo;和&rsquo;yaml&rsquo;；</li>
+<li><code>-l, --selector labelSelector</code>: 对指定标签的资源进行备份</li>
+<li><code>--snapshot-volumes optionalBool[=true]</code>: 对 PV 创建快照</li>
+<li><code>--storage-location string</code>: 指定备份的位置</li>
+<li><code>--ttl duration</code>: 备份数据多久删掉</li>
+<li><code>--volume-snapshot-locations strings</code>: 指定快照的位置，也就是哪一个公有云驱动</li>
+</ul>
+<h2 id="示例测试">示例测试<a hidden class="anchor" aria-hidden="true" href="#示例测试">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 备份命名空间</span>
+</span></span><span style="display:flex;"><span>velero backup create nginx-backup --include-namespaces nginx-example
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 参数：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># --include-namespaces：指定命名空间</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># --selector：标签选择器，如app=nginx</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># --default-volumes-to-fs-backup：默认将所有PV卷进行备份，详情查看官方文档：https://velero.io/docs/v1.10/file-system-backup/</span>
+</span></span></code></pre></div><p>查询备份列表</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>velero backup get
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 查看备份详细信息</span>
+</span></span><span style="display:flex;"><span>velero backup describe nginx-backup
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看备份日志</span>
+</span></span><span style="display:flex;"><span>velero backup logs nginx-backup
+</span></span></code></pre></div><h2 id="定时备份">定时备份<a hidden class="anchor" aria-hidden="true" href="#定时备份">#</a></h2>
+<p>使用cron表达式备份</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ velero schedule create nginx-daily --schedule<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0 1 * * *&#34;</span> --include-namespaces nginx-example
+</span></span></code></pre></div><p>使用一些非标准的速记 cron 表达式</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ velero schedule create nginx-daily --schedule<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;@daily&#34;</span> --include-namespaces nginx-example
+</span></span></code></pre></div><p>手动触发定时任务</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ velero backup create --from-schedule nginx-daily
+</span></span></code></pre></div><p>更多cron示例参考：<a href="https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules">cron package’s documentation</a></p>
+<p>批量备份全部命名空间</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat &gt;all-ns-backup.sh <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">NS_NAME=`kubectl get ns | awk &#39;{if (NR&gt;2){print}}&#39; | awk &#39;{print $1}&#39;`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">DATE=`date +%Y%m%d%H%M%S`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">cd /data/velero/
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">for i in $NS_NAME;do
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">velero backup create ${i}-ns-backup-${DATE} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">--include-cluster-resources=true \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">--include-namespaces ${i} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">--kubeconfig=/root/.kube/config \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">--namespace velero-system
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">done
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>root@k8s-master01:/data/velero# 
+</span></span></code></pre></div><h1 id="恢复">恢复<a hidden class="anchor" aria-hidden="true" href="#恢复">#</a></h1>
+<p>模拟故障</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 删除nginx-example命名空间和资源</span>
+</span></span><span style="display:flex;"><span>$ kubectl delete namespace nginx-example
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 检查是否删除</span>
+</span></span><span style="display:flex;"><span>$ kubectl get all -n nginx-example
+</span></span><span style="display:flex;"><span>No resources found in nginx-example namespace.
+</span></span></code></pre></div><p>恢复资源</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ velero backup get
+</span></span><span style="display:flex;"><span>NAME           STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+</span></span><span style="display:flex;"><span>nginx-backup   Completed   <span style="color:#ae81ff">0</span>        <span style="color:#ae81ff">0</span>          2024-04-06 21:47:16 +0800 CST   29d       default            &lt;none&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ velero restore create --from-backup nginx-backup
+</span></span><span style="display:flex;"><span>Restore request <span style="color:#e6db74">&#34;nginx-backup-20240406215611&#34;</span> submitted successfully.
+</span></span><span style="display:flex;"><span>Run <span style="color:#e6db74">`</span>velero restore describe nginx-backup-20240406215611<span style="color:#e6db74">`</span> or <span style="color:#e6db74">`</span>velero restore logs nginx-backup-20240406215611<span style="color:#e6db74">`</span> <span style="color:#66d9ef">for</span> more details.
+</span></span></code></pre></div><p>检查</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 查看恢复的资源</span>
+</span></span><span style="display:flex;"><span>$ velero restore get
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看详细信息</span>
+</span></span><span style="display:flex;"><span>$ velero restore describe nginx-backup-20240406215611
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 检查资源状态</span>
+</span></span><span style="display:flex;"><span>$ kubectl get all -n nginx-example
+</span></span></code></pre></div><h1 id="项目迁移">项目迁移<a hidden class="anchor" aria-hidden="true" href="#项目迁移">#</a></h1>
+<h2 id="项目介绍">项目介绍<a hidden class="anchor" aria-hidden="true" href="#项目介绍">#</a></h2>
+<p>我们将使用<code>Velero</code>快速完成<strong>云原生应用</strong>及<strong>PV数据</strong>的迁移实践过程，在本文示例中，我们将<strong>A集群</strong>中的一个<strong>MOS应用</strong>迁移到<strong>集群B</strong>中，其中数据备份采用自建<strong>Minio</strong>对象存储服务。</p>
+<p><strong>环境要求:</strong></p>
+<ol>
+<li>迁移项目最好保证两个Kubernetes集群版本一致。</li>
+<li>为了保证PV数据成功迁移，两边需要安装好相同名字的<code>StorageClass</code>。</li>
+<li>可以自己部署Minio，也可以使用公有云的对象存储服务，如华为的OBS、阿里的OSS等。</li>
+<li>本案例将集群A中app-system命名空间中的服务及PV数据迁移到集群B中。</li>
+</ol>
+<p><strong>项目说明</strong></p>
+<p>需要将集群A中 <code>istio-system</code> 空间的所有资源和数据全部迁移到集群B中，该项目包括了<code>deployment</code>、<code>statefulset</code>、<code>service</code>、<code>ingress</code>、<code>job</code>、<code>cronjob</code>、<code>secret</code>、<code>configmap</code>、<code>pv</code>、<code>pvc</code>。</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/k8s/traefik/">
+    <span class="title">« Prev</span>
+    <span>traefik</span>
+  </a>
+  <a class="next" href="/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
+    <span class="title">Next »</span>
+    <span>Vue3快速上手</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

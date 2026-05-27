@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Python on 探无止境</title>
+    <link>/python/</link>
+    <description>Recent content in Python on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="/python/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>celery</title>
+      <link>/python/celery/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/celery/</guid>
+      <description>&lt;h1 id=&#34;celery&#34;&gt;celery&lt;/h1&gt;
+&lt;p&gt;Celery是一个简单、灵活且可靠的，处理大量消息的分布式系统，专注于实时处理的异步任务队列，同时也支持任务调度。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;消息中间件&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	Celery本身不提供消息服务，但是可以方便的和第三方提供的消息中间件集成。包括，RabbitMQ, Redis等等&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;任务执行单元&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	Worker是任务执行单元，负责从消息队列中取出任务执行，它可以启动一个或者多个，也可以启动在不同的机器节点，这就是其实现分布式的核心。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;任务结果存储&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	Backend结果存储官方也提供了诸多的存储方式支持：RabbitMQ、 Redis、Memcached,SQLAlchemy, Django ORM、Apache Cassandra、Elasticsearch&lt;/p&gt;
+&lt;p&gt;Celery还支持不同的并发和序列化的手段：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;并发：Prefork, Eventlet, gevent, threads/single threaded&lt;/li&gt;
+&lt;li&gt;序列化：pickle, json, yaml, msgpack. zlib, bzip2 compression， Cryptographic message signing 等等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;使用场景：&lt;/p&gt;
+&lt;p&gt;​	1.web应用：当用户在网站进行某个操作需要很长时间完成时，我们可以将这种操作交给Celery执行，直接返回给用户，等到Celery执行完成以后通知用户，大大提好网站的并发以及用户的体验感。&lt;/p&gt;
+&lt;p&gt;　　2.任务场景：比如在运维场景下需要批量在几百台机器执行某些命令或者任务，此时Celery可以轻松搞定。&lt;/p&gt;
+&lt;p&gt;　　3.定时任务：向定时导数据报表、定时发送通知类似场景，虽然Linux的计划任务可以帮我实现，但是非常不利于管理，而Celery可以提供管理接口和丰富的API。&lt;/p&gt;
+&lt;p&gt;工作原理：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;任务模块Task包含异步任务和定时任务。其中，异步任务通常在业务逻辑中被触发并发往消息队列，而定时任务由Celery Beat进程周期性地将任务发往消息队列；&lt;/li&gt;
+&lt;li&gt;任务执行单元Worker实时监视消息队列获取队列中的任务执行；&lt;/li&gt;
+&lt;li&gt;Woker执行完任务后将结果保存在Backend中;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;原理图&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;场景1： 有一个耗时的任务，为了不让用户hang住等待，可先接受业务，返回业务号，然后让后台处理之后再返回结果，处理耗时任务&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;celery生成一个列表，他不负责处理，只是把任务扔入这个列表，表明任务在等待，下面有worker，结果放入另一个队列，对于耗时的任务可以将任务列入broker中，给用户返回一个任务id, 由worker去领取任务并处理。 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;app只负责从celery获取任务，任务完成后放入backends
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;用户提供id就可以上backends中查询执行情况，这比crontab要好用 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;场景2   有一个定时需要执行的任务&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;定时任务&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;：&lt;/span&gt; 放在任务列表但定时领取任务&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;，&lt;/span&gt;定时发布和定时拍卖等 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;设定任务的执行时间 
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;安装&#34;&gt;安装&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;pip3安装celery（或者源码安装）&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 注意5版本以后必须要python3.5的支持&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;U Celery
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;redis或者rabitMQ（作为borker）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;简单使用&#34;&gt;简单使用&lt;/h2&gt;
+&lt;p&gt;创建项目celerypro目录&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Django</title>
+      <link>/python/django/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/django/</guid>
+      <description>&lt;h1 id=&#34;框架&#34;&gt;框架&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;p&gt;1、conda 安装：&lt;/p&gt;
+&lt;p&gt;​	去到对应的虚拟环境下：conda install django==版本号  （如出现报错：missPackageNotFoundError: Packages missing in current channels，首先要保证当前使用的源有安装包，使用命令查找： conda search BeautifulSoup）
+2、pip3安装：直接执行：pip3 install python==版本号&lt;/p&gt;
+&lt;h1 id=&#34;开始项目&#34;&gt;开始项目&lt;/h1&gt;
+&lt;h2 id=&#34;创建项目&#34;&gt;创建项目&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;1、命令行创建（不会自动创建templates目录，需要手工创建）：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;创建项目：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;django-admin startproject &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;项目名称&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; （创建的时候先切换到对应的盘符下，默认是直接创建在当前目录下）
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;创建应用：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python manage.py startapp &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;应用名&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;启动：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#切换到项目的目录下后执行：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python3 manage.py runserver &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;ip:port&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt;
+1、需要手动添加更改templates的文件路径settings.py：&amp;lsquo;DIRS&amp;rsquo; : os.path.join(BASE_DIR, &amp;rsquo;templates&amp;rsquo;)
+2、创建应用之后需要在settings.py中注册，不注册的话django不会识别：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2、pycharm创建（会自动创建templates目录）：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;创建：new project &amp;mdash;-&amp;gt; django &amp;mdash;&amp;gt; 选择环境及编译器 &amp;mdash;&amp;gt; create&lt;/p&gt;
+&lt;p&gt;启动：直接在界面上点击运行：run&lt;/p&gt;
+&lt;p&gt;如果有报错需要更改settings.py中的tempates的路径：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;创建应用：菜单Tools &amp;mdash;&amp;gt; Run Manage.py Task ，然后直接执行：startapp&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;更改端口号：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;/python/django/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;项目文件目录构成：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;web01项目文件夹：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--web01                文件夹
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---settings.py     配置文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---urls.py             路由与视图对应关系（路由层）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---wsgi          wsgiref模块（不考虑）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--app01               应用文件夹
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---admin.py      后台管理
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---apps.py           注册使用
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---migration.py   文件夹（数据库迁移记录）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---models.py     数据库相关的模型类（orm）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---tests.py      测试文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---views.py         视图文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--manage.py            django入口文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--db.sqllite3            django自带的sqlite3小型数据库
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;url-配置&#34;&gt;url 配置&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;url方法&lt;/th&gt;
+          &lt;th&gt;说明&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;url&lt;/td&gt;
+          &lt;td&gt;支持正则匹配，实际上就是return re_path, django1.x默认方法，需要导入：from django.conf.urls import url  &lt;!-- raw HTML omitted --&gt;无名分组：（正则）  &lt;!-- raw HTML omitted --&gt;有名分组：(?P&amp;lt;组名&amp;gt;正则表达式)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;path&lt;/td&gt;
+          &lt;td&gt;只能绝对匹配路径地址，不支持正则匹配，django2.x以上默认方法，需要导入：from  django.urls import re_path, path&lt;code&gt;  &lt;/code&gt;&lt;!-- raw HTML omitted --&gt;例：path(&amp;lsquo;index/&lt;a href=&#34;str:info&#34;&gt;str:info&lt;/a&gt;/&amp;rsquo;  ,views.index, name = index)&lt;!-- raw HTML omitted --&gt;&amp;lt;&amp;gt;中转换器种类：&lt;!-- raw HTML omitted --&gt;     str：匹配除路径分隔符外的任何非空字符串。&lt;!-- raw HTML omitted --&gt;     int：匹配0或者任意正整数。&lt;!-- raw HTML omitted --&gt;     slug：匹配任意一个由字母或数字组成的字符串。&lt;!-- raw HTML omitted --&gt;     uuid：匹配格式化后的UUID。&lt;!-- raw HTML omitted --&gt;     path：能够匹配完整的URL路径&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;re_path&lt;/td&gt;
+          &lt;td&gt;支持正则匹配，django  2.x版本常用&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;django1.x版本中默认使用 url：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Django-bak</title>
+      <link>/python/django-bak/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/django-bak/</guid>
+      <description>&lt;h1 id=&#34;框架&#34;&gt;框架&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331155628960&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331155628960.png&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;p&gt;1、conda 安装：&lt;/p&gt;
+&lt;p&gt;​	去到对应的虚拟环境下：conda install django==版本号  （如出现报错：missPackageNotFoundError: Packages missing in current channels，首先要保证当前使用的源有安装包，使用命令查找： conda search BeautifulSoup）
+2、pip3安装：直接执行：pip3 install python==版本号&lt;/p&gt;
+&lt;h1 id=&#34;开始项目&#34;&gt;开始项目&lt;/h1&gt;
+&lt;h2 id=&#34;创建项目&#34;&gt;创建项目&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;1、命令行创建（不会自动创建templates目录，需要手工创建）：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;创建项目：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;django-admin startproject &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;项目名称&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; （创建的时候先切换到对应的盘符下，默认是直接创建在当前目录下）
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;创建应用：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python manage.py startapp &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;应用名&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;启动：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#切换到项目的目录下后执行：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python3 manage.py runserver &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;ip:port&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt;
+1、需要手动添加更改templates的文件路径settings.py：&amp;lsquo;DIRS&amp;rsquo; : os.path.join(BASE_DIR, &amp;rsquo;templates&amp;rsquo;)
+2、创建应用之后需要在settings.py中注册，不注册的话django不会识别：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160222067&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160222067.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2、pycharm创建（会自动创建templates目录）：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;创建：new project &amp;mdash;-&amp;gt; django &amp;mdash;&amp;gt; 选择环境及编译器 &amp;mdash;&amp;gt; create&lt;/p&gt;
+&lt;p&gt;启动：直接在界面上点击运行：run&lt;/p&gt;
+&lt;p&gt;如果有报错需要更改settings.py中的tempates的路径：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160435865&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160435865.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;创建应用：菜单Tools &amp;mdash;&amp;gt; Run Manage.py Task ，然后直接执行：startapp&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160540286&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160540286.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;更改端口号：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240331160553600&#34; loading=&#34;lazy&#34; src=&#34;/python/django-bak/images/image-20240331160553600.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;项目文件目录构成：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;web01项目文件夹：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--web01                文件夹
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---settings.py     配置文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---urls.py             路由与视图对应关系（路由层）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---wsgi          wsgiref模块（不考虑）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--app01               应用文件夹
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---admin.py      后台管理
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---apps.py           注册使用
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---migration.py   文件夹（数据库迁移记录）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---models.py     数据库相关的模型类（orm）
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---tests.py      测试文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  ---views.py         视图文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--manage.py            django入口文件
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;--db.sqllite3            django自带的sqlite3小型数据库
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;url-配置&#34;&gt;url 配置&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;url方法&lt;/th&gt;
+          &lt;th&gt;说明&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;url&lt;/td&gt;
+          &lt;td&gt;支持正则匹配，实际上就是return re_path, django1.x默认方法，需要导入：from django.conf.urls import url  &lt;!-- raw HTML omitted --&gt;无名分组：（正则）  &lt;!-- raw HTML omitted --&gt;有名分组：(?P&amp;lt;组名&amp;gt;正则表达式)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;path&lt;/td&gt;
+          &lt;td&gt;只能绝对匹配路径地址，不支持正则匹配，django2.x以上默认方法，需要导入：from  django.urls import re_path, path&lt;code&gt;  &lt;/code&gt;&lt;!-- raw HTML omitted --&gt;例：path(&amp;lsquo;index/&lt;a href=&#34;str:info&#34;&gt;str:info&lt;/a&gt;/&amp;rsquo;  ,views.index, name = index)&lt;!-- raw HTML omitted --&gt;&amp;lt;&amp;gt;中转换器种类：&lt;!-- raw HTML omitted --&gt;     str：匹配除路径分隔符外的任何非空字符串。&lt;!-- raw HTML omitted --&gt;     int：匹配0或者任意正整数。&lt;!-- raw HTML omitted --&gt;     slug：匹配任意一个由字母或数字组成的字符串。&lt;!-- raw HTML omitted --&gt;     uuid：匹配格式化后的UUID。&lt;!-- raw HTML omitted --&gt;     path：能够匹配完整的URL路径&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;re_path&lt;/td&gt;
+          &lt;td&gt;支持正则匹配，django  2.x版本常用&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;django1.x版本中默认使用 url：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>se_huaweiCloud</title>
+      <link>/python/spider/se_huaweicloud/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/spider/se_huaweicloud/</guid>
+      <description>&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Chrome
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.common.keys &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Keys
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; ActionChains
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.chrome.options &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Options
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.support &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; select
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.common.by &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; By      &lt;span style=&#34;color:#75715e&#34;&gt;# 匹配标签使用&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; selenium.webdriver.chrome.service &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Service
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; time
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;se_huaweicCloud&lt;/span&gt;(object):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;__init__&lt;/span&gt;(self):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;url &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;https://auth.huaweicloud.com/authui/login.html?service=https://console.huaweicloud.com/marketplace/tenant/#/login&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;phone &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;17377042972&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;passwd &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;weizhen@huawei&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;#实例化浏览器并规避检测selenium&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;opt &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Options()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;opt&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_argument(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;--disable-blink-features=AutomationControlled&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;opt&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_experimental_option(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;excludeSwitches&amp;#34;&lt;/span&gt;, [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;enable-automation&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;enable-logging&amp;#39;&lt;/span&gt;])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;#self.brower = Chrome(options=self.opt)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;service &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Service(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;D:/Software/python3.7/chromedriver.exe&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Chrome(service&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;service)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;implicitly_wait(&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#鼠标点击操作&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Click&lt;/span&gt;(self,line):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        action &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ActionChains(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        action&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;click_and_hold(line)     &lt;span style=&#34;color:#75715e&#34;&gt;#点击不松开&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        action&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;move_by_offset(&lt;span style=&#34;color:#ae81ff&#34;&gt;300&lt;/span&gt;,&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)    &lt;span style=&#34;color:#75715e&#34;&gt;#移动&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        action&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;perform()                &lt;span style=&#34;color:#75715e&#34;&gt;#执行动作&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        action&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;release()                &lt;span style=&#34;color:#75715e&#34;&gt;#释放鼠标&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#进入到网页&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Broswer&lt;/span&gt;(self):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;#找到账号和密码框输入账号和密码&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;maximize_window()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# Selenium在打开任何页面之前，先运行这个Js文件。&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;with&lt;/span&gt; open(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;E:/学习资料/我的资料整理/python/spider/hide.js&amp;#39;&lt;/span&gt;) &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; f:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;execute_cdp_cmd(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Page.addScriptToEvaluateOnNewDocument&amp;#34;&lt;/span&gt;, {&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;source&amp;#34;&lt;/span&gt;: f&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;read()})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;get(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;url)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[2]/div[2]/div/div/div[1]/input&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;send_keys(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;phone)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[3]/div/div/div/input&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;send_keys(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;passwd)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/div[2]/div/div/div&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;click()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[3]/div[2]/div[2]/div/div[2]&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;click()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[4]/div/div/div/input&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;send_keys(self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;passwd)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;hwidsdk_mudule_container&amp;#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/div[2]/div/div/div&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;click()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# 获取数据&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        tag_list &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;  self&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;brower&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_elements(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*[@id=&amp;#34;ti_auto_id_3&amp;#34;]/div/table/tbody/tr[2]&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; tag &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; tag_list:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            print(tag&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;find_element(By&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;XPATH, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;div/div[2]/div&amp;#39;&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;text)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# pro_name = self.brower.find_element(By.XPATH, &amp;#39;//*[@id=&amp;#34;contentName00&amp;#34;]/div/div[2]/div&amp;#39;).text&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;#print(pro_name)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        time&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; __name__ &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;__main__&amp;#34;&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    selenuim &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; se_huaweicCloud()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    selenuim&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Broswer()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    <item>
+      <title>Spider集合</title>
+      <link>/python/spider/spider%E9%9B%86%E5%90%88/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/spider/spider%E9%9B%86%E5%90%88/</guid>
+      <description>&lt;h1 id=&#34;网站分析&#34;&gt;网站分析&lt;/h1&gt;
+&lt;p&gt;1、先找到对应的网站的数据信息，看Headers找到对应的url、请求方式以及请求头相关信息以及响应数据等&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240121232145617&#34; loading=&#34;lazy&#34; src=&#34;images/image-20240121232145617.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240121232204182&#34; loading=&#34;lazy&#34; src=&#34;images/image-20240121232204182.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;2、查看payload请求参数是什么格式&lt;/p&gt;
+&lt;p&gt;json&lt;/p&gt;
+&lt;p&gt;data&lt;/p&gt;
+&lt;h1 id=&#34;数据解析&#34;&gt;数据解析&lt;/h1&gt;
+&lt;h2 id=&#34;xpath&#34;&gt;xpath&lt;/h2&gt;
+&lt;p&gt;原理：
+1、实例化一个etree对象，且需要被解析的页面源码数据加载到该对象当中；
+2、调用etree对象中的xpath方法结合着xpath表达式实现标签的定义以及内容的捕获；
+依赖包安装：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip3 install lxml
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;实例化一个etree对象：
+1、将本地的html源码数据加载到rtree对象中：&lt;/p&gt;
+&lt;p&gt;​		etree.parse(filepath)
+​	2、将从互联网上捕获的源码数据加载到etree对象中：
+​		etree.HTML(&amp;lsquo;page_text&amp;rsquo;)
+xpath(&amp;lsquo;xpath表达式&amp;rsquo;)
+​	/：表示从根节点开始定位；表示的是一个层级
+​	//：表示多个层级，也表示从任意位置开始定位
+​	定位：
+​		属性定位：//tag[@attrName=&amp;ldquo;attrValue&amp;rdquo;]
+​		索引定位：//tag[@attrName=&amp;ldquo;attrValue&amp;rdquo;]/attrName[n] n从1开始
+​	取文本：
+​		/text()：标签中直系标签的文本内容&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 取出div标签的文本数据&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;div&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;text()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;​		//text()：标签中所有标签的文本内容
+​	取属性：/@attrName   &amp;mdash;img/src
+注意：对于相同的标签，一定要区分开，取到自己想要的标签值&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; lxml &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; etree
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;text &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; resp&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;text
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;html &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; etree&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;HTML(text)    &lt;span style=&#34;color:#75715e&#34;&gt;#使用text构造一个XPath解析对象,etree模块可以自动修正HTML文本&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;html &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; etree&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;parse(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;./ex.html&amp;#39;&lt;/span&gt;,etree&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;HTMLParser())    &lt;span style=&#34;color:#75715e&#34;&gt;#直接读取文本进行解析&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//*&amp;#39;&lt;/span&gt;)      &lt;span style=&#34;color:#75715e&#34;&gt;#选取所有节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li&amp;#39;&lt;/span&gt;)      &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有li节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li/a&amp;#39;&lt;/span&gt;)     &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有li节点的直接a子节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li//a&amp;#39;&lt;/span&gt;)    &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有li节点的所有a子孙节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//a[@href=&amp;#34;link.html&amp;#34;]/../@class&amp;#39;&lt;/span&gt;)     &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有href属性为link.html的a节点的父节点的class属性&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[@class=&amp;#34;ni&amp;#34;]&amp;#39;&lt;/span&gt;)             &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有class属性为ni的li节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li/text()&amp;#39;&lt;/span&gt;)  &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有li节点的文本&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li/a/@href&amp;#39;&lt;/span&gt;)  &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有li节点的a节点的href属性&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[contains(@class,&amp;#34;li&amp;#34;)]/a/text())    #当li的class属性有多个值时，需用contains函数完成匹配&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[contains(@class,&amp;#34;li&amp;#34;) and @name=&amp;#34;item&amp;#34;]/a/text()&amp;#39;&lt;/span&gt;)  &lt;span style=&#34;color:#75715e&#34;&gt;#多属性匹配&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#按序选择，中括号内为XPath提供的函数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/a/text()&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[last()]/a/text()&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[position()&amp;lt;3]/a/text()&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[last()-2]/a/text()&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/ancestor::*&amp;#39;&lt;/span&gt;)   &lt;span style=&#34;color:#75715e&#34;&gt;#获取祖先节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#获取属性值&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/ancestor::div&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/attribute::*&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/child::a[@href=&amp;#34;link1.html&amp;#34;]&amp;#39;&lt;/span&gt;)  &lt;span style=&#34;color:#75715e&#34;&gt;#获取直接子节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/descendant::span&amp;#39;&lt;/span&gt;)     &lt;span style=&#34;color:#75715e&#34;&gt;#获取所有子孙节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/following::*[2]&amp;#39;&lt;/span&gt;)      &lt;span style=&#34;color:#75715e&#34;&gt;#获取当前节点之后的所有节点的第二个&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;result &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; html&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;xpath(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;//li[1]/following-sibling::*&amp;#39;&lt;/span&gt;)   &lt;span style=&#34;color:#75715e&#34;&gt;#获取后续所有同级节点&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;正则表达式：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>基础</title>
+      <link>/python/%E5%9F%BA%E7%A1%80/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/%E5%9F%BA%E7%A1%80/</guid>
+      <description>&lt;h1 id=&#34;编码&#34;&gt;编码&lt;/h1&gt;
+&lt;p&gt;decode：解码&lt;/p&gt;
+&lt;p&gt;encode：编码&lt;/p&gt;
+&lt;p&gt;utf-8是unicode的扩展字符集，utf-8可以显示unicode字符集&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;strong&gt;python2中使用的默认编码是ASCII&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;使用默认的ASCII编码解码为unicode然后编码为utf-8:&lt;/p&gt;
+&lt;p&gt;str.decode().encode(&amp;ldquo;utf-8&amp;rdquo;)&lt;/p&gt;
+&lt;p&gt;UTF-8转GBK：编码为utf-8的字符先解码为Unicode，然后再编码为gbk&lt;/p&gt;
+&lt;p&gt;str.decode(&amp;ldquo;utf-8&amp;rdquo;).encode(&amp;ldquo;gbk&amp;rdquo;)&lt;/p&gt;
+&lt;p&gt;GBK转UTF-8:&lt;/p&gt;
+&lt;p&gt;str.decode(&amp;ldquo;gbk&amp;rdquo;).encode(&amp;ldquo;utf-8&amp;rdquo;)&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;python3中使用的默认编码是Unicode&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;在文件头声明的编码是文件的编码，代码中实际的编码还是Unicode&lt;/p&gt;
+&lt;p&gt;可以直接进行编码：&lt;/p&gt;
+&lt;p&gt;str.encode()&lt;/p&gt;
+&lt;h1 id=&#34;字符串str&#34;&gt;字符串(str)&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;code&gt;方法    &lt;/code&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;code&gt;含义&lt;/code&gt;&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;format(*args, **kwargs)&lt;/td&gt;
+          &lt;td&gt;返回一个格式化的新字符串；使用位置参数（args）和关键字参数（kwargs）进行替换&lt;!-- raw HTML omitted --&gt;&lt;strong&gt;位置参数&lt;/strong&gt;：占位符 &lt;code&gt;{}&lt;/code&gt; 会按照它们在字符串中出现的顺序来填充值。&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;Hello, {}!&amp;quot;.format(&amp;ldquo;ANY&amp;rdquo;)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;Hello, ANY!&amp;rsquo;   &lt;!-- raw HTML omitted --&gt;&lt;strong&gt;关键字参数&lt;/strong&gt;：使用关键字参数，你可以通过指定参数的名称来填充值&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;Hello, {name}!&amp;quot;.format(name=&amp;ldquo;ANY&amp;rdquo;)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;Hello, ANY!&amp;rsquo;&lt;!-- raw HTML omitted --&gt;**索引和多个参数：**可以使用索引来指定参数的位置，或者一次性传递多个参数。&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;{0}{2}{1}&amp;quot;.format(&amp;ldquo;a&amp;rdquo;,&amp;ldquo;b&amp;rdquo;,&amp;ldquo;c&amp;rdquo;)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;acb&amp;rsquo;&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&lt;strong&gt;高级用法&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;&amp;rsquo;:&amp;rsquo;   号后面带填充的字符，只能是一个字符，不指定则默认是用空格填充。&lt;!-- raw HTML omitted --&gt; &amp;lsquo;&amp;lt;&amp;rsquo;    强制字符串在可用空间内左对齐（默认）&lt;!-- raw HTML omitted --&gt; &amp;lsquo;&amp;gt;&amp;rsquo;    强制字符串在可用空间内右对齐 &lt;!-- raw HTML omitted --&gt;&amp;rsquo;=&amp;rsquo;    强制将填充放置在符号（如果有）之后但在数字之前的位置（这适用于以 “+000000120” 的      形式打印字符串） &lt;!-- raw HTML omitted --&gt;&amp;rsquo;^&amp;rsquo;    强制字符串在可用空间内居中&lt;!-- raw HTML omitted --&gt;**格式化数字：**格式化数字&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;保留两位小数：{:.2f}&amp;quot;.format(3.14159)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;保留两位小数：3.14&amp;rsquo;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;带符号保留两位小数：{:+.2f}&amp;quot;.format(3.14159)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;保留两位小数：+3.14&amp;rsquo;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;显示百分比: {:.2%}&amp;quot;.format(0.99)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;显示百分比: 99.00%&amp;rsquo;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;指数记法: {:.2e}&amp;quot;.format(1000000)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;指数记法: 1.00e+06&amp;rsquo;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;逗号分隔: {:,}&amp;quot;.format(1000000)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;逗号分隔: 1,000,000&amp;rsquo;&lt;!-- raw HTML omitted --&gt;对齐文本：指定文本的对齐方式&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; &amp;ldquo;数字前补零 (填充左边, 宽度为2): {:0&amp;gt;2d}&amp;quot;.format(9)&lt;!-- raw HTML omitted --&gt;&amp;lsquo;数字前补零 (填充左边, 宽度为2): 09&amp;rsquo;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;capitalize()&lt;/td&gt;
+          &lt;td&gt;返回一个首字母大写版本的新字符串（新字符串的首字母变为大写，其它字母变为小写）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;casefold()&lt;/td&gt;
+          &lt;td&gt;返回一个小写版本的新字符串（新字符串的所有字母变为小写）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;center(width,  fillchar=&amp;rsquo; &amp;lsquo;)&lt;/td&gt;
+          &lt;td&gt;返回一个字符居中的新字符串（width &amp;lt;= 字符串长度，新字符串 = 原字符串；width &amp;gt; 字符串宽度，所有字符居中，左右使用 fillchar 参数指定的字符填充）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;count(sub[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;返回 sub 在字符串中不重叠的出现次数，可选参数 start 和 end 用于指定起始和结束位置&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;encode(encoding=&amp;lsquo;utf-8&amp;rsquo;,  errors=&amp;lsquo;strict&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;以 encoding 参数指定的编码格式对字符串进行编码。errors 参数指定编码出现错误时的解决方案：默认的 &amp;lsquo;strict&amp;rsquo; 表示如果出错，将抛出一个 UnicodeEncodeError 的异常。其它可用的参数值是 &amp;lsquo;ignore&amp;rsquo;，&amp;lsquo;replace&amp;rsquo; 和 &amp;lsquo;xmlcharrefreplace&amp;rsquo;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;endswith(suffix[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;如果字符串是以 suffix 指定的子字符串为结尾，那么返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；suffix 参数允许以元组的形式提供多个子字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;expandtabs([tabsize=8])&lt;/td&gt;
+          &lt;td&gt;返回一个使用空格替换制表符的新字符串，如果没有指定 tabsize 参数，那么默认 1 个制表符 = 8 个空格&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;find(sub[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;index(sub[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;split(sep, maxsplit=-1)&lt;/td&gt;
+          &lt;td&gt;将字符串进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;splitlines(keepends=False)    &lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;code&gt;将字符串按行分割，并将结果以列表的形式返回；keepends 参数指定是否包含换行符，True 是包含，False 是不包含&lt;/code&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;startswith(prefix[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;如果存在 prefix 参数指定的前缀子字符串，则返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；prefix 参数允许以元组的形式提供多个子字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;strip(chars=None)&lt;/td&gt;
+          &lt;td&gt;返回一个去除左右两侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;swapcase()&lt;/td&gt;
+          &lt;td&gt;返回一个大小写字母翻转的新字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;title()&lt;/td&gt;
+          &lt;td&gt;返回标题化（所有的单词都是以大写开始，其余字母均小写）的字符串。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;translate(table)&lt;/td&gt;
+          &lt;td&gt;返回一个根据 table 参数转换后的新字符串；table 参数应该提供一个转换规则（可以由 str.maketrans(&amp;lsquo;a&amp;rsquo;, &amp;lsquo;b&amp;rsquo;) 进行定制，例如 &amp;ldquo;FishC&amp;rdquo;.translate(str.maketrans(&amp;ldquo;FC&amp;rdquo;,  &amp;ldquo;15&amp;rdquo;)) -&amp;gt; &amp;lsquo;1ish5&amp;rsquo;）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;upper()&lt;/td&gt;
+          &lt;td&gt;返回一个所有英文字母都转换成大写后的新字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;zfill(width)&lt;/td&gt;
+          &lt;td&gt;返回一个左侧用 0 填充的新字符串（width &amp;lt;= 字符串长度，新字符串 = 原字符串；width &amp;gt; 字符串宽度，所有字符右对齐，左侧使用 0 进行填充）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isalnum()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是字母或数字则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isalpha()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是字母（注1）则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isascii()&lt;/td&gt;
+          &lt;td&gt;如果字符串中所有字符都是 ASCII 则返回 True，否则返回 False；ASCII 字符编码范围是 U+0000 ~ U+007F，空字符串也是 ASCII&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isdecimal()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是十进制数字则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isdigit()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isidentifier()&lt;/td&gt;
+          &lt;td&gt;如果字符串是一个合法的 Python 标识符则返回 True，否则返回 False；调用 keyword.iskeyword(s) 可以检测字符串是否一个保留标识符（比如 &amp;ldquo;if&amp;rdquo; 或  &amp;ldquo;for&amp;rdquo;）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;islower()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是小写，则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isnumeric()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isprintable()&lt;/td&gt;
+          &lt;td&gt;如果字符串是可以打印的内容则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isspace()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少有一个字符并且所有字符都是空格，则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;istitle()&lt;/td&gt;
+          &lt;td&gt;如果字符串是标题化字符串（所有的单词都是以大写开始，其余字母均小写）则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;isupper()&lt;/td&gt;
+          &lt;td&gt;如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是大写，则返回 True，否则返回 False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;join(iterable)&lt;/td&gt;
+          &lt;td&gt;连接多个字符串并返回一个新字符串；以调用该方法的字符串作为分隔符，插入到 iterable 参数指定的每个字符串的中间；  例如：&amp;rsquo;^&amp;rsquo;.join([&amp;ldquo;F&amp;rdquo;, &amp;ldquo;i&amp;rdquo;,  &amp;ldquo;sh&amp;rdquo;, &amp;ldquo;C&amp;rdquo;]) -&amp;gt; &amp;lsquo;F^i^sh^C&amp;rsquo;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;ljust(width,  fillchar=&amp;rsquo; &amp;lsquo;)&lt;/td&gt;
+          &lt;td&gt;返回一个字符左对齐的新字符串（width &amp;lt;= 字符串长度，新字符串 = 原字符串；width &amp;gt; 字符串宽度，所有字符左对齐，右侧使用 fillchar 参数指定的字符填充）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;lower()&lt;/td&gt;
+          &lt;td&gt;返回一个所有英文字母都转换成小写后的新字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;lstrip(chars=None)&lt;/td&gt;
+          &lt;td&gt;返回一个去除左侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;partition(sep)&lt;/td&gt;
+          &lt;td&gt;在字符串中搜索 sep 参数指定的分隔符，如果找到，返回一个 3 元组 (&amp;lsquo;在sep前面的部分&amp;rsquo;, &amp;lsquo;sep&amp;rsquo;, &amp;lsquo;在sep后面的部分&amp;rsquo;)；如果未找到，则返回 (&amp;lsquo;原字符串&amp;rsquo;, &amp;lsquo;&amp;rsquo;, &amp;lsquo;&amp;rsquo;)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;removeprefix(prefix)&lt;/td&gt;
+          &lt;td&gt;如果存在 prefix 参数指定的前缀子字符串，则返回一个将该前缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;removesuffix(suffix)&lt;/td&gt;
+          &lt;td&gt;如果存在 suffix 参数指定的后缀子字符串，则返回一个将该后缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;replace(old,  new, count=-1)&lt;/td&gt;
+          &lt;td&gt;返回一个将所有 old 参数指定的子字符串替换为 new 的新字符串；  ount  参数指定替换的次数，默认是 -1，表示替换全部&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rfind(sub[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rindex(sub[,  start[, end]])&lt;/td&gt;
+          &lt;td&gt;在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rjust(width,  fillchar=&amp;rsquo; &amp;lsquo;)&lt;/td&gt;
+          &lt;td&gt;返回一个字符右对齐的新字符串（width &amp;lt;= 字符串长度，新字符串 = 原字符串；width &amp;gt; 字符串宽度，所有字符右对齐，左侧使用 fillchar 参数指定的字符填充）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rpartition(sep)&lt;/td&gt;
+          &lt;td&gt;在字符串中自右向左搜索sep参数指定的分隔符，如果找到，返回一个 3 元组 (&amp;lsquo;在sep前面的部分&amp;rsquo;, &amp;lsquo;sep&amp;rsquo;, &amp;lsquo;在sep后面的部分&amp;rsquo;)；如果未找到，则返回 (&amp;rsquo;&amp;rsquo;, &amp;lsquo;&amp;rsquo;, &amp;lsquo;原字符串&amp;rsquo;)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rsplit(sep=None,  maxsplit=-1)&lt;/td&gt;
+          &lt;td&gt;将字符串自右向左进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;rstrip(chars=None)&lt;/td&gt;
+          &lt;td&gt;返回一个去除右侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h1 id=&#34;列表list&#34;&gt;列表(list)&lt;/h1&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;功能 （list为具体列表）&lt;/th&gt;
+          &lt;th&gt;解释&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.index(&amp;ldquo;xxx&amp;rdquo;)&lt;/td&gt;
+          &lt;td&gt;指定开始和结束位置：index(x,start,end)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.append()&lt;/td&gt;
+          &lt;td&gt;增：在列表末尾添加新值&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.remove()&lt;/td&gt;
+          &lt;td&gt;删：删除某个值（第一次匹配）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list[n]=xxx&lt;/td&gt;
+          &lt;td&gt;改：修改某个值：list[n]=xxx  范围修改:list[n:]=x,y,z…&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list[n]&lt;/td&gt;
+          &lt;td&gt;查：查找某个值 ：list[n]  0-第n个：list[0:n]  第n个往后：list[n:]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.insert(n,x)&lt;/td&gt;
+          &lt;td&gt;插：某个位置插入某个值&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.sort()&lt;/td&gt;
+          &lt;td&gt;小到大排序（改变源列表顺序，而使用sorted()函数只是对结果进行排序）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.sorted(x, reverse=True)&lt;/td&gt;
+          &lt;td&gt;大到小排序&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.reverse()&lt;/td&gt;
+          &lt;td&gt;反向排序（改变源列表顺序，而使用reversed()函数只是对结果进行排序）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.count()&lt;/td&gt;
+          &lt;td&gt;统计某个值的次数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;list.copy()&lt;/td&gt;
+          &lt;td&gt;正常使用（浅拷贝）&lt;!-- raw HTML omitted --&gt;导入copy模块: import copy  &lt;!-- raw HTML omitted --&gt;浅拷贝：copy.copy(list)——存在嵌套时，引用子列表&lt;!-- raw HTML omitted --&gt;深拷贝：copy.deepcopy(list)——存在嵌套时，实现全部拷贝复制&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;enumerate(list)&lt;/td&gt;
+          &lt;td&gt;获取index下标以及对应的值 ，返回的是一个对象，可使用list、dict、tuple进行转换 &lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; any = [&amp;ldquo;a&amp;rdquo;,&amp;ldquo;b&amp;rdquo;,&amp;ldquo;c&amp;rdquo;]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; enumerate(any)&lt;!-- raw HTML omitted --&gt;&amp;lt;enumerate object at 0x000001C68FFD8C18&amp;gt;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(enumerate(any))&lt;!-- raw HTML omitted --&gt;[(0, &amp;lsquo;a&amp;rsquo;), (1, &amp;lsquo;b&amp;rsquo;), (2, &amp;lsquo;c&amp;rsquo;)]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; dict(enumerate(any))&lt;!-- raw HTML omitted --&gt;{0: &amp;lsquo;a&amp;rsquo;, 1: &amp;lsquo;b&amp;rsquo;, 2: &amp;lsquo;c&amp;rsquo;}&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; tuple(enumerate(any))&lt;!-- raw HTML omitted --&gt;((0, &amp;lsquo;a&amp;rsquo;), (1, &amp;lsquo;b&amp;rsquo;), (2, &amp;lsquo;c&amp;rsquo;))&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;all(list)&lt;/td&gt;
+          &lt;td&gt;判断迭代对象中所有值是否都为真，真返回True，否返回False&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; b=[1,2,5,4,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; all(b)&lt;!-- raw HTML omitted --&gt;True&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; a=[0,1,2,5,4,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; all(a)&lt;!-- raw HTML omitted --&gt;False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;any(list)&lt;/td&gt;
+          &lt;td&gt;判断迭代对象中所有值是否有一个为真，真返回True，否返回False&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; a = [0,0,0]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; any(a)&lt;!-- raw HTML omitted --&gt;False&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; b = [0,1]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; any(b)&lt;!-- raw HTML omitted --&gt;True&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;zip(list1, list2, &amp;hellip;)&lt;/td&gt;
+          &lt;td&gt;创建一个聚合多个可迭代对象的迭代器，它会将作为参数传入的每一个可迭代对象的每一个元素依次组成元组，即第i个元组包含来自每个参数的第i个元素，不过这个取最短列表的长度，其他list多余的会丢弃，不想丢弃，需要依赖&lt;strong&gt;itertools&lt;/strong&gt;模块&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; x=[1,2,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; y=[2,4,6]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; zip(x,y)&lt;!-- raw HTML omitted --&gt;&amp;lt;zip object at 0x000001C68FFE7548&amp;gt;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(zip(x,y))&lt;!-- raw HTML omitted --&gt;[(2, 2), (4, 4), (6, 6)]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; dict(zip(x,y))&lt;!-- raw HTML omitted --&gt;{2: 2, 4: 4, 6: 6}&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; tuple(zip(x,y))&lt;!-- raw HTML omitted --&gt;((2, 2), (4, 4), (6, 6))&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; x=[1,2,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; y=[2,4,6,7]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(zip(x,y))&lt;!-- raw HTML omitted --&gt;[(2, 2), (4, 4), (6, 6)]&lt;!-- raw HTML omitted --&gt;&lt;!-- raw HTML omitted --&gt;&lt;strong&gt;不丢弃任何字符&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; x=[1,2,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; y=[2,4,6,7]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; import itertools&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(itertools.zip_longest(x,y))&lt;!-- raw HTML omitted --&gt;[(2, 2), (4, 4), (6, 6), (None, 7)]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;map(func, list1,&amp;hellip;)&lt;/td&gt;
+          &lt;td&gt;根据提供的函数对指定的迭代器对象的每个元素进行运算，并将返回运算结果的迭代器&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; a=[1,2,3]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; b=[4,5,6]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; c=[7,8,9]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(map(max, a,b,c))&lt;!-- raw HTML omitted --&gt;[7, 8, 9]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;filter()&lt;/td&gt;
+          &lt;td&gt;根据提供的函数对指定的可迭代对象的每个元素进行运算，并将运算结果为真的元素，以迭代器的形式返回&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; list(filter(str.islower, &amp;ldquo;Any&amp;rdquo;))&lt;!-- raw HTML omitted --&gt;[&amp;rsquo;n&amp;rsquo;, &amp;lsquo;y&amp;rsquo;]&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;reduce()&lt;/td&gt;
+          &lt;td&gt;列表内函数进行运算&lt;!-- raw HTML omitted --&gt;已经不是内置方法，需要进行导入：from functools import reduce&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; from functools import reduce&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; l = [1,2,3,4,5,6,7,8,9]&lt;!-- raw HTML omitted --&gt;&amp;raquo;&amp;gt; print(reduce(lambda x,y : x+y, l))&lt;!-- raw HTML omitted --&gt;45                   #此时res的值为列表内所有元素相加，也可以在后面加上一个基数参数，表示在此加上&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;列表推导式&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>安装</title>
+      <link>/python/%E5%AE%89%E8%A3%85/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/%E5%AE%89%E8%A3%85/</guid>
+      <description>&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;p&gt;1、下载tar包：wget &lt;a href=&#34;https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz&#34;&gt;https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2、解压：tar xvf Python-3.9.9.tgz&lt;/p&gt;
+&lt;p&gt;3、安装依赖：&lt;/p&gt;
+&lt;p&gt;yum install -y libffi-devel readline-devel sqlite-devel bzip2-devel openssl-devel libdbi-devel&lt;/p&gt;
+&lt;p&gt;不安装的话make会报错：&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;4、生成编译文件，指定安装路径：&lt;/p&gt;
+&lt;p&gt;./configure &amp;ndash;prefix=/usr/local/python3&lt;/p&gt;
+&lt;p&gt;然后编译：&lt;/p&gt;
+&lt;p&gt;make &amp;amp;&amp;amp; make install&lt;/p&gt;
+&lt;p&gt;5、添加软链接&lt;/p&gt;
+&lt;p&gt;ln -fs ./usr/local/pithon3/bin/python3 python&lt;/p&gt;
+&lt;p&gt;ln -fs ./usr/local/pithon3/bin/pip pip&lt;/p&gt;
+&lt;p&gt;6、pip更换源：&lt;/p&gt;
+&lt;p&gt;阿里云 &lt;a href=&#34;https://mirrors.aliyun.com/pypi/simple/&#34;&gt;https://mirrors.aliyun.com/pypi/simple/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;豆瓣 &lt;a href=&#34;https://pypi.douban.com/simple/&#34;&gt;https://pypi.douban.com/simple/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;清华大学 &lt;a href=&#34;https://pypi.tuna.tsinghua.edu.cn/simple/&#34;&gt;https://pypi.tuna.tsinghua.edu.cn/simple/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;中国科学技术大学 &lt;a href=&#34;https://pypi.mirrors.ustc.edu.cn/simple/&#34;&gt;https://pypi.mirrors.ustc.edu.cn/simple/&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip config list
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;虚拟环境&#34;&gt;虚拟环境&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;python虚拟环境：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;安装virtualenv：pip3 install virtualenv
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;创建env：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;切换到需要创建环境的目录：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;virtualenv &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;环境名称&amp;#39;&lt;/span&gt; --python&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;xxx
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;然后切换到新建的虚拟环境的scripts目录激活环境：
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;activate &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;环境&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;退出环境
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;deactivate &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;环境&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;virtualenvwrapper 虚拟环境管理工具&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;管理virtualenv&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;安装virtualenvwrapper
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#使用哪个环境安装就是用哪个环境下的pip&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;pip install virtualenvwrapper
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;添加环境变量：vim ~/.bash_profile
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#虚拟环境的创建目录&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;export WORKON_HOME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$HOME/database/python37/virtualenv 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#项目文件所在目录                                          &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;export PROJECT_HOME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$HOME/database/project    
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#python解释器所在位置                                            &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;export VIRTUALENVWRAPPER_PYTHON&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;$HOME/database/python37/bin/python3.7 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 指定virtualenvwrapper命令路径，一般在当前安装的python环境的bin下&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;source /home/any/database/python37/bin
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#加载环境变量&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;source ~/.bash_profile
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;常用命令：
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;创建虚拟环境：mkvirtualenv env_name (创建成功后会默认进入该新创建的虚拟环境)&lt;/li&gt;
+&lt;li&gt;进入虚拟环境：workon env_name&lt;/li&gt;
+&lt;li&gt;退出虚拟环境：deactivate&lt;/li&gt;
+&lt;li&gt;删除虚拟环境：rmvirtualenv env_name&lt;/li&gt;
+&lt;li&gt;显示当前存在的虚拟环境：workon&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    <item>
+      <title>模块合集</title>
+      <link>/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</guid>
+      <description>&lt;h1 id=&#34;内置模块&#34;&gt;内置模块&lt;/h1&gt;
+&lt;h2 id=&#34;os&#34;&gt;os&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;模块&lt;/th&gt;
+          &lt;th&gt;解释&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.getcwd()&lt;/td&gt;
+          &lt;td&gt;获取当前工作目录，即当前python脚本工作的目录路径&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.chdir(&amp;ldquo;dirname&amp;rdquo;)&lt;/td&gt;
+          &lt;td&gt;改变当前脚本工作目录；相当于shell下cd&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.curdir&lt;/td&gt;
+          &lt;td&gt;返回当前目录:  (&amp;rsquo;.&#39;)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.pardir&lt;/td&gt;
+          &lt;td&gt;获取当前目录的父目录字符串名：(&amp;rsquo;..&#39;)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.mkdir(path)&lt;/td&gt;
+          &lt;td&gt;创建单层目录，如该目录已存在抛出异常&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.mkdirs(&amp;lsquo;di1/dir2&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;递归创建多层目录，如该目录已存在抛出异常，注意：&amp;lsquo;E:\a\b&amp;rsquo;和&amp;rsquo;E:\a\c&amp;rsquo;并不会冲突&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.removedirs(&amp;lsquo;dir1&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;若目录为空，则删除，并递归到上一级目录，如若也为空，则删除，依此类推&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.rmdir(&amp;lsquo;dirname&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;删除单级空目录，若目录不为空则无法删除，报错；相当于shell中rmdir  dirname&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.listdir(&amp;lsquo;dirname&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;列出指定目录下的所有文件和子目录，包括隐藏文件，并以列表方式打印&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.remove()&lt;/td&gt;
+          &lt;td&gt;删除一个文件&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.rename(&amp;ldquo;oldname&amp;rdquo;,&amp;ldquo;newname&amp;rdquo;)&lt;/td&gt;
+          &lt;td&gt;重命名文件/目录&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.stat(&amp;lsquo;path/filename&amp;rsquo;)&lt;/td&gt;
+          &lt;td&gt;获取文件信息（大小，修改时间等）/目录信息&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.sep&lt;/td&gt;
+          &lt;td&gt;输出操作系统特定的路径分隔符，win下为&amp;quot;\&amp;quot;,Linux下为&amp;quot;/&amp;quot;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.linesep&lt;/td&gt;
+          &lt;td&gt;输出当前平台使用的行终止符，win下为&amp;quot;\t\n&amp;quot;,Linux下为&amp;quot;\n&amp;quot;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.pathsep&lt;/td&gt;
+          &lt;td&gt;输出用于分割文件路径的字符串  win下为;,Linux下为:&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.name&lt;/td&gt;
+          &lt;td&gt;输出字符串指示当前使用平台。win-&amp;gt;&amp;lsquo;nt&amp;rsquo;;  Linux-&amp;gt;&amp;lsquo;posix&amp;rsquo;  指代当前使用的操作系统（包括：&amp;lsquo;posix&amp;rsquo;, &amp;rsquo;nt&amp;rsquo;, &amp;lsquo;mac&amp;rsquo;, &amp;lsquo;os2&amp;rsquo;, &amp;lsquo;ce&amp;rsquo;, &amp;lsquo;java&amp;rsquo;）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.system(&amp;ldquo;bash  command&amp;rdquo;)&lt;/td&gt;
+          &lt;td&gt;运行shell命令，直接显示&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.popen(&amp;ldquo;bash  command).read()&lt;/td&gt;
+          &lt;td&gt;运行shell命令，获取执行结果&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.environ&lt;/td&gt;
+          &lt;td&gt;获取系统环境变量&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;os.path&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.exists(path)&lt;/td&gt;
+          &lt;td&gt;如果path存在，返回True；如果path不存在，返回False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.basename(path)&lt;/td&gt;
+          &lt;td&gt;去掉目录路径，单独返回文件名&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.dirname(path)&lt;/td&gt;
+          &lt;td&gt;去掉文件名，单独返回目录路径&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.abspath(&lt;strong&gt;file&lt;/strong&gt;)   os.path.realpath(&lt;strong&gt;file&lt;/strong&gt;)  (os.path.realpath())&lt;/td&gt;
+          &lt;td&gt;返回path规范化的绝对路径  os.path.split(path) 将path分割成目录和文件名二元组返回&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.isfile(path)&lt;/td&gt;
+          &lt;td&gt;如果path是一个存在的文件，返回True。否则返回False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.isdir(path)&lt;/td&gt;
+          &lt;td&gt;如果path是一个存在的目录，则返回True。否则返回False&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.isabs(path)&lt;/td&gt;
+          &lt;td&gt;如果path是绝对路径，返回True&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.samefile(path1,  paht2)&lt;/td&gt;
+          &lt;td&gt;判断path1和path2两个路径是否指向同一个文件&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.ismount(path)&lt;/td&gt;
+          &lt;td&gt;判断指定路径是否存在且是一个挂载点&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.join(path1[,  path2[, &amp;hellip;]])&lt;/td&gt;
+          &lt;td&gt;将多个路径组合后返回，第一个绝对路径之前的参数将被忽略&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.getatime(path)&lt;/td&gt;
+          &lt;td&gt;返回path所指向的文件或者目录的最后访问时间&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.getmtime(path)&lt;/td&gt;
+          &lt;td&gt;返回path所指向的文件或者目录的最后修改时间&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;os.path.getsize(path)&lt;/td&gt;
+          &lt;td&gt;返回path的大小&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;sys&#34;&gt;sys&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;方法&lt;/th&gt;
+          &lt;th&gt;解释&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.argv&lt;/td&gt;
+          &lt;td&gt;命令行参数List，第一个元素是程序本身路径&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.exit(n)&lt;/td&gt;
+          &lt;td&gt;退出程序，正常退出时exit(0)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.version&lt;/td&gt;
+          &lt;td&gt;获取Python解释程序的版本信息&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.maxint&lt;/td&gt;
+          &lt;td&gt;最大的Int值&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.path&lt;/td&gt;
+          &lt;td&gt;返回模块的搜索路径，初始化时使用PYTHONPATH环境变量的值&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;sys.platform&lt;/td&gt;
+          &lt;td&gt;返回操作系统平台名称&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;time&#34;&gt;time&lt;/h2&gt;
+&lt;p&gt;时间转换：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>爬取网页云评论</title>
+      <link>/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</guid>
+      <description>&lt;h1 id=&#34;分析网站&#34;&gt;分析网站&lt;/h1&gt;
+&lt;p&gt;第一步，查看网站信息&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616150202086&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616150202086.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;第二步，通过一个一个接口检查，发现最终返回的评论信息在这个请求返回中&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616150408972&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616150408972.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;第三步，分析这个请求&lt;/p&gt;
+&lt;p&gt;发现这个请求需要携带参数，并且是加密的&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616150514534&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616150514534.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;第四步，获取加密信息&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;查看调用栈信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616150924789&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616150924789.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;点击最后一个调用栈，跳转到对应的js代码位置，打一个点，重新刷新页面，一个一个请求查看到对应的请求信息&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616151739232&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616151739232.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;刷新网页，一步一步调试分析，直到找到对应的url为止&lt;/p&gt;
+&lt;p&gt;从上面网页第二步请求分析可知所要调的url为：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616152152816&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616152152816.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;通过几次调试，找到了返回评论数据的请求url&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616152934212&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616152934212.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;下一步，开始往回找，找到data数据加密的位置&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616153525435&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616153525435.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616154049924&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616154049924.png&#34;&gt;&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;找参数：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616160331745&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616160331745.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616160506241&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616160506241.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616161017018&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616161017018.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616161525803&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616161525803.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616162538224&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616162538224.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616171517517&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616171517517.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240616172834727&#34; loading=&#34;lazy&#34; src=&#34;images/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/image-20240616172834727.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;代码实现：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; requests
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; lxml &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; etree
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#AES加密函数,需要安装pycrypto&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; Crypto.Cipher &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; AES
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#进行base64数据转换&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; base64 &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; b64encode
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; json
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;url &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;https://music.163.com/weapi/comment/resource/comments/get?csrf_token=&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;header &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;user-Agent&amp;#39;&lt;/span&gt;:&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#对js代码进行解析然后把data进行加密（必须要使用网易云的逻辑），params &amp;gt;&amp;gt;encTEXT   encSecKsy &amp;gt;&amp;gt;encSecKey  (都是在window.asrsea中加的密)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#真实参数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {    
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;csrf_token&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;cursor&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-1&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;offset&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;orderType&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pageNo&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;pageSize&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;20&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;rid&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;R_SO_4_2158973221&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;threadId&amp;#39;&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;R_SO_4_2158973221&amp;#34;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#找到对应调用的函数并且处理加密过程&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;function a(a) { 返回随机的16位字符串
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        var d, e, b = &amp;#34;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&amp;#34;, c = &amp;#34;&amp;#34;;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        for (d = 0; a &amp;gt; d; d += 1)  #循环16次
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;            e = Math.random() * b.length,  #随机数
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;            e = Math.floor(e), #取整
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;            c += b.charAt(e);  #去字符串中的xxx位置
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        return c
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;function b(a, b) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        var c = CryptoJS.enc.Utf8.parse(b)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          , d = CryptoJS.enc.Utf8.parse(&amp;#34;0102030405060708&amp;#34;)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          , e = CryptoJS.enc.Utf8.parse(a)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          , f = CryptoJS.AES.encrypt(e, c, {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;            iv: d,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;            mode: CryptoJS.mode.CBC
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        });
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        return f.toString()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    function c(a, b, c) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        var d, e;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        return setMaxDigits(131),
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        d = new RSAKeyPair(b,&amp;#34;&amp;#34;,c),
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        e = encryptedString(d, a)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    #实际调用的加密函数算法
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    四个参数：d:对应data数据,e:&amp;#39;010001&amp;#39;,f:&amp;#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&amp;#39;,g:&amp;#39;0CoJUm6Qyw8W8jud&amp;#39;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    function d(d, e, f, g) {   
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        var h = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt; #空对象
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          , i = a(16);   #16位的随机值
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        return h.encText = b(d, g),
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        h.encText = b(h.encText, i), #返回的就是encTEXT
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        h.encSecKey = c(i, e, f),  #返回的就是encSecKey，e，f是定死的，i是变的，此时把i固定
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        h
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    function e(a, b, d, e) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        var f = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        return f.encText = c(a + e, b, d),
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        f
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;e &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;010001&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;f &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;g &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;0CoJUm6Qyw8W8jud&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;nJaSvmCuZFEAORCi&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;get_encSecKey&lt;/span&gt;():
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;036401bcdf2daa471574782cc5d5a1d3a9b6ee4a347134ba1a84a0fbf68c4d493fe4f3e9ccf3467f5af8e7249165d87bea59af6539f964ec7023d600d48a732be2c8a6f7111ec11ced3ad3bc072442cbfc563fb767da6fe7d6addba5752fdddc7963e486d49bc1c0fa68f10e4c3dbc1269be054fa0b54a92c5f404bfd7d11547&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#对paragms进行加密&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;get_params&lt;/span&gt;(data):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    first &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; enc_paragms(data,g)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    second &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; enc_paragms(first,i)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; second
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;to_16&lt;/span&gt;(data):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    pad  &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; len(data) &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    data &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; chr(pad) &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; pad
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; data
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#机密函数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;enc_paragms&lt;/span&gt;(data,key):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    iv &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0102030405060708&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; to_16(data)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    aes &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; AES&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;new(key&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;key&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;encode(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;) ,IV&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;iv&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;encode(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;),mode&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;AES&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;MODE_CBC) &lt;span style=&#34;color:#75715e&#34;&gt;#定义加密器&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    bs &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; aes&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;encrypt(data&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;encode(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;)) &lt;span style=&#34;color:#75715e&#34;&gt;#加密，加密的字符串的长度必须为16的倍数,见to_16函数   “123456char(10)”&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; str(b64encode(bs),&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;)   &lt;span style=&#34;color:#75715e&#34;&gt;#转化称字符串&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;res &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; requests&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;post(url&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;url,data&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;{&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;params&amp;#39;&lt;/span&gt;:get_params(json&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dumps(data)),&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;encSecKey&amp;#39;&lt;/span&gt;:get_encSecKey()},headers&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;header)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;json()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; line &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; res[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;data&amp;#34;&lt;/span&gt;][&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;comments&amp;#39;&lt;/span&gt;]:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; line[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;user&amp;#39;&lt;/span&gt;][&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nickname&amp;#39;&lt;/span&gt;]:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;---&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;format(line[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;user&amp;#39;&lt;/span&gt;][&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nickname&amp;#39;&lt;/span&gt;],line[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;content&amp;#39;&lt;/span&gt;]))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        print(line[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;content&amp;#39;&lt;/span&gt;])
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Kubernetes on 探无止境</title>
+    <link>/k8s/</link>
+    <description>Recent content in Kubernetes on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="/k8s/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>calico与fannel</title>
+      <link>/k8s/calico%E4%B8%8Efannel/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/calico%E4%B8%8Efannel/</guid>
+      <description>&lt;h1 id=&#34;calico&#34;&gt;calico&lt;/h1&gt;
+&lt;h2 id=&#34;简介&#34;&gt;简介&lt;/h2&gt;
+&lt;p&gt;Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。&lt;/p&gt;
+&lt;p&gt;Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。
+Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。&lt;/p&gt;
+&lt;p&gt;由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。&lt;/p&gt;
+&lt;p&gt;架构：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240530183659614&#34; loading=&#34;lazy&#34; src=&#34;/k8s/calico%E4%B8%8Efannel/images/calico/image-20240530183659614.png&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。&lt;/li&gt;
+&lt;li&gt;**ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用&lt;/li&gt;
+&lt;li&gt;**BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。&lt;/li&gt;
+&lt;li&gt;**BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;calico两种网络工作模式&#34;&gt;Calico两种网络工作模式&lt;/h2&gt;
+&lt;p&gt;**IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个&lt;code&gt;tunl0&lt;/code&gt;的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;跨node节点的pod网络通信链路：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Pod1 发起请求，首先到&lt;code&gt;veth0&lt;/code&gt; 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 &lt;code&gt;pod&lt;/code&gt; 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 &lt;code&gt;cni0&lt;/code&gt; 或 &lt;code&gt;caliXXX&lt;/code&gt; 接口)&lt;/li&gt;
+&lt;li&gt;然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod；&lt;/li&gt;
+&lt;li&gt;然后到&lt;code&gt;tunl0&lt;/code&gt; 隧道接口（或 IPIP 隧道），&lt;code&gt;node1&lt;/code&gt; 会根据路由表找到到 &lt;code&gt;pod2&lt;/code&gt; 所在的 Node (&lt;code&gt;node2&lt;/code&gt;) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 &lt;code&gt;node1&lt;/code&gt; 和 &lt;code&gt;node2&lt;/code&gt; 的节点 IP 地址，封装后的数据包通过底层网络发送到 &lt;code&gt;node2&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;当数据包到达 &lt;code&gt;node2&lt;/code&gt; 后，&lt;code&gt;node2&lt;/code&gt; 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 &lt;code&gt;pod1&lt;/code&gt;，目标 IP 是 &lt;code&gt;pod2&lt;/code&gt;）。&lt;/li&gt;
+&lt;li&gt;然后，数据包通过 &lt;code&gt;caliXXX&lt;/code&gt; 虚拟接口进入 Node 的网络栈。&lt;code&gt;node2&lt;/code&gt; 会通过其路由表进行判断，确定数据包的目标 IP (&lt;code&gt;pod2&lt;/code&gt; 的 IP) 属于本地的 Pod。路由表指向 &lt;code&gt;caliXXX&lt;/code&gt; 网桥，数据包通过 &lt;code&gt;veth&lt;/code&gt; 接口被转发给 pod2&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;**BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>docker与containerd</title>
+      <link>/k8s/docker%E4%B8%8Econtainerd/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/docker%E4%B8%8Econtainerd/</guid>
+      <description>&lt;p&gt;参考博客：https://i4t.com/5435.html#CRI_%E8%AF%A6%E8%A7%A3&lt;/p&gt;
+&lt;h1 id=&#34;docker下容器运行时调用过程&#34;&gt;docker下容器运行时调用过程&lt;/h1&gt;
+&lt;p&gt;​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。&lt;/p&gt;
+&lt;p&gt;​	从1.24开始，大家需要使用其他受到支持的运行时选项（例如containerd或CRI-O）；如果选择Docker Engine作为运行时，则需要使用cri-dockerd&lt;/p&gt;
+&lt;p&gt;早期使用docker时，容器进行时的调用过程：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;Kubernetes容器运行时弃用Docker转型Containerd&#34; loading=&#34;lazy&#34; src=&#34;/k8s/docker%E4%B8%8Econtainerd/images/1ddd90033df752_1_circle.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;当docker要创建一个容器时，经历以下步骤：&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Kubelet 通过CRI接口(gRPC)调用dockershim，请求创建一个容器。（CRI即容器运行时接口）；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;dockershim 收到请求后，转换成Docker Daemon能听懂的请求，发到Docker Daemon上请求创建容器；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Docker Daemon 早在1.12版本中就已经针对容器的操作转移到另外一个进程&amp;ndash;&lt;code&gt;containerd&lt;/code&gt;,因此Docker Daemon不会帮我们创建容器，而是要求containerd创建一个容器；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Containerd收到请求后，并不会直接去操作容器，而是创建一个叫做&lt;code&gt;containerd-shim&lt;/code&gt;的进程,让containerd-shim去操作容器。这是因为容器进程需要一个父进程来做收集状态，而加入这个父进程就是containerd，那每次containerd挂掉或者升级，整个宿主机上的容器都会退出。而引用containerd-shim就避免了这个问题 (containerd和shim并不是父子进程的关系)；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;OCI&lt;/code&gt; (Open Container Initiative，开放容器标准，runC实际上就是参考OCI实现，OCI实际上就是一个标准文档，主要规定了容器镜像的结构、以及容器需要接收那些操作指令，比如create、start、stop、delete等)。OCI执行namespace和cgroups，挂载root filesystem等操作，OCI参考RunC，containerd-shim在这一步调用RunC命令行来启动容器。实际上RunC就是一个二进制命令；&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;runC启动完成后本身会直接退出，containerd-shim则会为容器进程的父进程，负责收集容器进程的状态，上报给containerd，并在容器中pid为1的进程退出后接管容器中的子进程进行清理，确保不会出现僵尸进程；&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	实际上我们是可以直接通过调用RunC来实现容器的创建，实际上RunC就是调用的我们内核来进行操作。但是我们直接调用Runc不是很方便，所以就有了&lt;code&gt;OCI&lt;/code&gt;。不需要了解底层原理，也可以通过调用&lt;code&gt;OCI&lt;/code&gt;来进行容器的创建&lt;/p&gt;
+&lt;h1 id=&#34;cri&#34;&gt;CRI&lt;/h1&gt;
+&lt;p&gt;​	在Kubernetes早起的时候，Kubernetes为了支持Docker，通过硬编码的方式直接调用Docker API。后面随着Docker的不断发展以及Google的主导，出现了更多容器运行时可以使用，Kubernetes为了支持更多精简的容器运行时，google就和redhat主导推出了OCI标准，用于将Kubernetes平台和特定的容器运行时解耦。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;CRI&lt;/code&gt; (Container Runtime Interface容器运行时接口)本质就是Kubernetes定义的一组与容器运行时进行交互的接口&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;CRI实际上就是一组单纯的gRPC接口，核心有如下:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RuntimeService 对容器操作的接口，包括创建，启停容器等&lt;/li&gt;
+&lt;li&gt;ImageService 对镜像操作的接口，包括镜像的增删改查等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;可以通过kubelet中&lt;code&gt;--container-runtime-endpoint&lt;/code&gt;和&lt;code&gt;--image-service-endpoint&lt;/code&gt;来手动配置&lt;/p&gt;
+&lt;p&gt;CRI大概通过了下面的几个项目构成了Kubernetes的Runtime生态&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;OCI Compatible: runC&lt;/li&gt;
+&lt;li&gt;CRI Compatible: Docker (借助dockershim)，containerd (借助CRI-containerd)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由于早期Kubernetes在市场没有主导地位，有一些容器运行时可能不会自身实现CRI接口，于是就有了shim，一个shim的职责就是作为适配器，将各种容器运行时的本身的接口适配到Kubernetes的CRI接口上&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;Kubernetes容器运行时弃用Docker转型Containerd&#34; loading=&#34;lazy&#34; src=&#34;/k8s/docker%E4%B8%8Econtainerd/images/dc04b57012a36.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;cri-runtime和oci-runtime 容器运行时实际上调用步骤如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Orchestration API -&amp;gt; Container API（cri-runtime） -&amp;gt; Kernel API&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;oci-runtime&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Kubelet通过gRPC 框架与容器运行时或shim进行通信，其中 kubelet 作为客户端，CRI shim（也可能是容器运行时本身）
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;containerd-发展史&#34;&gt;Containerd 发展史&lt;/h1&gt;
+&lt;p&gt;在Containerd 1.0中，对CRI的适配通过了一个单独的进程CRI-containerd来完成&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>istio</title>
+      <link>/k8s/istio/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/istio/</guid>
+      <description>&lt;h1 id=&#34;概念介绍&#34;&gt;概念介绍&lt;/h1&gt;
+&lt;h2 id=&#34;服务网格service-mesh与istio&#34;&gt;服务网格(Service Mesh)与istio&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;三大服务模式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;集中式代理模式：&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	例如：nginx&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;嵌入式代理模式&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	例如：eureka-client&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;​	特点：&lt;/p&gt;
+&lt;p&gt;​		1、代码侵入，需引入jar包&lt;/p&gt;
+&lt;p&gt;​		2、绑定了语言&lt;/p&gt;
+&lt;p&gt;​		3、需基础架构组开发二方库&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;主机独立进程模式&lt;/p&gt;
+&lt;p&gt;ServiceMesh&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;​	特点：&lt;/p&gt;
+&lt;p&gt;​		1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）&lt;/p&gt;
+&lt;p&gt;​		2、服务间的调用通过 &lt;strong&gt;代理Proxy&lt;/strong&gt; 进行调用&lt;/p&gt;
+&lt;p&gt;​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。&lt;/p&gt;
+&lt;p&gt;蓝色：SideCar，绿色：应用app&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;img&#34; loading=&#34;lazy&#34; src=&#34;/k8s/istio/images/cb86769b048943d70b3df8da23b4fbc5.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Service Mesh有四大特点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;治理能力独立（Sidecar）&lt;/li&gt;
+&lt;li&gt;应用程序无感知&lt;/li&gt;
+&lt;li&gt;服务通信的基础设施层&lt;/li&gt;
+&lt;li&gt;解耦应用程序的重试/超时、监控、追踪和服务发现&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略&lt;/p&gt;
+&lt;p&gt;服务治理的特点：&lt;/p&gt;
+&lt;p&gt;1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>k8s安装-kubeadm（非高可用&#43;高可用）</title>
+      <link>/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/</guid>
+      <description>&lt;h1 id=&#34;前言版本差异&#34;&gt;前言：版本差异&lt;/h1&gt;
+&lt;p&gt;​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。&lt;/p&gt;
+&lt;p&gt;​	但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。&lt;/p&gt;
+&lt;p&gt;从1.24开始，大家需要使用其他受到支持的运行时选项：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;containerd&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;CRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Docker Engine，需依赖使用cri-dockerd&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;一kubeadm安装k8s123非高可用版&#34;&gt;一、kubeadm安装K8s（1.23非高可用版）&lt;/h1&gt;
+&lt;h3 id=&#34;1-调整系统配置&#34;&gt;1. 调整系统配置&lt;/h3&gt;
+&lt;p&gt;操作节点： 所有的master和slave节点（&lt;code&gt;k8s-master,k8s-slave&lt;/code&gt;）需要执行&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置安全组开放端口&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通：
+k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开
+k8s-slave节点：UDP协议端口全部打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 设置iptables&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;iptables &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;P FORWARD ACCEPT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 关闭swap&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;swapoff &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;a
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 防止开机自动挂载 swap 分区&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;i &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/ swap / s/^\(.*\)$/#&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\1&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/g&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;fstab
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 关闭selinux和防火墙&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;setenforce &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;ri &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;s#(SELINUX=).*#&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\1&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;disabled#&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;selinux&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;config
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;systemctl disable firewalld &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; systemctl stop firewalld
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;systemctl disable NetworkManager &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; systemctl stop NetworkManager
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 修改内核参数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;sysctl&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;d&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;k8s&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;ip6tables &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;iptables &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ip_forward&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;vm&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;max_map_count&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;262144&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;sysctl&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ip_forward&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;iptables&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh1&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh2&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6144&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh3&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;8192&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#修改句柄数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;security&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;limits&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  nofile       &lt;span style=&#34;color:#ae81ff&#34;&gt;819200&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  nofile       &lt;span style=&#34;color:#ae81ff&#34;&gt;819200&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  nproc        unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  nproc        unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  memlock      unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  memlock      unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  core         unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;modprobe br_netfilter
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#生效&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sysctl &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;p &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sysctl &lt;span style=&#34;color:#f92672&#34;&gt;--&lt;/span&gt;system
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;时间统一&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#修改时区，同步时间&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum install chrony -y
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &amp;gt;&amp;gt;/etc/chrony.conf &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;ntpdate ntp1.aliyun.com iburst
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Asia/Shanghai&amp;#39;&lt;/span&gt; &amp;gt; /etc/timezone
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置yum源&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-powershell&#34; data-lang=&#34;powershell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -o /etc/yum.repos.d/Centos-&lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;.repo http&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;:&lt;/span&gt;//mirrors.aliyun.com/repo/Centos-&lt;span style=&#34;color:#ae81ff&#34;&gt;7&lt;/span&gt;.repo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -o /etc/yum.repos.d/docker-ce.repo http&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;:&lt;/span&gt;//mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &amp;lt;&amp;lt;EOF &amp;gt; /etc/yum.repos.d/kubernetes.repo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;kubernetes&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;name=Kubernetes
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;baseurl=http&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;:&lt;/span&gt;//mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;enabled=&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;gpgcheck=&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;repo_gpgcheck=&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;gpgkey=http&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;:&lt;/span&gt;//mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        http&lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;:&lt;/span&gt;//mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum clean all &amp;amp;&amp;amp; yum makecache
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置hosts解析&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;操作节点：所有节点（&lt;code&gt;k8s-master，k8s-slave&lt;/code&gt;）均需执行&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>k8s安装-二进制</title>
+      <link>/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/</guid>
+      <description>&lt;p&gt;参考博客：https://www.cnblogs.com/liweifeng888/p/17435629.html&lt;/p&gt;
+&lt;h2 id=&#34;系统优化&#34;&gt;系统优化&lt;/h2&gt;
+&lt;h3 id=&#34;1-调整系统配置&#34;&gt;1. 调整系统配置&lt;/h3&gt;
+&lt;p&gt;操作节点： 所有的master和slave节点（&lt;code&gt;k8s-master,k8s-slave&lt;/code&gt;）需要执行&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置安全组开放端口&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通：
+k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开
+k8s-slave节点：UDP协议端口全部打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 设置iptables&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;iptables &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;P FORWARD ACCEPT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 关闭swap&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;swapoff &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;a
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 防止开机自动挂载 swap 分区&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;i &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;/ swap / s/^\(.*\)$/#&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\1&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/g&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;fstab
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 关闭selinux和防火墙&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;setenforce &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;ri &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;s#(SELINUX=).*#&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\1&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;disabled#&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;selinux&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;config
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;systemctl disable firewalld &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; systemctl stop firewalld
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;systemctl disable NetworkManager &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; systemctl stop NetworkManager
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 修改内核参数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;sysctl&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;d&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;k8s&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;ip6tables &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;iptables &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ip_forward&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;vm&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;max_map_count&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;262144&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;sysctl&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ip_forward&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;bridge&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;nf&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;call&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;iptables&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh1&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh2&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6144&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;net&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ipv4&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;neigh&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;default&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;gc_thresh3&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;8192&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#修改句柄数&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;EOF &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;etc&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;security&lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt;limits&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;conf 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  nofile       &lt;span style=&#34;color:#ae81ff&#34;&gt;819200&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  nofile       &lt;span style=&#34;color:#ae81ff&#34;&gt;819200&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  nproc        unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  nproc        unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  memlock      unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; hard  memlock      unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; soft  core         unlimited
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;modprobe br_netfilter
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#生效&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sysctl &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;p &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sysctl &lt;span style=&#34;color:#f92672&#34;&gt;--&lt;/span&gt;system
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;时间统一&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#修改时区，同步时间&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum install chrony -y
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &amp;gt;&amp;gt;/etc/chrony.conf &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;ntpdate ntp1.aliyun.com iburst
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Asia/Shanghai&amp;#39;&lt;/span&gt; &amp;gt; /etc/timezone
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置yum源&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt;EOF &amp;gt; /etc/yum.repos.d/kubernetes.repo
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;[kubernetes]
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;name=Kubernetes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;enabled=1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;gpgcheck=0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;repo_gpgcheck=0
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;        http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;yum clean all &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; yum makecache
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设置hosts解析&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;操作节点：所有节点（&lt;code&gt;k8s-master，k8s-slave&lt;/code&gt;）均需执行&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>k8s笔记整理</title>
+      <link>/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/</guid>
+      <description>&lt;h1 id=&#34;kubernete-之路&#34;&gt;kubernete 之路&lt;/h1&gt;
+&lt;h2 id=&#34;一前期介绍&#34;&gt;一、前期介绍&lt;/h2&gt;
+&lt;h4 id=&#34;纯容器模式的问题&#34;&gt;纯容器模式的问题&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;跨主机容器间互相调用，配置如何写？写死固定IP+端口？&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;如何实现滚动升级保证业务的连续性？&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;容器调度管理平台&#34;&gt;容器调度管理平台&lt;/h4&gt;
+&lt;p&gt;​		Docker Swarm       Mesos        Google Kubernetes&lt;/p&gt;
+&lt;p&gt;​		2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀&lt;/p&gt;
+&lt;p&gt;​		 &lt;a href=&#34;https://kubernetes.io/&#34;&gt;https://kubernetes.io/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;二架构介绍&#34;&gt;二、架构介绍&lt;/h2&gt;
+&lt;h4 id=&#34;架构图&#34;&gt;架构图&lt;/h4&gt;
+&lt;p&gt;区分组件与资源&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/images/architecture.png&#34;&gt;&lt;/p&gt;
+&lt;h4 id=&#34;核心组件&#34;&gt;核心组件&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;**ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;ApiServer:&lt;/strong&gt;  API服务器,集群资源访问控制入口,提供restAPI及安全访问控制&lt;/li&gt;
+&lt;li&gt;**Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。&lt;/li&gt;
+&lt;li&gt;**Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account &amp;amp; Token 控制器等。
+&lt;ul&gt;
+&lt;li&gt;Replication Controller&lt;/li&gt;
+&lt;li&gt;Node controller&lt;/li&gt;
+&lt;li&gt;ResourceQuota Controller&lt;/li&gt;
+&lt;li&gt;Namespace Controller&lt;/li&gt;
+&lt;li&gt;ServiceAccount Controller&lt;/li&gt;
+&lt;li&gt;Tocken Controller&lt;/li&gt;
+&lt;li&gt;Service Controller&lt;/li&gt;
+&lt;li&gt;Endpoints Controller&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;**kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理”
+&lt;ul&gt;
+&lt;li&gt;pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。&lt;/li&gt;
+&lt;li&gt;容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理.&lt;/li&gt;
+&lt;li&gt;容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;CNI实现:&lt;/strong&gt; 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;kubectl:&lt;/strong&gt; 命令行接口，用于对 Kubernetes 集群运行命令  &lt;a href=&#34;https://kubernetes.io/zh/docs/reference/kubectl/&#34;&gt;https://kubernetes.io/zh/docs/reference/kubectl/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;各个资源与apiserver对应表&#34;&gt;各个资源与apiserver对应表&lt;/h4&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;apiVersion&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;含义&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;alpha&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;beta&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;stable&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;可安全使用的稳定版本&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;v1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;stable 版本之后的首个版本，包含了更多的核心对象&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;apps/v1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;资源类型与apiVersion对照表&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>k8s问题排查手册</title>
+      <link>/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;前言：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;文章取自：啊铭老师&lt;/p&gt;
+&lt;p&gt;公众号：运维狗工作日记&lt;/p&gt;
+&lt;p&gt;K8S云原生企业实战训练营课程大纲&lt;/p&gt;
+&lt;p&gt;链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80&amp;amp;sub=66406314DFE348DAAC39162CF32540FA&lt;/p&gt;
+&lt;h1 id=&#34;一pod-相关问题及排查&#34;&gt;一、Pod &lt;strong&gt;相关问题及排查：&lt;/strong&gt;&lt;/h1&gt;
+&lt;h2 id=&#34;pod-无法启动如何查找原因&#34;&gt;Pod &lt;strong&gt;无法启动，如何查找原因？&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;​		使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。&lt;/p&gt;
+&lt;p&gt;​		使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。&lt;/p&gt;
+&lt;p&gt;​		使用 kubectl get events &amp;ndash;field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。&lt;/p&gt;
+&lt;h2 id=&#34;pod-无法连接到其他服务如何排查&#34;&gt;&lt;strong&gt;Pod&lt;/strong&gt; &lt;strong&gt;无法连接到其他服务，如何排查？&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;​		使用 kubectl exec -it [pod_name] -n [namespace_name] &amp;ndash; /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。&lt;/p&gt;
+&lt;p&gt;​		使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>k8s集群证书过期更换</title>
+      <link>/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/</guid>
+      <description>&lt;h1 id=&#34;kubadm&#34;&gt;kubadm&lt;/h1&gt;
+&lt;p&gt;使用kubeadm部署的k8s集群默认证书有效期为1年，可以通过更新k8s版本自动更新证书或修改源码更改证书有效期。下面为手动更换证书步骤总结。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;查看证书日期&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# kubeadm alpha certs check-expiration&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubeadm certs check-expiration
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;备份&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cp -rp /etc/kubernetes /etc/kubernetes.bak
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cp -rp /var/lib/etcd /var/lib/etcd.bak
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;生成新的证书&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;集群每台master节点都需要操作&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# kubeadm alpha certs renew all&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubeadm certs renew all
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;此时所有证书都已重新生成，在 /etc/kubernetes/pki下。
+/etc/kubernetes/admin.conf、/etc/kubernetes/controller-manager.conf、/etc/kubernetes/scheduler.conf 也已经更新了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;再次查看证书&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;kubeadm certs check-expiration
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;重启组件&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;集群每台master节点都需要操作&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker ps | grep -E &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;k8s_kube-apiserver|k8s_kube-controller-manager|k8s_kube-scheduler|k8s_etcd_etcd&amp;#39;&lt;/span&gt; | awk -F &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;{print $1}&amp;#39;&lt;/span&gt; | xargs docker restart
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;更新config&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 此时kubectl 报权限问题，无法执行（每台master都要操作）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;重启kubelete&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;systemctl restart kubelete
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    <item>
+      <title>kustormize</title>
+      <link>/k8s/kustormize/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/kustormize/</guid>
+      <description>&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
+&lt;p&gt;官网：https://kubectl.docs.kubernetes.io/&lt;/p&gt;
+&lt;p&gt;一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源&lt;/li&gt;
+&lt;li&gt;如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量&lt;/li&gt;
+&lt;li&gt;如何简化维护应用的流程，不需要额外学习模板语法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Kustomize 通过以下几种方式解决了上述问题：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;kustomize 通过 Base &amp;amp; Overlays 方式(下文会说明)方式维护不同环境的应用配置&lt;/li&gt;
+&lt;li&gt;kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用&lt;/li&gt;
+&lt;li&gt;kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;kustomize概念&#34;&gt;kustomize概念&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;kustomization&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;base&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>minio</title>
+      <link>/k8s/minio/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/minio/</guid>
+      <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
+&lt;p&gt;官方文档(中文)：http://docs.minio.org.cn/docs/&lt;/p&gt;
+&lt;p&gt;MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。&lt;/p&gt;
+&lt;p&gt;生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务&lt;/p&gt;
+&lt;p&gt;EC&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ec&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;公式
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;n &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; k + m
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;n: 总数据块
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;k: 原始数据块
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;冗余度 n+m/n 冗余度越高，磁盘利用率越低
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;k值影响数据恢复代价
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	k值越小，数据分散度越小，故障影响面越大
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	k值越大，多路数据拷贝增加的网络和磁盘负载越大
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;一般推荐使用ec4集群冗余度1.33
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img alt=&#34;image-20240430142519295&#34; loading=&#34;lazy&#34; src=&#34;/k8s/minio/images/image-20240430142519295.png&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;h2 id=&#34;k8s&#34;&gt;k8s&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html&#34;&gt;https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;docker&#34;&gt;docker&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;mkdir -p ~/minio/data
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -p 9000:9000 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -p 9001:9001 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   --name minio &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -v ~/minio/data:/data &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;MINIO_ROOT_USER=minioadmin&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   -e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;MINIO_ROOT_PASSWORD=minioadmin&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;   quay.io/minio/minio server /data --console-address &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;:9001&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker run启动 MinIO 容器
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-p将本地端口绑定到容器端口
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;-name为容器创建一个名称
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;9000表示MinIO服务地址，其上传调用的就是这个服务地址
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;:port&amp;#34;&lt;/span&gt; 指定静态端口
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;/mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;/mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MINIO_ROOT_USER&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;minioadmin表示MinIO部署的root用户的用户名&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;accessKey&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;，不写默认的用户名就是minioadmin
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;MINIO_ROOT_PASSWORD&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;minioadmin表示MinIO部署的root用户的密码&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;secretKey&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;，不写默认的密码就是minioadmin
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;二进制单节点&#34;&gt;二进制单节点&lt;/h2&gt;
+&lt;h2 id=&#34;二进制4磁盘3节点&#34;&gt;二进制(4磁盘3节点)&lt;/h2&gt;
+&lt;p&gt;官方文档： &lt;a href=&#34;https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html&#34;&gt;https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>promethues</title>
+      <link>/k8s/promethues/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/promethues/</guid>
+      <description>&lt;h1 id=&#34;前提说明&#34;&gt;前提说明&lt;/h1&gt;
+&lt;p&gt;本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus&lt;/p&gt;
+&lt;p&gt;并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样&amp;hellip;&lt;/p&gt;
+&lt;h1 id=&#34;prometheus&#34;&gt;prometheus&lt;/h1&gt;
+&lt;h2 id=&#34;架构&#34;&gt;架构&lt;/h2&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240407095824996&#34; loading=&#34;lazy&#34; src=&#34;/k8s/promethues/images/image-20240407095824996.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;组件：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Prometheus Server：主服务器，负责收集和存储时间序列数据&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;client libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pushgateway：推送网关，为支持 short-lived 作业提供一个推送网关&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;exporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Alertmanager：专门用于处理 alert 的组件&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;采集层：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;短作业：直接通过 API，在退出时间指标推送给 Pushgateway。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;应用层&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;应用层主要分为两种：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;AlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;数据可视化：Prometheus build-in WebUI，Grafana&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;promql-介绍&#34;&gt;&lt;strong&gt;PromQL 介绍&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;​	PromQL 是 Prometheus &lt;strong&gt;内置的数据查询语言&lt;/strong&gt;，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。&lt;/p&gt;
+&lt;p&gt;​	通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列&lt;/p&gt;
+&lt;p&gt;优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book&lt;/p&gt;
+&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;h2 id=&#34;kube-prometheus&#34;&gt;kube-prometheus&lt;/h2&gt;
+&lt;p&gt;kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus&lt;/p&gt;
+&lt;p&gt;​	Operator是由&lt;a href=&#34;https://blog.z0ukun.com/wp-content/themes/begin4.6/inc/go.php?url=https://coreos.com/&#34;&gt; CoreOS&lt;/a&gt; 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>traefik</title>
+      <link>/k8s/traefik/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/traefik/</guid>
+      <description>&lt;p&gt;参考博客：https://www.cuiliangblog.cn/detail/section/94663774&lt;/p&gt;
+&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
+&lt;p&gt;Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h2 id=&#34;组件&#34;&gt;组件&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Providers&lt;/code&gt;：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Entrypoints&lt;/code&gt;：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Routers&lt;/code&gt;：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Middlewares&lt;/code&gt;：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Service&lt;/code&gt;：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;nginx-ingress和traefik区别&#34;&gt;Nginx-Ingress和traefik区别&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;traefik组件与nginx类比&lt;/strong&gt;&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;组件名&lt;/th&gt;
+          &lt;th&gt;功能&lt;/th&gt;
+          &lt;th&gt;nginx相同概念&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Providers&lt;/td&gt;
+          &lt;td&gt;监听路由信息变化，更新路由&lt;/td&gt;
+          &lt;td&gt;修改nginx配置，并reload。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Entrypoints&lt;/td&gt;
+          &lt;td&gt;网络入口，监听传入的流量&lt;/td&gt;
+          &lt;td&gt;配置文件listen指定监听端口&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Routers&lt;/td&gt;
+          &lt;td&gt;分析传入的请求，匹配规则&lt;/td&gt;
+          &lt;td&gt;配置文件server_name + location&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Middlewares&lt;/td&gt;
+          &lt;td&gt;中间件，修改请求或响应&lt;/td&gt;
+          &lt;td&gt;location配置段中添加的缓存、压缩、请求头等配置&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Service&lt;/td&gt;
+          &lt;td&gt;请求转发&lt;/td&gt;
+          &lt;td&gt;http配置段中的upstream&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;​	k8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>velero</title>
+      <link>/k8s/velero/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/velero/</guid>
+      <description>&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
+&lt;p&gt;参考博客：https://www.cnblogs.com/nf01/p/18118159&lt;/p&gt;
+&lt;p&gt;Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开源地址：https://github.com/vmware-tanzu/velero&lt;/li&gt;
+&lt;li&gt;官方文档：https://velero.io/docs/v1.11/&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240430173735648&#34; loading=&#34;lazy&#34; src=&#34;/k8s/velero/images/image-20240430173735648.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;版本支持列表：&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Velero 组件一共分两部分，分别是服务端和客户端。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;服务端&lt;/strong&gt;：运行在你 Kubernetes 的集群中&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;客户端&lt;/strong&gt;：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;velero备份流程：&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;velero客户端调用kubernetes API Server创建backup任务&lt;/li&gt;
+&lt;li&gt;Backup控制器基于watch机制通过Api Server获取到备份任务&lt;/li&gt;
+&lt;li&gt;Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据&lt;/li&gt;
+&lt;li&gt;Backup 控制器将获取到的数据备份到指定的对象存储server端&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240430173757657&#34; loading=&#34;lazy&#34; src=&#34;/k8s/velero/images/image-20240430173757657.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Velero后端存储：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Velero&lt;/code&gt;支持两种关于后端存储的&lt;code&gt;CRD&lt;/code&gt;，分别是&lt;code&gt;BackupStorageLocation&lt;/code&gt;和&lt;code&gt;VolumeSnapshotLocation&lt;/code&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;BackupStorageLocation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;VolumeSnapshotLocation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 &lt;code&gt;Restic&lt;/code&gt;，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。&lt;/p&gt;
+&lt;h1 id=&#34;安装&#34;&gt;安装&lt;/h1&gt;
+&lt;h2 id=&#34;minio客户端&#34;&gt;minio客户端&lt;/h2&gt;
+&lt;p&gt;在 &lt;a href=&#34;https://github.com/vmware-tanzu/velero/releases&#34;&gt;Github Release 页面&lt;/a&gt;下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 &lt;code&gt;v1.11.1&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>一些k8s 面试题</title>
+      <link>/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/</guid>
+      <description>&lt;h1 id=&#34;1-简述etcd及其特点&#34;&gt;1. 简述etcd及其特点？&lt;/h1&gt;
+&lt;p&gt;etcd 是 CoreOS 团队发起的开源项目，是一个管理配置信息和服务发现（service discovery）的项目，它的目标是构建一个高可用的分布式键值（key-value）数据库，基于 Go 语言实现。
+特点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;简单：支持 REST 风格的 HTTP+JSON API&lt;/li&gt;
+&lt;li&gt;安全：支持 HTTPS 方式的访问&lt;/li&gt;
+&lt;li&gt;快速：支持并发 1k/s 的写操作&lt;/li&gt;
+&lt;li&gt;可靠：支持分布式结构，基于 Raft 的一致性算法，Raft 是一套通过选举主节点来实现分布式系统一致性的算法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;2-简述etcd适应的场景&#34;&gt;2. 简述etcd适应的场景？&lt;/h1&gt;
+&lt;p&gt;etcd基于其优秀的特点，可广泛的应用于以下场景：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;服务发现(Service Discovery)：服务发现主要解决在同一个分布式集群中的进程或服务，要如何才能找到对方并建立连接。本质上来说，服务发现就是想要了解集群中是否有进程在监听udp或tcp端口，并且通过名字就可以查找和连接。&lt;/li&gt;
+&lt;li&gt;消息发布与订阅：在分布式系统中，最适用的一种组件间通信方式就是消息发布与订阅。即构建一个配置共享中心，数据提供者在这个配置中心发布消息，而消息使用者则订阅他们关心的主题，一旦主题有消息发布，就会实时通知订阅者。通过这种方式可以做到分布式系统配置的集中式管理与动态更新。应用中用到的一些配置信息放到etcd上进行集中管理。&lt;/li&gt;
+&lt;li&gt;负载均衡：在分布式系统中，为了保证服务的高可用以及数据的一致性，通常都会把数据和服务部署多份，以此达到对等服务，即使其中的某一个服务失效了，也不影响使用。etcd本身分布式架构存储的信息访问支持负载均衡。etcd集群化以后，每个etcd的核心节点都可以处理用户的请求。所以，把数据量小但是访问频繁的消息数据直接存储到etcd中也可以实现负载均衡的效果。&lt;/li&gt;
+&lt;li&gt;分布式通知与协调：与消息发布和订阅类似，都用到了etcd 中的Watcher 机制，通过注册与异步通知机制，实现分布式环境下不同系统之间的通知与协调，从而对数据变更做到实时处理。&lt;/li&gt;
+&lt;li&gt;分布式锁：因为etcd使用Raft算法保持了数据的强一致性，某次操作存储到集群中的值必然是全局一致的，所以很容易实现分布式锁。锁服务有两种使用方式，一是保持独占，二是控制时序。&lt;/li&gt;
+&lt;li&gt;集群监控与Leader 竞选：通过etcd 来进行监控实现起来非常简单并且实时性强。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;3-简述什么是k8s&#34;&gt;3. 简述什么是k8s？&lt;/h1&gt;
+&lt;p&gt;k8s是一个全新的基于容器技术的分布式系统支撑平台。是Google开源的容器集群管理系统（谷歌内部:Borg）。在Docker技术的基础上，为容器化的应用提供部署运行. 资源调度. 服务发现和动态伸缩等一系列完整功能，提高了大规模容器集群管理的便捷性。并且具有完备的集群管理能力，多层次的安全防护和准入机制. 多租户应用支撑能力. 透明的服务注册和发现机制. 內建智能负载均衡器. 强大的故障发现和自我修复能力. 服务滚动升级和在线扩容能力. 可扩展的资源自动调度机制以及多粒度的资源配额管理能力。&lt;/p&gt;
+&lt;h1 id=&#34;4-简述k8s和docker的关系&#34;&gt;4. 简述k8s和Docker的关系？&lt;/h1&gt;
+&lt;p&gt;Docker 提供容器的生命周期管理和，Docker 镜像构建运行时容器。它的主要优点是将将软件/应用程序运行所需的设置和依赖项打包到一个容器中，从而实现了可移植性等优点。
+k8s 用于关联和编排在多个主机上运行的容器。&lt;/p&gt;
+&lt;h1 id=&#34;5-简述k8s中什么是minikube-kubectl-kubelet&#34;&gt;5. 简述k8s中什么是Minikube. Kubectl. Kubelet？&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Minikube 是一种可以在本地轻松运行一个单节点 k8s 群集的工具。&lt;/li&gt;
+&lt;li&gt;Kubectl 是一个命令行工具，可以使用该工具控制k8s集群管理器，如检查群集资源，创建. 删除和更新组件，查看应用程序。&lt;/li&gt;
+&lt;li&gt;Kubelet 是一个代理服务，它在每个节点上运行，并使从服务器与主服务器通信。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;6-简述k8s常见的部署方式&#34;&gt;6. 简述k8s常见的部署方式？&lt;/h1&gt;
+&lt;p&gt;常见的k8s部署方式有：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>业务迁移k8s案例</title>
+      <link>/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/</guid>
+      <description>&lt;p&gt;参考博客：https://www.cuiliangblog.cn/detail/article/52&lt;/p&gt;
+&lt;h1 id=&#34;基本流程&#34;&gt;基本流程&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。&lt;/li&gt;
+&lt;li&gt;再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者守护进程。&lt;/li&gt;
+&lt;li&gt;创建、上传镜像&lt;/li&gt;
+&lt;li&gt;编写yaml文件，创建资源&lt;/li&gt;
+&lt;li&gt;创建service，ingress外部访问&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;操作分为了三个层面，最底层的操作系统，中间层的运行环境，上层的应用服务。&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h1 id=&#34;前提准备&#34;&gt;前提准备&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;打包镜像&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;dockerfile构建镜像经验&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;减少镜像的层数，尽量把一些功能上面统一的命令合到一起来做；&lt;/li&gt;
+&lt;li&gt;注意清理镜像构建的中间产物，比如一些安装包在装完之后就把它删掉；&lt;/li&gt;
+&lt;li&gt;注意优化网络请求，使用yum源的时候，用一些网络比较好的源站点，可节约时间，减少失败率；&lt;/li&gt;
+&lt;li&gt;尽量去使用缓存构建，尽量把一些不变的东西或者变动比较少的东西放在前面。例如业务更新，打包新版本镜像时，只有代码发生变化，其他内容不变。此时可以把拷贝代码放最后，前面的构建阶段直接使用缓存即可。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;使用Pod运行容器&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当我们把应用封装成docker镜像后，接下来就是在kubernetes中启动镜像运行容器。因为Pod是Kubernetes管理的最小单元，Kubernetes不直接管理容器，而是管理Pod，Pod里面包含一个或多个容器。需要考虑是一个Pod中放置多个容器，还是一个Pod中放置一个容器。在一个pod中所有container共享，PID、Network、IPC&lt;/p&gt;
+&lt;p&gt;在有些业务场景中，例如一个web服务，对应的资源文件需要从远端实时监听更新，就需要使用边车 (sidercar)模式，一个pod中包含一个web容器一个file容器，通过共享存储方式实现。又比如一个用户的微服务包含：User API、User Control、User Data等三个模块，彼此之间紧耦合，对外只需要通过User API，这样类型的应用就可以放置在一个Pod中。&lt;/p&gt;
+&lt;p&gt;Pod资源清单建议&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;建议开发项目时，提供healthy健康检查接口，便于检测服务是否正常。&lt;/li&gt;
+&lt;li&gt;建议运维配置LivenessProbe存活检测探针，防止服务假死。&lt;/li&gt;
+&lt;li&gt;建议配置resources，避免程序出现异常，并占用大量的系统资源，从而会影响节点上其他的Pod。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;开放端口访问&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;使用Service访问Pod&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;service使用：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ClusterIP(集群IP)：集群内的服务间通信。 例如，应用程序的前端(front-end)和后端(back-end)组件之间的通信。&lt;/li&gt;
+&lt;li&gt;NodePort(节点端口)：k8s集群内部服务暴露给外部时访问，可以通过k8s节点ip+端口方式访问服务。&lt;/li&gt;
+&lt;li&gt;LoadBalancer（负载均衡器）：使用云厂商来托管您的 Kubernetes 集群时。由它接入外部客户端的请求并调度至集群节点相应的NodePort之上&lt;/li&gt;
+&lt;li&gt;ExternalName（外部名称）：在 Kubernetes 内创建服务来表示映射外部服务名称，例如在 Kubernetes 中使用公有云数据库时，可以创建一个ExternalName资源，后续更换云数据库地址时，更新ExternalName配置即可&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Ingress提供外部访问：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Ingress同样也只是一个概念，它的具体的实现依赖控制器，Ingress控制器并不直接运行为kube-controller-manager的一部分，它是Kubernetes集群的一个重要附件，类似于CoreDNS，需要在集群上单独部署。Ingress控制器可以由任何具有反向代理（HTTP/HTTPS）功能的服务程序实现，如Nginx、Envoy、HAProxy、Vulcand和Traefik等。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;ConfigMap管理配置文件&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在DevOps的部署流水线中，其中有一个核心的理念就是代码和配置的分离，这样更容易实现流水线的编排。我们只需要使用一套代码，配合不同的配置文件，就可以实现灵活发布到测试环境、预发布环境、生产环境等。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240419191733338&#34; loading=&#34;lazy&#34; src=&#34;/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/images/image-20240419191733338.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;kubernetes配置与文件管理方案：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;ConfigMap配置文件：可以从文件、文件夹等途径创建ConfigMap。然后再Pod中挂载使用配置文件，例如nginx配置。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;secret私密文件：使用base64加密的文件，例如存储第三方镜像仓库凭证 配置TLS 类型secret 用于记录证书秘钥等信息。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;持久化存储数据&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;存储卷包括传统的NAS或SAN设备（如NFS、iSCSI、fc）、分布式存储（如GlusterFS、RBD）、云端存储（如gcePersistentDisk、azureDisk、cinder和awsElasticBlockStore）以及建构在各类存储系统之上的抽象管理层（如flocker、portworxVolume和vsphereVolume）等。&lt;/p&gt;
+&lt;h1 id=&#34;资源清单部署&#34;&gt;资源清单部署&lt;/h1&gt;
+&lt;h2 id=&#34;案例1springboot&#34;&gt;案例1：springboot&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;分析&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开发提供jar包：基础镜像直接使用open-jdk即可&lt;/li&gt;
+&lt;li&gt;部署到k8s：多副本管理，滚动更新：需要使用Deployment控制器；Pod多副本负载均衡：需要使用ClusterIP服务资源&lt;/li&gt;
+&lt;li&gt;用户通过域名访问：使用Ingress创建域名路由，流量转发到Service&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;我们将打包好的jar文件和dockerfile放在同一级目录下，执行docker build指令，即可完成镜像构建&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@tiaoban springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# ls&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;demo  demo-v1.jar  demo-v2.jar  Dockerfile
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@tiaoban springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# cat Dockerfile &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;FROM openjdk:19-jdk-alpine3.16
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ADD demo-v1.jar /opt/app.jar
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EXPOSE &lt;span style=&#34;color:#ae81ff&#34;&gt;8888&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;WORKDIR /opt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;CMD &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;java&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-jar&amp;#34;&lt;/span&gt;,&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;app.jar&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 打包镜像&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@tiaoban springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# docker build -t springboot:v1 .&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 启动容器，访问测试&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@k8s-master springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# docker run -d -p 8888:8888 springboot:v1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;74a8bc2446d7f30195099c8f6f905481b2fdc6b585436e4b810849f1df50185d
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@k8s-master springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# curl 127.0.0.1:8888&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Hello SpringBoot Version:v1&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@k8s-master springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@k8s-master springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# curl 127.0.0.1:8888/healthy&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ok&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;root@k8s-master springboot&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;推送至镜像仓库&lt;/strong&gt;
+构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

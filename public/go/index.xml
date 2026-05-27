@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Go on 探无止境</title>
+    <link>/go/</link>
+    <description>Recent content in Go on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>基础</title>
+      <link>/go/%E5%9F%BA%E7%A1%80/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/go/%E5%9F%BA%E7%A1%80/</guid>
+      <description>&lt;h1 id=&#34;一安装配置&#34;&gt;一、安装&amp;amp;配置&lt;/h1&gt;
+&lt;p&gt;推荐安装包的方式安装Go，Go的官方 &lt;a href=&#34;https://golang.org/dl/&#34;&gt;https://golang.org/dl/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;二进制包安装，官方release 地址 &lt;a href=&#34;https://go.dev/doc/devel/release&#34;&gt;https://go.dev/doc/devel/release&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;二进制包就是已经编译好的包。去官方下载当前开发机所使用的系统&lt;/p&gt;
+&lt;p&gt;直接下载安装即可，不必多说&lt;/p&gt;
+&lt;h2 id=&#34;配置&#34;&gt;配置&lt;/h2&gt;
+&lt;p&gt;需了解三个环境变量，分别是GOROOT、GOPATH，GOPROXY&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GOROOT&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Go 语言安装根目录的路径，也就是GO语言的安装路径,官方推荐的目录地址一般在GOROOT=&amp;quot;/usr/local/go&amp;quot;&lt;/p&gt;
+&lt;p&gt;在 GO 1.10 之前，我们需要视不同安装方式决定是否手动配置。比如源码编译安装，安装时会有默认设置。而采用二进制包安装，在windows系统中，推荐安装位置为C:\GO，在Linux、freeBSD、OS X系统，推荐安装在/usr/local/go下。如果要自定义安装位置，必须手动设置GOROOT。如果采用系统方式安装，这一切已经帮我们处理好了。&lt;/p&gt;
+&lt;p&gt;关于这个话题，推荐阅读：you-dont-need-to-set-goroot和分析源码安装go的过程。&lt;/p&gt;
+&lt;p&gt;在 GO 1.10 及以后，这个变量已经不用我们设置了，它会根据go工具集的位置，即相对go tool的位置来动态决定GOROOT的值。说简单点，其实就是go命令决定GOROOT的位置。&lt;/p&gt;
+&lt;p&gt;关于这个话题，推荐阅读：&lt;a href=&#34;https://go-review.googlesource.com/c/go/+/42533/&#34;&gt;use os.Executable to find GOROOT&lt;/a&gt; 和 &lt;a href=&#34;http://blog.studygolang.com/2013/01/%E5%88%86%E6%9E%90%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85go%E7%9A%84%E8%BF%87%E7%A8%8B/&#34;&gt;github go issues 25002&lt;/a&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GOPROXY&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;由于众所周知的原因，国内无法使用一些谷歌的库，需要设置代理，具体国内设置网站 &lt;a href=&#34;https://goproxy.io/&#34;&gt;https://goproxy.io/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;最终执行 go env 命令会看到如下环境变量&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go env -w GO111MODULE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;on
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;go env -w GOPROXY&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;https://goproxy.cn,direct
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GOPATH&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;GOPATH是用户自定义的工作区，我们通常开发项目代码都会放在GOPATH的工作区中，在go 1.8之前，该变量必须手动设置。go 1.8及之后，如果没有设置，默认在$HOME/go目录下，即你的用户目录中的go目录下。它应包含3个子目录：&lt;code&gt;src&lt;/code&gt;目录、&lt;code&gt;pkg&lt;/code&gt;目录、&lt;code&gt;bin&lt;/code&gt;目录&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;src&lt;/code&gt; ：这个目录是你开发程序的主目录，所有的源码都是放在这个目录下面进行开发。通常的做法是一个目录为一个独立的项目。例如 &lt;code&gt;$GOPATH/src/hello&lt;/code&gt;就表示 hello 这个应用/包。因此，每当开发一个新项目时，都需要在 &lt;code&gt;$GOPATH/src/&lt;/code&gt;下新建一个文件夹用作开发。当你在引用其他包的时候，Go 程序也会以 &lt;code&gt;$GOPATH/src/&lt;/code&gt;目录作为根目录进行查找。当然了， src 目录允许存在多级目录，例如在 src 下面新建了目录 &lt;code&gt;$GOPATH/src/github.com/baxiang/hello&lt;/code&gt;，那么这个包路径就是 github.com/golang/&lt;code&gt;baxiang&lt;/code&gt;/hello，包名称为最后一个目录 hello。。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;pkg&lt;/code&gt;：用于存放通过&lt;code&gt;go install&lt;/code&gt;命令安装后的代码包的归档文件（（archive file，也就是以“.a”为扩展名的文件））&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;bin&lt;/code&gt;：一般通过执行&lt;code&gt;go install&lt;/code&gt;命令完成安装后，保存由Go命令源码文件生成的可执行文件（executable file）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;相当于是需要创建一个工作目录，目录下面包含src，pkg，bin，真实的项目创建在src下，例如：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

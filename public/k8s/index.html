@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Kubernetes | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="Kubernetes 相关学习笔记。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="/k8s/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="/k8s/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="Kubernetes">
+  <meta property="og:description" content="Kubernetes 相关学习笔记。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Kubernetes">
+  <meta name="twitter:description" content="Kubernetes 相关学习笔记。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span class="active">Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+  <header class="kb-list-header"><nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <p class="kb-eyebrow">Module</p>
+    <h1>Kubernetes</h1>
+      <div class="kb-list-description"><p>Kubernetes 相关学习笔记。</p>
+</div>
+  </header>
+  <section class="kb-list-grid" aria-label="Kubernetes 文章列表">
+      <article class="kb-list-card">
+        <a href="/k8s/calico%E4%B8%8Efannel/">
+          <div>
+            <h2>calico与fannel</h2>
+              <p>calico 简介 Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。
+Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/docker%E4%B8%8Econtainerd/">
+          <div>
+            <h2>docker与containerd</h2>
+              <p>参考博客：https://i4t.com/5435.html#CRI_%E8%AF%A6%E8%A7%A3
+docker下容器运行时调用过程 ​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/istio/">
+          <div>
+            <h2>istio</h2>
+              <p>概念介绍 服务网格(Service Mesh)与istio 三大服务模式：
+集中式代理模式： ​	例如：nginx
+嵌入式代理模式 ​	例如：eureka-client
+​	特点：
+​	1、代码侵入，需引入jar包
+​	2、绑定了语言
+​	3、需基础架构组开发二方库
+主机独立进程 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
+          <div>
+            <h2>k8s安装-kubeadm（非高可用&#43;高可用）</h2>
+              <p>前言：版本差异 ​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。
+​	但是如果想继续使用docker的话， …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/">
+          <div>
+            <h2>k8s安装-二进制</h2>
+              <p>参考博客：https://www.cnblogs.com/liweifeng888/p/17435629.html
+系统优化 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行
+本章下述操作均以 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
+          <div>
+            <h2>k8s笔记整理</h2>
+              <p>kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？
+跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？
+跨主机容器间互相调用，配置如何写？写死固 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
+          <div>
+            <h2>k8s问题排查手册</h2>
+              <p>前言：
+文章取自：啊铭老师
+公众号：运维狗工作日记
+K8S云原生企业实战训练营课程大纲
+链接 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/">
+          <div>
+            <h2>k8s集群证书过期更换</h2>
+              <p>kubadm 使用kubeadm部署的k8s集群默认证书有效期为1年，可以通过更新k8s版本自动更新证书或修改源码更改证书有效期。下面为手动更换证书步骤总结。
+查看证书日期 # kubeadm alpha certs check-expiration kubeadm certs …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/kustormize/">
+          <div>
+            <h2>kustormize</h2>
+              <p>简介 官网：https://kubectl.docs.kubernetes.io/
+一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等， …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+      <article class="kb-list-card">
+        <a href="/k8s/minio/">
+          <div>
+            <h2>minio</h2>
+              <p>介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
+MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基 …</p>
+          </div>
+          <footer>
+            <span>2026-05-28</span>
+            <span>阅读全文 →</span>
+          </footer>
+        </a>
+      </article>
+  </section>
+    <footer class="page-footer">
+      <nav class="pagination">
+          <a class="next" href="/k8s/page/2/">下一页 »</a>
+      </nav>
+    </footer>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

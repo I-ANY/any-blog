@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>nacos | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="k8s部署nacos
+官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html
+一、NFS持久化模式安装，如果不用NFS可忽略
+# 安装客户端 nfs
+yum install nfs-utils -y
+
+# 启动 nfs
+systemctl start nfs-server
+systemctl enable nfs-server
+
+# 查看 nfs 版本
+cat /proc/fs/nfsd/versions
+
+# 创建共享目录
+mkdir -p /data/nfs
+cd /data/nfs
+mkdir rw
+mkdir ro
+
+# server上设置共享目录 export
+vim /etc/exports
+/data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash)
+/data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash)
+
+# 重新加载
+exportfs -f
+systemctl reload nfs-server
+
+# 到其他测试节点安装 nfs-utils 并加载测试
+showmount -e 192.168.113.121
+
+mkdir -p /mnt/nfs/rw
+mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw
+二、官网clone安装文件">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/middleware/nacos/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/middleware/nacos/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/middleware/nacos/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="nacos">
+  <meta property="og:description" content="k8s部署nacos 官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html
+一、NFS持久化模式安装，如果不用NFS可忽略
+# 安装客户端 nfs yum install nfs-utils -y # 启动 nfs systemctl start nfs-server systemctl enable nfs-server # 查看 nfs 版本 cat /proc/fs/nfsd/versions # 创建共享目录 mkdir -p /data/nfs cd /data/nfs mkdir rw mkdir ro # server上设置共享目录 export vim /etc/exports /data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash) /data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash) # 重新加载 exportfs -f systemctl reload nfs-server # 到其他测试节点安装 nfs-utils 并加载测试 showmount -e 192.168.113.121 mkdir -p /mnt/nfs/rw mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw 二、官网clone安装文件">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="middleware">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="nacos">
+  <meta name="twitter:description" content="k8s部署nacos 官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html
+一、NFS持久化模式安装，如果不用NFS可忽略
+# 安装客户端 nfs yum install nfs-utils -y # 启动 nfs systemctl start nfs-server systemctl enable nfs-server # 查看 nfs 版本 cat /proc/fs/nfsd/versions # 创建共享目录 mkdir -p /data/nfs cd /data/nfs mkdir rw mkdir ro # server上设置共享目录 export vim /etc/exports /data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash) /data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash) # 重新加载 exportfs -f systemctl reload nfs-server # 到其他测试节点安装 nfs-utils 并加载测试 showmount -e 192.168.113.121 mkdir -p /mnt/nfs/rw mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw 二、官网clone安装文件">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "中间件",
+      "item": "/middleware/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "nacos",
+      "item": "/middleware/nacos/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "nacos",
+  "name": "nacos",
+  "description": "k8s部署nacos 官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html\n一、NFS持久化模式安装，如果不用NFS可忽略\n# 安装客户端 nfs yum install nfs-utils -y # 启动 nfs systemctl start nfs-server systemctl enable nfs-server # 查看 nfs 版本 cat /proc/fs/nfsd/versions # 创建共享目录 mkdir -p /data/nfs cd /data/nfs mkdir rw mkdir ro # server上设置共享目录 export vim /etc/exports /data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash) /data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash) # 重新加载 exportfs -f systemctl reload nfs-server # 到其他测试节点安装 nfs-utils 并加载测试 showmount -e 192.168.113.121 mkdir -p /mnt/nfs/rw mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw 二、官网clone安装文件\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "k8s部署nacos 官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html\n一、NFS持久化模式安装，如果不用NFS可忽略\n# 安装客户端 nfs yum install nfs-utils -y # 启动 nfs systemctl start nfs-server systemctl enable nfs-server # 查看 nfs 版本 cat /proc/fs/nfsd/versions # 创建共享目录 mkdir -p /data/nfs cd /data/nfs mkdir rw mkdir ro # server上设置共享目录 export vim /etc/exports /data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash) /data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash) # 重新加载 exportfs -f systemctl reload nfs-server # 到其他测试节点安装 nfs-utils 并加载测试 showmount -e 192.168.113.121 mkdir -p /mnt/nfs/rw mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw 二、官网clone安装文件\n# 获取安装文件： git clone https://github.com/nacos-group/nacos-k8s.git # 进入到nfs目录下创建nfs-client资源 $ cd nacos-k8s/deploy/nfs $ ls class.yaml deployment.yaml rbac.yaml 1、创建nfs-client-provisioner\nrbac.yaml：rbac 用户创建，根据需要修改命名空间\nkind: ClusterRole apiVersion: rbac.authorization.k8s.io/v1 metadata: name: nfs-client-provisioner-runner rules: - apiGroups: [\"\"] resources: [\"persistentvolumes\"] verbs: [\"get\", \"list\", \"watch\", \"create\", \"delete\"] - apiGroups: [\"\"] resources: [\"persistentvolumeclaims\"] verbs: [\"get\", \"list\", \"watch\", \"update\"] - apiGroups: [\"\"] resources: [\"endpoints\"] verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\"] - apiGroups: [\"storage.k8s.io\"] resources: [\"storageclasses\"] verbs: [\"get\", \"list\", \"watch\"] - apiGroups: [\"\"] resources: [\"events\"] verbs: [\"create\", \"update\", \"patch\"] --- kind: ClusterRoleBinding apiVersion: rbac.authorization.k8s.io/v1 metadata: name: run-nfs-client-provisioner subjects: - kind: ServiceAccount name: nfs-client-provisioner namespace: psw002-test roleRef: kind: ClusterRole name: nfs-client-provisioner-runner apiGroup: rbac.authorization.k8s.io --- kind: Role apiVersion: rbac.authorization.k8s.io/v1 metadata: name: leader-locking-nfs-client-provisioner rules: - apiGroups: [\"\"] resources: [\"endpoints\"] verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\"] --- kind: RoleBinding apiVersion: rbac.authorization.k8s.io/v1 metadata: name: leader-locking-nfs-client-provisioner subjects: - kind: ServiceAccount name: nfs-client-provisioner # replace with namespace where provisioner is deployed namespace: psw002-test roleRef: kind: Role name: leader-locking-nfs-client-provisioner apiGroup: rbac.authorization.k8s.io 官方的修改命令：\n# Set the subject of the RBAC objects to the current namespace where the provisioner is being deployed $ NS=$(kubectl config get-contexts|grep -e \"^\\*\" |awk '{print $5}') $ NAMESPACE=${NS:-default} $ sed -i'' \"s/namespace:.*/namespace: $NAMESPACE/g\" ./deploy/nfs/rbac.yaml class.yaml：制备器\napiVersion: storage.k8s.io/v1 kind: StorageClass metadata: name: managed-nfs-storage namespace: psw002-test provisioner: fuseim.pri/ifs parameters: archiveOnDelete: \"false\" deployment.yaml ：修改命名空间，镜像等\nkind: ServiceAccount metadata: name: nfs-client-provisioner namespace: psw002-test # 根据需要更改命名空间 --- kind: Deployment apiVersion: apps/v1 metadata: name: nfs-client-provisioner namespace: psw002-test # 根据需要更改命名空间 spec: replicas: 1 strategy: type: Recreate selector: matchLabels: app: nfs-client-provisioner template: metadata: labels: app: nfs-client-provisioner spec: serviceAccount: nfs-client-provisioner nodeSelector: app: nfs-client-provisioner containers: - name: nfs-client-provisioner #image: quay.io/external_storage/nfs-client-provisioner:latest # 修改镜像，在22版之后，k8s默认不支持selLine ，需要使用较低版本的 image: registry.cn-beijing.aliyuncs.com/pylixm/nfs-subdir-external-provisioner:v4.0.0 imagePullPolicy: IfNotPresent volumeMounts: - name: nfs-client-root mountPath: /persistentvolumes env: - name: PROVISIONER_NAME value: fuseim.pri/ifs - name: NFS_SERVER value: 10.244.16.21 # 更改server ip - name: NFS_PATH value: /data/nfs-share/nacos # 路径 volumes: - name: nfs-client-root nfs: server: 10.244.16.21 # 更改server ip path: /data/nfs-share/nacos # 路径 修改之后直接\nkubectl apply -f . 2、导入sql，到mysql，这里我是自建的外部的mysql，所以k8s中没有装mysql，但是需要创建一个service让集群内额pod能够访问外部的mysql\napiVersion: v1 kind: Service metadata: name: mysql-nacos namespace: psw002-test spec: #clusterIP: 10.96.2.128 #固定clusterIP type: NodePort ports: - port: 3306 nodePort: 32206 targetPort: 3306 protocol: TCP --- apiVersion: v1 kind: Endpoints metadata: name: mysql-nacos namespace: psw002-test subsets: - addresses: - ip: 10.14.2.5 #外部数据库地址 ports: - port: 3306 https://github.com/alibaba/nacos/blob/develop/config/src/main/resources/META-INF/nacos-db.sql\n3、创建nacos StatefulSet\n进入到nacos目录下：nacos-k8s/deploy/nacos\n根据需要修改：nacos-pvc-nfs.yaml\n# 请阅读Wiki文章 # https://github.com/nacos-group/nacos-k8s/wiki/%E4%BD%BF%E7%94%A8peerfinder%E6%89%A9%E5%AE%B9%E6%8F%92%E4%BB%B6 --- apiVersion: v1 kind: Service metadata: name: nacos-headless namespace: psw002-test labels: app: nacos spec: publishNotReadyAddresses: true ports: - port: 8848 name: server targetPort: 8848 - port: 9848 name: client-rpc targetPort: 9848 - port: 9849 name: raft-rpc targetPort: 9849 ## 兼容1.4.x版本的选举端口 - port: 7848 name: old-raft-rpc targetPort: 7848 clusterIP: None type: ClusterIP # 这里的service不能改为nodePort模式，不然会出错 selector: app: nacos --- apiVersion: v1 kind: ConfigMap metadata: namespace: psw002-test name: nacos-cm data: mysql.host: \"mysql-nacos\" # 数据库连接地址，如果是连接外部的mysql，需要创建一个外部连接的service mysql.db.name: \"nacos\" # 库名 mysql.port: \"3306\" # 端口 mysql.user: \"nacos\" # 用户，密码 mysql.password: \"weizhen@nacos123\" --- apiVersion: apps/v1 kind: StatefulSet metadata: name: nacos namespace: psw002-test spec: podManagementPolicy: Parallel serviceName: nacos-headless replicas: 2 template: metadata: labels: app: nacos annotations: pod.alpha.kubernetes.io/initialized: \"true\" spec: affinity: podAntiAffinity: requiredDuringSchedulingIgnoredDuringExecution: - labelSelector: matchExpressions: - key: \"app\" operator: In values: - nacos topologyKey: \"kubernetes.io/hostname\" serviceAccountName: nfs-client-provisioner initContainers: - name: peer-finder-plugin-install image: nacos/nacos-peer-finder-plugin:1.1 imagePullPolicy: IfNotPresent volumeMounts: - mountPath: /home/nacos/plugins/peer-finder name: data subPath: peer-finder nodeSelector: nacos: nacos containers: - name: nacos imagePullPolicy: IfNotPresent #image: nacos/nacos-server:latest image: swr.cn-south-1.myhuaweicloud.com/psw002-test/nacos-server:v2.3.0 # 根据自己需要修改版本 resources: requests: memory: \"2Gi\" cpu: \"500m\" ports: - containerPort: 8848 name: client-port - containerPort: 9848 name: client-rpc - containerPort: 9849 name: raft-rpc - containerPort: 7848 name: old-raft-rpc env: - name: NACOS_REPLICAS value: \"1\" - name: SERVICE_NAME value: \"nacos-headless\" - name: DOMAIN_NAME value: \"cluster.local\" - name: POD_NAMESPACE valueFrom: fieldRef: apiVersion: v1 fieldPath: metadata.namespace - name: MYSQL_SERVICE_HOST valueFrom: configMapKeyRef: name: nacos-cm key: mysql.host - name: MYSQL_SERVICE_DB_NAME valueFrom: configMapKeyRef: name: nacos-cm key: mysql.db.name - name: MYSQL_SERVICE_PORT valueFrom: configMapKeyRef: name: nacos-cm key: mysql.port - name: MYSQL_SERVICE_USER valueFrom: configMapKeyRef: name: nacos-cm key: mysql.user - name: MYSQL_SERVICE_PASSWORD valueFrom: configMapKeyRef: name: nacos-cm key: mysql.password - name: SPRING_DATASOURCE_PLATFORM value: \"mysql\" - name: NACOS_SERVER_PORT value: \"8848\" - name: NACOS_APPLICATION_PORT value: \"8848\" - name: PREFER_HOST_MODE value: \"hostname\" # nacos2.x之后默认不开启权限认证，访问web端时无需登录，所以需要开启权限认证 - name: NACOS_AUTH_ENABLE value: \"true\" - name: NACOS_AUTH_IDENTITY_KEY value: \"auth-key\" - name: NACOS_AUTH_IDENTITY_VALUE value: \"auth-key\" - name: NACOS_AUTH_TOKEN value: \"SecretKey012345678901234567890123456789012345678901234567890123456789\" - name: NACOS_AUTH_TOKEN_EXPIRE_SECONDS value: \"18000\" volumeMounts: - name: data mountPath: /home/nacos/plugins/peer-finder subPath: peer-finder - name: data mountPath: /home/nacos/data subPath: data - name: data mountPath: /home/nacos/logs subPath: logs volumeClaimTemplates: - metadata: name: data annotations: volume.beta.kubernetes.io/storage-class: \"managed-nfs-storage\" # 这里要对应前面创建的制备器 spec: accessModes: [ \"ReadWriteMany\" ] resources: requests: storage: 10Gi selector: matchLabels: app: nacos nacos启动报错\n1、\n2、内置的tomcat起不来\n解决：\n因为我在更改了yaml文件中的service网络模式，原来是ClueterIP模式，改为nodePort模式，而实际上不能更改，需要外部访问只能通过另外创建一个nodePort的service或者ingress来实现\n参考博客：\n​\thttps://www.cnblogs.com/panwenbin-logs/p/17562928.html\n​\thttps://developer.aliyun.com/ask/529334\n- name: NACOS_AUTH_ENABLE value: \"true\" - name: NACOS_AUTH_IDENTITY_KEY value: \"auth-key\" - name: NACOS_AUTH_IDENTITY_VALUE value: \"auth-key\" - name: NACOS_AUTH_TOKEN value: \"SecretKey012345678901234567890123456789012345678901234567890123456789\" - name: NACOS_AUTH_TOKEN_EXPIRE_SECONDS value: \"18000\" ",
+  "wordCount" : "814",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/middleware/nacos/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/middleware/">中间件</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      nacos
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#k8s%e9%83%a8%e7%bd%b2nacos" aria-label="k8s部署nacos">k8s部署nacos</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="k8s部署nacos">k8s部署nacos<a hidden class="anchor" aria-hidden="true" href="#k8s部署nacos">#</a></h1>
+<p>官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html</p>
+<p>一、NFS持久化模式安装，如果不用NFS可忽略</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 安装客户端 nfs</span>
+</span></span><span style="display:flex;"><span>yum install nfs-utils -y
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动 nfs</span>
+</span></span><span style="display:flex;"><span>systemctl start nfs-server
+</span></span><span style="display:flex;"><span>systemctl enable nfs-server
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看 nfs 版本</span>
+</span></span><span style="display:flex;"><span>cat /proc/fs/nfsd/versions
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建共享目录</span>
+</span></span><span style="display:flex;"><span>mkdir -p /data/nfs
+</span></span><span style="display:flex;"><span>cd /data/nfs
+</span></span><span style="display:flex;"><span>mkdir rw
+</span></span><span style="display:flex;"><span>mkdir ro
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># server上设置共享目录 export</span>
+</span></span><span style="display:flex;"><span>vim /etc/exports
+</span></span><span style="display:flex;"><span>/data/nfs/rw 192.168.113.0/24<span style="color:#f92672">(</span>rw,sync,no_subtree_check,no_root_squash<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>/data/nfs/ro 192.168.113.0/24<span style="color:#f92672">(</span>ro,sync,no_subtree_check,no_root_squash<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 重新加载</span>
+</span></span><span style="display:flex;"><span>exportfs -f
+</span></span><span style="display:flex;"><span>systemctl reload nfs-server
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 到其他测试节点安装 nfs-utils 并加载测试</span>
+</span></span><span style="display:flex;"><span>showmount -e 192.168.113.121
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>mkdir -p /mnt/nfs/rw
+</span></span><span style="display:flex;"><span>mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw
+</span></span></code></pre></div><p>二、官网clone安装文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 获取安装文件：</span>
+</span></span><span style="display:flex;"><span>git clone https://github.com/nacos-group/nacos-k8s.git
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 进入到nfs目录下创建nfs-client资源</span>
+</span></span><span style="display:flex;"><span>$ cd nacos-k8s/deploy/nfs
+</span></span><span style="display:flex;"><span>$ ls
+</span></span><span style="display:flex;"><span>class.yaml  deployment.yaml  rbac.yaml
+</span></span></code></pre></div><p>1、创建nfs-client-provisioner</p>
+<p>rbac.yaml：rbac 用户创建，根据需要修改命名空间</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterRole</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner-runner</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">rules</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;persistentvolumes&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;get&#34;</span>, <span style="color:#e6db74">&#34;list&#34;</span>, <span style="color:#e6db74">&#34;watch&#34;</span>, <span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;delete&#34;</span>]
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;persistentvolumeclaims&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;get&#34;</span>, <span style="color:#e6db74">&#34;list&#34;</span>, <span style="color:#e6db74">&#34;watch&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span>]
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;endpoints&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;get&#34;</span>, <span style="color:#e6db74">&#34;list&#34;</span>, <span style="color:#e6db74">&#34;watch&#34;</span>, <span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span>, <span style="color:#e6db74">&#34;patch&#34;</span>]
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;storage.k8s.io&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;storageclasses&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;get&#34;</span>, <span style="color:#e6db74">&#34;list&#34;</span>, <span style="color:#e6db74">&#34;watch&#34;</span>]
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;events&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span>, <span style="color:#e6db74">&#34;patch&#34;</span>]
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterRoleBinding</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">run-nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">subjects</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ServiceAccount</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">roleRef</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterRole</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner-runner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">apiGroup</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Role</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">leader-locking-nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">rules</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">apiGroups</span>: [<span style="color:#e6db74">&#34;&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resources</span>: [<span style="color:#e6db74">&#34;endpoints&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">verbs</span>: [<span style="color:#e6db74">&#34;get&#34;</span>, <span style="color:#e6db74">&#34;list&#34;</span>, <span style="color:#e6db74">&#34;watch&#34;</span>, <span style="color:#e6db74">&#34;create&#34;</span>, <span style="color:#e6db74">&#34;update&#34;</span>, <span style="color:#e6db74">&#34;patch&#34;</span>]
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">RoleBinding</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">leader-locking-nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">subjects</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ServiceAccount</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner    </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># replace with namespace where provisioner is deployed</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">roleRef</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Role</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">leader-locking-nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">apiGroup</span>: <span style="color:#ae81ff">rbac.authorization.k8s.io</span>
+</span></span></code></pre></div><p>官方的修改命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># Set the subject of the RBAC objects to the current namespace where the provisioner is being deployed</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">$ NS=$(kubectl config get-contexts|grep -e &#34;^\*&#34; |awk &#39;{print $5}&#39;)</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">$ NAMESPACE=${NS:-default}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">$ sed -i&#39;&#39; &#34;s/namespace:.*/namespace: $NAMESPACE/g&#34; ./deploy/nfs/rbac.yaml</span>
+</span></span></code></pre></div><p>class.yaml：制备器</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">managed-nfs-storage</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">provisioner</span>: <span style="color:#ae81ff">fuseim.pri/ifs</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">parameters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">archiveOnDelete</span>: <span style="color:#e6db74">&#34;false&#34;</span>
+</span></span></code></pre></div><p>deployment.yaml ：修改命名空间，镜像等</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ServiceAccount</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test     </span> <span style="color:#75715e"># 根据需要更改命名空间</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test        </span> <span style="color:#75715e"># 根据需要更改命名空间</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">strategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">Recreate</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">matchLabels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">serviceAccount</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">nodeSelector</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#75715e">#image: quay.io/external_storage/nfs-client-provisioner:latest  # 修改镜像，在22版之后，k8s默认不支持selLine ，需要使用较低版本的</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">registry.cn-beijing.aliyuncs.com/pylixm/nfs-subdir-external-provisioner:v4.0.0</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volumeMounts</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-root</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/persistentvolumes</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">PROVISIONER_NAME</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#ae81ff">fuseim.pri/ifs</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NFS_SERVER</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#ae81ff">10.244.16.21</span>        <span style="color:#75715e"># 更改server ip</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NFS_PATH</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#ae81ff">/data/nfs-share/nacos  </span> <span style="color:#75715e"># 路径</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">volumes</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nfs-client-root</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">nfs</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">server</span>: <span style="color:#ae81ff">10.244.16.21</span>     <span style="color:#75715e"># 更改server ip</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/data/nfs-share/nacos  </span> <span style="color:#75715e"># 路径</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<p>修改之后直接</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f .
+</span></span></code></pre></div><p>2、导入sql，到mysql，这里我是自建的外部的mysql，所以k8s中没有装mysql，但是需要创建一个service让集群内额pod能够访问外部的mysql</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">mysql-nacos</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#clusterIP: 10.96.2.128 #固定clusterIP</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">NodePort</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">3306</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">nodePort</span>: <span style="color:#ae81ff">32206</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">3306</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Endpoints</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">mysql-nacos</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">addresses</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">ip</span>: <span style="color:#ae81ff">10.14.2.5</span>  <span style="color:#75715e">#外部数据库地址</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">3306</span>
+</span></span></code></pre></div><p><a href="https://github.com/alibaba/nacos/blob/develop/config/src/main/resources/META-INF/nacos-db.sql">https://github.com/alibaba/nacos/blob/develop/config/src/main/resources/META-INF/nacos-db.sql</a></p>
+<!-- raw HTML omitted -->
+<p>3、创建nacos StatefulSet</p>
+<p>进入到nacos目录下：nacos-k8s/deploy/nacos</p>
+<p>根据需要修改：nacos-pvc-nfs.yaml</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># 请阅读Wiki文章</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># https://github.com/nacos-group/nacos-k8s/wiki/%E4%BD%BF%E7%94%A8peerfinder%E6%89%A9%E5%AE%B9%E6%8F%92%E4%BB%B6</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-headless</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">publishNotReadyAddresses</span>: <span style="color:#66d9ef">true</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">8848</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">server</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">8848</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">9848</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">client-rpc</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">9848</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">9849</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">raft-rpc</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">9849</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">## 兼容1.4.x版本的选举端口</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">7848</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">old-raft-rpc</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">7848</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">clusterIP</span>: <span style="color:#ae81ff">None</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">ClusterIP         </span> <span style="color:#75715e"># 这里的service不能改为nodePort模式，不然会出错</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ConfigMap</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">data</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mysql.host</span>: <span style="color:#e6db74">&#34;mysql-nacos&#34;</span>      <span style="color:#75715e"># 数据库连接地址，如果是连接外部的mysql，需要创建一个外部连接的service</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mysql.db.name</span>: <span style="color:#e6db74">&#34;nacos&#34;</span>         <span style="color:#75715e"># 库名</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mysql.port</span>: <span style="color:#e6db74">&#34;3306&#34;</span>             <span style="color:#75715e"># 端口</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mysql.user</span>: <span style="color:#e6db74">&#34;nacos&#34;</span>            <span style="color:#75715e"># 用户，密码</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">mysql.password</span>: <span style="color:#e6db74">&#34;weizhen@nacos123&#34;</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StatefulSet</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">psw002-test</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">podManagementPolicy</span>: <span style="color:#ae81ff">Parallel</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">nacos-headless</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">pod.alpha.kubernetes.io/initialized</span>: <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">affinity</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">podAntiAffinity</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">requiredDuringSchedulingIgnoredDuringExecution</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">labelSelector</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">matchExpressions</span>:
+</span></span><span style="display:flex;"><span>                  - <span style="color:#f92672">key</span>: <span style="color:#e6db74">&#34;app&#34;</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">operator</span>: <span style="color:#ae81ff">In</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">values</span>:
+</span></span><span style="display:flex;"><span>                      - <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">topologyKey</span>: <span style="color:#e6db74">&#34;kubernetes.io/hostname&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">serviceAccountName</span>: <span style="color:#ae81ff">nfs-client-provisioner</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">initContainers</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">peer-finder-plugin-install</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">nacos/nacos-peer-finder-plugin:1.1</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volumeMounts</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/home/nacos/plugins/peer-finder</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">subPath</span>: <span style="color:#ae81ff">peer-finder</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">nodeSelector</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">nacos</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#75715e">#image: nacos/nacos-server:latest</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">swr.cn-south-1.myhuaweicloud.com/psw002-test/nacos-server:v2.3.0   </span> <span style="color:#75715e"># 根据自己需要修改版本</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">memory</span>: <span style="color:#e6db74">&#34;2Gi&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;500m&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">8848</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">client-port</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">9848</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">client-rpc</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">9849</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">raft-rpc</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">7848</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">old-raft-rpc</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_REPLICAS</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;1&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">SERVICE_NAME</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;nacos-headless&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">DOMAIN_NAME</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;cluster.local&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">POD_NAMESPACE</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">fieldRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">fieldPath</span>: <span style="color:#ae81ff">metadata.namespace</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">MYSQL_SERVICE_HOST</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">configMapKeyRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">mysql.host</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">MYSQL_SERVICE_DB_NAME</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">configMapKeyRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">mysql.db.name</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">MYSQL_SERVICE_PORT</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">configMapKeyRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">mysql.port</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">MYSQL_SERVICE_USER</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">configMapKeyRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">mysql.user</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">MYSQL_SERVICE_PASSWORD</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">configMapKeyRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nacos-cm</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">mysql.password</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">SPRING_DATASOURCE_PLATFORM</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;mysql&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_SERVER_PORT</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;8848&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_APPLICATION_PORT</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;8848&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">PREFER_HOST_MODE</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;hostname&#34;</span>
+</span></span><span style="display:flex;"><span>			
+</span></span><span style="display:flex;"><span>			<span style="color:#75715e"># nacos2.x之后默认不开启权限认证，访问web端时无需登录，所以需要开启权限认证</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_AUTH_ENABLE</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_AUTH_IDENTITY_KEY</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;auth-key&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_AUTH_IDENTITY_VALUE</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;auth-key&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_AUTH_TOKEN</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;SecretKey012345678901234567890123456789012345678901234567890123456789&#34;</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">NACOS_AUTH_TOKEN_EXPIRE_SECONDS</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;18000&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volumeMounts</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/home/nacos/plugins/peer-finder</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">subPath</span>: <span style="color:#ae81ff">peer-finder</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/home/nacos/data</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">subPath</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/home/nacos/logs</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">subPath</span>: <span style="color:#ae81ff">logs</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">volumeClaimTemplates</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">name</span>: <span style="color:#ae81ff">data</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volume.beta.kubernetes.io/storage-class</span>: <span style="color:#e6db74">&#34;managed-nfs-storage&#34;</span>      <span style="color:#75715e"># 这里要对应前面创建的制备器</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">accessModes</span>: [ <span style="color:#e6db74">&#34;ReadWriteMany&#34;</span> ]
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">storage</span>: <span style="color:#ae81ff">10Gi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">matchLabels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">app</span>: <span style="color:#ae81ff">nacos</span>
+</span></span></code></pre></div><p>nacos启动报错</p>
+<p>1、</p>
+<p><img alt="image-20231211210734308" loading="lazy" src="/middleware/nacos/images/image-20231211210734308.png"></p>
+<p>2、内置的tomcat起不来</p>
+<p><img alt="image-20231211210818516" loading="lazy" src="/middleware/nacos/images/image-20231211210818516.png"></p>
+<p>解决：</p>
+<p>因为我在更改了yaml文件中的service网络模式，原来是ClueterIP模式，改为nodePort模式，而实际上不能更改，需要外部访问只能通过另外创建一个nodePort的service或者ingress来实现</p>
+<!-- raw HTML omitted -->
+<p>参考博客：</p>
+<p>​	https://www.cnblogs.com/panwenbin-logs/p/17562928.html</p>
+<p>​	https://developer.aliyun.com/ask/529334</p>
+<p><img alt="image-20231212113919915" loading="lazy" src="/middleware/nacos/images/image-20231212113919915.png"></p>
+<pre><code>        - name: NACOS_AUTH_ENABLE
+          value: &quot;true&quot;
+        - name: NACOS_AUTH_IDENTITY_KEY
+          value: &quot;auth-key&quot;
+        - name: NACOS_AUTH_IDENTITY_VALUE
+          value: &quot;auth-key&quot;
+        - name: NACOS_AUTH_TOKEN
+          value: &quot;SecretKey012345678901234567890123456789012345678901234567890123456789&quot;
+        - name: NACOS_AUTH_TOKEN_EXPIRE_SECONDS
+          value: &quot;18000&quot;
+</code></pre>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/k8s/minio/">
+    <span class="title">« Prev</span>
+    <span>minio</span>
+  </a>
+  <a class="next" href="/k8s/promethues/">
+    <span class="title">Next »</span>
+    <span>promethues</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

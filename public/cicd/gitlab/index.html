@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>gitlab | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="安装
+环境硬件要求：最低2核4GB，建议4核8GB（比较重）
+yum安装
+# 配置源
+cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF
+[gitlab-ce]
+name=Gitlab CE Repository
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/
+gpgcheck=0
+enabled=1
+EOF
+
+yum makecache
+# 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。
+yum install -y gitlab-ce
+# 指定版本
+yum install -y gitlab-ce-{VERSION}
+配置文件
+建议使用HTTPS
+[root@localhost ~]# vim /etc/gitlab/gitlab.rb
+######### 基础配置 #########
+#用户访问所使用的URL，域名或者IP地址
+external_url &#39;http://gitlab.example.com/&#39;
+#时区
+gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39;
+
+######### SSH配置 #########
+gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222
+#使用SSH协议拉取代码所使用的连接端口。
+
+######### 邮箱配置 #########
+gitlab_rails[&#39;smtp_enable&#39;] = true
+#启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送
+gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34;
+#设置SMTP服务器地址
+gitlab_rails[&#39;smtp_port&#39;] = 465
+#设置SMTP服务器端口
+gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34;
+#设置邮箱账号
+gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34;
+#设置邮箱密码
+gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34;
+#设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆
+gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true
+gitlab_rails[&#39;smtp_tls&#39;] = true
+#设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输
+gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39;
+#设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址
+
+######### WEB配置 #########
+nginx[&#39;enable&#39;] = true
+#启用Nginx服务
+nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39;
+#设置客户端最大文件上传大小
+nginx[&#39;redirect_http_to_https&#39;] = true
+#设置开启自动将HTTP跳转到HTTPS
+nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34;
+#设置HTTPS所使用的证书
+nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34;
+#设置HTTPS所使用的证书密码
+nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34;
+#设置HTTPS所使用的TLS协议版本
+nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000  shared:SSL:10m&#34;
+#设置开启SSL会话缓存功能
+nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34;
+#设置SSL会话超时时间
+nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;]
+#设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址
+nginx[&#39;gzip_enabled&#39;] = true
+#设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率
+启动">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/cicd/gitlab/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/cicd/gitlab/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/cicd/gitlab/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="gitlab">
+  <meta property="og:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
+yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
+建议使用HTTPS
+[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="cicd">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="gitlab">
+  <meta name="twitter:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
+yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
+建议使用HTTPS
+[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "CI/CD",
+      "item": "/cicd/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "gitlab",
+      "item": "/cicd/gitlab/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "gitlab",
+  "name": "gitlab",
+  "description": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u0026gt;/etc/yum.repos.d/gitlab-ce.repo \u0026lt;\u0026lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问\u0026#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/\u0026#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件\n建议使用HTTPS\n[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url \u0026#39;http://gitlab.example.com/\u0026#39; #时区 gitlab_rails[\u0026#39;time_zone\u0026#39;] = \u0026#39;Asia/Shanghai\u0026#39; ######### SSH配置 ######### gitlab_rails[\u0026#39;gitlab_shell_ssh_port\u0026#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[\u0026#39;smtp_enable\u0026#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[\u0026#39;smtp_address\u0026#39;] = \u0026#34;smtp.exmail.qq.com\u0026#34; #设置SMTP服务器地址 gitlab_rails[\u0026#39;smtp_port\u0026#39;] = 465 #设置SMTP服务器端口 gitlab_rails[\u0026#39;smtp_user_name\u0026#39;] = \u0026#34;xxx@xxx.cn\u0026#34; #设置邮箱账号 gitlab_rails[\u0026#39;smtp_password\u0026#39;] = \u0026#34;xxx\u0026#34; #设置邮箱密码 gitlab_rails[\u0026#39;smtp_authentication\u0026#39;] = \u0026#34;login\u0026#34; #设置邮箱账号密码身份验证方式，\u0026#34;login\u0026#34;表示采用账号密码的方式登陆 gitlab_rails[\u0026#39;smtp_enable_starttls_auto\u0026#39;] = true gitlab_rails[\u0026#39;smtp_tls\u0026#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[\u0026#39;gitlab_email_from\u0026#39;] = \u0026#39;xxx@xxx.cn\u0026#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[\u0026#39;enable\u0026#39;] = true #启用Nginx服务 nginx[\u0026#39;client_max_body_size\u0026#39;] = \u0026#39;250m\u0026#39; #设置客户端最大文件上传大小 nginx[\u0026#39;redirect_http_to_https\u0026#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[\u0026#39;ssl_certificate\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem\u0026#34; #设置HTTPS所使用的证书 nginx[\u0026#39;ssl_certificate_key\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.key\u0026#34; #设置HTTPS所使用的证书密码 nginx[\u0026#39;ssl_protocols\u0026#39;] = \u0026#34;TLSv1.1 TLSv1.2\u0026#34; #设置HTTPS所使用的TLS协议版本 nginx[\u0026#39;ssl_session_cache\u0026#39;] = \u0026#34;builtin:1000 shared:SSL:10m\u0026#34; #设置开启SSL会话缓存功能 nginx[\u0026#39;ssl_session_timeout\u0026#39;] = \u0026#34;5m\u0026#34; #设置SSL会话超时时间 nginx[\u0026#39;listen_addresses\u0026#39;] = [\u0026#39;*\u0026#39;, \u0026#39;[::]\u0026#39;] #设置Nginx监听地址，\u0026#34;*\u0026#34;表示监听主机上所有网卡的地址 nginx[\u0026#39;gzip_enabled\u0026#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u003e/etc/yum.repos.d/gitlab-ce.repo \u003c",
+  "wordCount" : "663",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/cicd/gitlab/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/cicd/">CI/CD</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      gitlab
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a><ul>
+                    
+            <li>
+                <a href="#yum%e5%ae%89%e8%a3%85" aria-label="yum安装">yum安装</a></li>
+            <li>
+                <a href="#rpm%e7%a6%bb%e7%ba%bf" aria-label="rpm离线">rpm离线</a></li>
+            <li>
+                <a href="#docker" aria-label="docker">docker</a></li></ul>
+            </li>
+            <li>
+                <a href="#gitlab-cicd" aria-label="gitlab-CI/CD">gitlab-CI/CD</a><ul>
+                    
+            <li>
+                <a href="#%e5%af%b9%e6%af%94jenkins" aria-label="对比jenkins">对比jenkins</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85gitlab-runner" aria-label="安装gitlab-runner">安装gitlab-runner</a></li>
+            <li>
+                <a href="#gitlab-runner%e6%b3%a8%e5%86%8c" aria-label="gitlab-runner注册">gitlab-runner注册</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<p>环境硬件要求：最低2核4GB，建议4核8GB（比较重）</p>
+<h2 id="yum安装">yum安装<a hidden class="anchor" aria-hidden="true" href="#yum安装">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 配置源</span>
+</span></span><span style="display:flex;"><span>cat &gt;/etc/yum.repos.d/gitlab-ce.repo <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[gitlab-ce]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">name=Gitlab CE Repository
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">gpgcheck=0
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">enabled=1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>yum makecache
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。</span>
+</span></span><span style="display:flex;"><span>yum install -y gitlab-ce
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 指定版本</span>
+</span></span><span style="display:flex;"><span>yum install -y gitlab-ce-<span style="color:#f92672">{</span>VERSION<span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>配置文件</p>
+<p>建议使用HTTPS</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@localhost ~<span style="color:#f92672">]</span><span style="color:#75715e"># vim /etc/gitlab/gitlab.rb</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">######### 基础配置 #########</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#用户访问所使用的URL，域名或者IP地址</span>
+</span></span><span style="display:flex;"><span>external_url <span style="color:#e6db74">&#39;http://gitlab.example.com/&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#时区</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;time_zone&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Asia/Shanghai&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">######### SSH配置 #########</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;gitlab_shell_ssh_port&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">10222</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#使用SSH协议拉取代码所使用的连接端口。</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">######### 邮箱配置 #########</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_enable&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_address&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;smtp.exmail.qq.com&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置SMTP服务器地址</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_port&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">465</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置SMTP服务器端口</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_user_name&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;xxx@xxx.cn&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置邮箱账号</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_password&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;xxx&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置邮箱密码</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_authentication&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;login&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_enable_starttls_auto&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;smtp_tls&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;gitlab_email_from&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;xxx@xxx.cn&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">######### WEB配置 #########</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;enable&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#启用Nginx服务</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;client_max_body_size&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;250m&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置客户端最大文件上传大小</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;redirect_http_to_https&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置开启自动将HTTP跳转到HTTPS</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;ssl_certificate&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置HTTPS所使用的证书</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;ssl_certificate_key&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置HTTPS所使用的证书密码</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;ssl_protocols&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;TLSv1.1 TLSv1.2&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置HTTPS所使用的TLS协议版本</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;ssl_session_cache&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;builtin:1000  shared:SSL:10m&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置开启SSL会话缓存功能</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;ssl_session_timeout&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;5m&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置SSL会话超时时间</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;listen_addresses&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;*&#39;</span>, <span style="color:#e6db74">&#39;[::]&#39;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址</span>
+</span></span><span style="display:flex;"><span>nginx<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;gzip_enabled&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> true
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率</span>
+</span></span></code></pre></div><p>启动</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 当配置文件发生变化时，或者是第一次启动时，我们需要刷新配置。</span>
+</span></span><span style="display:flex;"><span>systemctl restart gitlab-runsvdir
+</span></span><span style="display:flex;"><span>gitlab-ctl reconfigure
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动服务</span>
+</span></span><span style="display:flex;"><span>gitlab-ctl restart
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看状态</span>
+</span></span><span style="display:flex;"><span>gitlab-ctl status
+</span></span></code></pre></div><p>根据配置文件种external_url的配置，访问web界面</p>
+<p>第一次需要输入新的超级管理员（root）密码。修改成功后，我们使用超级管理员用户“root”账号登录Gitlab管理平台。</p>
+<h2 id="rpm离线">rpm离线<a hidden class="anchor" aria-hidden="true" href="#rpm离线">#</a></h2>
+<p>安装文档：https://docs.gitlab.com/omnibus/installation/
+rpm软件包地址：https://packages.gitlab.com/gitlab/gitlab-ce
+国内下载地址：https://mirror.tuna.tsinghua.edu.cn/help/gitlab-ce/</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wget --content-disposition https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/8/gitlab-ce-15.10.2-ce.0.el8.x86_64.rpm/download.rpm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>yum -y install gitlab-ce-16.10.2-ce.0.el8.x86_64.rpm
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>vim /etc/gitlab/gitlab.rb <span style="color:#75715e"># 编辑站点地址</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">32</span> external_url <span style="color:#e6db74">&#39;http://192.168.10.100&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gitlab-ctl reconfigure <span style="color:#75715e"># 初始化配置</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动</span>
+</span></span><span style="display:flex;"><span>gitlab-ctl start
+</span></span><span style="display:flex;"><span>gitlab-ctl status
+</span></span><span style="display:flex;"><span>gitlab-ctl stop
+</span></span></code></pre></div><p>默认用户：root</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 获取默认密码</span>
+</span></span><span style="display:flex;"><span>cat /etc/gitlab/initial_root_password
+</span></span></code></pre></div><h2 id="docker">docker<a hidden class="anchor" aria-hidden="true" href="#docker">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#搜索镜像</span>
+</span></span><span style="display:flex;"><span>docker search gitlab
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#下载镜像</span>
+</span></span><span style="display:flex;"><span>sudo docker pull gitlab/gitlab-ce:latest
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建docker中的网络</span>
+</span></span><span style="display:flex;"><span>docker network create gitlab_net
+</span></span></code></pre></div><pre tabindex="0"><code class="language-bahs" data-lang="bahs">docker run --name=&#39;gitlab-any&#39; -d \
+--net=gitlab_net \
+--publish 443:443 --publish 80:80 --pulish 2222:22 \
+--restart always \
+--volume /root/gitlab/config:/etc/gitlab \
+--volume /root/gitlab/logs:/var/log/gitlab \
+--volume /root/gitlab/data:/var/opt/gitlab \
+--privileged=true \
+gitlab/gitlab-ce:15.6.2-ce.0
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>参数解析
+</span></span><span style="display:flex;"><span>1.http端口使用 80，ssh连接端口映射使用2222
+</span></span><span style="display:flex;"><span>2.网络使用 gitlab_net网络
+</span></span><span style="display:flex;"><span>3.将容器内部 /etc/gitlab,/var/log/gitlab,/var/opt/gitlab - 挂载到宿主机的 /root/docker/gitlab/config,logs,data 下，防止容器被删除数据丢失
+</span></span><span style="display:flex;"><span>4.privileged<span style="color:#f92672">=</span>true 使用特权，怕什么地方权限不足，安装不顺
+</span></span><span style="display:flex;"><span>5./root/docker/gitlab下的config,logs,data没有的话，创建容器会一并创建
+</span></span></code></pre></div><p>修改配置文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>vim ~/docker/gitlab/config/gitlab.rb
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#用户访问所使用的URL，域名或者IP地址</span>
+</span></span><span style="display:flex;"><span>external_url <span style="color:#e6db74">&#39;http://gitlab.example.com/&#39;</span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 修改对应的ssh的连接端口也为映射的端口2222，不然无法在添加了ssh密钥之后，还是不能正常clone、pull、push代码</span>
+</span></span><span style="display:flex;"><span>gitlab_rails<span style="color:#f92672">[</span><span style="color:#e6db74">&#39;gitlab_shell_ssh_port&#39;</span><span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2222</span>
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>默认用户root</p>
+<p>默认密码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 在挂载的目录下</span>
+</span></span><span style="display:flex;"><span>cat root/docker/gitlab/config/initial_root_password
+</span></span></code></pre></div><p>如果密码不对，重置密码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 进入 GitLab Rails Console</span>
+</span></span><span style="display:flex;"><span>gitlab-rails console
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 在 GitLab Rails Console 中执行以下命令修改 root 用户密码：</span>
+</span></span><span style="display:flex;"><span>user <span style="color:#f92672">=</span> User.find_by_username<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;root&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>user.password <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;new_password&#39;</span>
+</span></span><span style="display:flex;"><span>user.password_confirmation <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;new_password&#39;</span>
+</span></span><span style="display:flex;"><span>user.save!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 退出 GitLab Rails Console</span>
+</span></span><span style="display:flex;"><span>exit
+</span></span></code></pre></div><h1 id="gitlab-cicd">gitlab-CI/CD<a hidden class="anchor" aria-hidden="true" href="#gitlab-cicd">#</a></h1>
+<p>gitlab-CI是gitlab8.0之后自带的一个持续集成系统，中心思想是当每一次push到gitlab的时候，都会触发一次脚本执行，然后脚本内容包括了测试、编译、部署等一系列自定义内容</p>
+<p>gitlab-CI的脚本执行，需要自定义安装对应gitlab-runner来执行，代码push之后，webhook检测到代码变化，就会触发gitlab-CI，分配到各个runner来运行相应的脚本script。这些脚本有的是测试项目用的，有的是部署用的。</p>
+<p><img alt="image-20240514165221598" loading="lazy" src="/cicd/gitlab/images/image-20240514165221598.png"></p>
+<h2 id="对比jenkins">对比jenkins<a hidden class="anchor" aria-hidden="true" href="#对比jenkins">#</a></h2>
+<p><strong>分支可配置性</strong></p>
+<ul>
+<li>使用Gitlab-CI，新创建的分支无需任何一步配置即可立即使用CI管道中定义的作业</li>
+<li>Jenkina 2基本gitlab的多分支流水线可以实现，相对配置来说gitlab更加方便</li>
+</ul>
+<p><strong>定时执行构建</strong></p>
+<p>有时，根据时间触发作业或整个管道会有所帮助。例如，非常规时间，夜间定时构建</p>
+<ul>
+<li>使用Jenkins 2可以立即使用，可以在应执行作业或管道中的那一刻以cron式语法定义</li>
+<li>Gitlab CI没有此功能。但是可以通过一种变通办法实现：通过webAPI使用同一台或另一台服务器上的cronjob触发作业或管道实现</li>
+</ul>
+<p><strong>拉取请求支持</strong></p>
+<p>如果很好地集成了存储库管理器和CI/CD平台，可以看到请求的当前构建状态，使用次功能，可以避免将代码合并到不起作用或无法正确构建的主分支中</p>
+<ul>
+<li>Jenkins没有与源代码管理系统进一步集成，需要管理员自行写代码或插件实现</li>
+<li>Gitlab与其CI平台紧密集成，可以方便查看每个打开或关闭拉取请求的运行和完成管道</li>
+</ul>
+<p><strong>权限管理</strong></p>
+<p>从存储库管理器的权限管理对于不想为每个服务分别设置每个用户的权限的大型开发人员或者组织团体很有用。大多数情况下，两种情况下的权限都是相同的，因此默认情况下应将他们配置在一个位置</p>
+<ul>
+<li>由于Gitlab与GitlabCI的深度整合，权限可以统一管理</li>
+<li>由于Jenkins 2没有内置的存储库管理器，因此它无法直接在存储库管理器和CI/CD平台之间合并权限</li>
+</ul>
+<p><strong>存储库交互</strong></p>
+<ul>
+<li>Gitlab CI是Git存储库管理器Gitlab的固定组件，因此在CI/CD流程和存储库功能之间提供了良好的交互</li>
+<li>Jenkins 2与存储库管理器都是松散耦合的，因此在选择版本控制系统时非常的灵活。此外，Jenkins 2强调了对插件的支持，以进一步扩展或改善软件的现有功能</li>
+</ul>
+<p><strong>插件管理</strong></p>
+<ul>
+<li>扩展Jenkins的本机功能是通过插件完成的。插件的维护，保护和升级成本很高</li>
+<li>Gitlab是开放式的，任何人都可以直接向代码库贡献更改，一旦合并，他将自动测试并维护每个更改</li>
+</ul>
+<p>GitlabCI</p>
+<ul>
+<li>轻量级，不需要复杂的安装手段</li>
+<li>配置简单，与gitlab可直接适配</li>
+<li>实时构建日志十分清晰，UI交互体验很好</li>
+<li>使用YAML进行配置，任何人都可以很方便的使用</li>
+<li>没有统一的管理界面，无法统筹管理所有项目</li>
+<li>配置依赖与代码仓库，耦合度没有Jenkins低</li>
+<li>天然支持分布式，gitlab的runner可以装在任何一台电脑上，方便测试和集成</li>
+</ul>
+<p>Jenkins</p>
+<ul>
+<li>编译服务和代码仓库分离，耦合度低</li>
+<li>插件丰富，支持语言众多</li>
+<li>有统一的web管理界面</li>
+<li>插件以及自身安装较为复杂</li>
+<li>体量较大，不是很适合小型团队</li>
+</ul>
+<p>GitLabCI有助于DevOps人员，例如敏捷开发中，开发和运维是同一个人，最便捷的开发方式。</p>
+<p>JenkinsCI适合在多角色团队，职责分明、配置和代码分离、插件丰富</p>
+<p>在使用过两者后，个人觉得gitlab-ci更简单易用，如果有gitlab-ci达不到的要求，可以考虑使用jenkins。</p>
+<h2 id="安装gitlab-runner">安装gitlab-runner<a hidden class="anchor" aria-hidden="true" href="#安装gitlab-runner">#</a></h2>
+<p>参考链接：https://docs.gitlab.com/runner/install/linux-manually.html</p>
+<p>历史版本：https://gitlab.com/gitlab-org/gitlab-runner/-/tags</p>
+<ul>
+<li>二进制</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sudo curl -L --output https://gitlab.com/gitlab-org/gitlab-runner/-/releases/v15.6.1/downloads/binaries/gitlab-runner-linux-amd64
+</span></span><span style="display:flex;"><span>sudo chmod +x /usr/local/bin/gitlab-runner
+</span></span><span style="display:flex;"><span>sudo useradd --comment <span style="color:#e6db74">&#39;GitLab Runner&#39;</span> --create-home gitlab-runner --shell /bin/bash
+</span></span><span style="display:flex;"><span>sudo gitlab-runner install --user<span style="color:#f92672">=</span>gitlab-runner --working-directory<span style="color:#f92672">=</span>/home/gitlab-runner
+</span></span><span style="display:flex;"><span>sudo gitlab-runner start
+</span></span></code></pre></div><p>查看状态</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># gitlab-runner status</span>
+</span></span><span style="display:flex;"><span>Runtime platform                                    arch<span style="color:#f92672">=</span>amd64 os<span style="color:#f92672">=</span>linux pid<span style="color:#f92672">=</span><span style="color:#ae81ff">65191</span> revision<span style="color:#f92672">=</span>133d7e76 version<span style="color:#f92672">=</span>15.6.1
+</span></span></code></pre></div><p>设置Docker权限</p>
+<p>让gitlab-runner能正确的执行docker命令，需要把gitlab-runner用户添加到docker group里，然后重启docker和gitlab ci runner</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>usermod -aG docker gitlab-runner
+</span></span><span style="display:flex;"><span>systemctl restart docker
+</span></span><span style="display:flex;"><span>gitlab-runner restart
+</span></span></code></pre></div><ul>
+<li>docker</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run -d --name gitlab-runner --restart always <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v /var/run/docker.sock:/var/run/docker.sock <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v /srv/gitlab-runner/config:/etc/gitlab-runner <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  gitlab/gitlab-runner:latest
+</span></span></code></pre></div><h2 id="gitlab-runner注册">gitlab-runner注册<a hidden class="anchor" aria-hidden="true" href="#gitlab-runner注册">#</a></h2>
+<p>注册流程是：获取runner token &raquo; 注册</p>
+<ul>
+<li><strong>方法1：交互式注册</strong></li>
+</ul>
+<p><img alt="image-20240514173902408" loading="lazy" src="/cicd/gitlab/images/image-20240514173902408.png"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#  gitlab-runner register --url http://192.168.9.20:7780/ --registration-token 1xhn3LWAxuxVxd6QPhit</span>
+</span></span><span style="display:flex;"><span>Runtime platform                                    arch<span style="color:#f92672">=</span>amd64 os<span style="color:#f92672">=</span>linux pid<span style="color:#f92672">=</span><span style="color:#ae81ff">67107</span> revision<span style="color:#f92672">=</span>133d7e76 version<span style="color:#f92672">=</span>15.6.1
+</span></span><span style="display:flex;"><span>WARNING: The <span style="color:#e6db74">&#39;register&#39;</span> command has been deprecated in GitLab Runner 15.6 and will be replaced with a <span style="color:#e6db74">&#39;deploy&#39;</span> command. For more information, see https://gitlab.com/gitlab-org/gitlab/-/issues/380872 
+</span></span><span style="display:flex;"><span>Running in system-mode.                            
+</span></span><span style="display:flex;"><span>                                                   
+</span></span><span style="display:flex;"><span>Enter the GitLab instance URL <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span> example, https://gitlab.com/<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>http://192.168.9.20:7780/<span style="color:#f92672">]</span>: http://192.168.9.20:7780/
+</span></span><span style="display:flex;"><span>Enter the registration token:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>1xhn3LWAxuxVxd6QPhit<span style="color:#f92672">]</span>: 1xhn3LWAxuxVxd6QPhit
+</span></span><span style="display:flex;"><span>Enter a description <span style="color:#66d9ef">for</span> the runner:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>k8s-master1<span style="color:#f92672">]</span>: k8s-master1
+</span></span><span style="display:flex;"><span>Enter tags <span style="color:#66d9ef">for</span> the runner <span style="color:#f92672">(</span>comma-separated<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Enter optional maintenance note <span style="color:#66d9ef">for</span> the runner:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Registering runner... succeeded                     runner<span style="color:#f92672">=</span>1xhn3LWA
+</span></span><span style="display:flex;"><span>Enter an executor: virtualbox, docker-ssh+machine, docker, shell, parallels, ssh, docker+machine, instance, kubernetes, custom, docker-ssh:
+</span></span><span style="display:flex;"><span>virtualbox
+</span></span><span style="display:flex;"><span>Enter the VirtualBox VM <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span> example, my-vm<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>any-vm
+</span></span><span style="display:flex;"><span>Enter the SSH user <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span> example, root<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>any
+</span></span><span style="display:flex;"><span>Enter the SSH password <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span> example, docker.io<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">123</span>
+</span></span><span style="display:flex;"><span>Enter the path to the SSH identity file <span style="color:#f92672">(</span><span style="color:#66d9ef">for</span> example, /home/user/.ssh/id_rsa<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>/home/any/.ssh/id_rsa
+</span></span><span style="display:flex;"><span>Runner registered successfully. Feel free to start it, but <span style="color:#66d9ef">if</span> it<span style="color:#960050;background-color:#1e0010">&#39;</span>s running already the config should be automatically reloaded!
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>Configuration <span style="color:#f92672">(</span>with the authentication token<span style="color:#f92672">)</span> was saved in <span style="color:#e6db74">&#34;/etc/gitlab-runner/config.toml&#34;</span> 
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>● url：私有git的路径
+</span></span><span style="display:flex;"><span>● token：项目的token，用于关联runner和项目
+</span></span><span style="display:flex;"><span>● name：runner的名字，用于区分runner
+</span></span><span style="display:flex;"><span>● tags：用于匹配任务（jobs）和执行任务的设备（runners）
+</span></span><span style="display:flex;"><span>● executor：执行环境
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>其中url和token在项目的CI配置页上可以找到。name只是用来区分两个runner，没有特殊的作用。tags这个属性，job和runner都有，用来匹配任务和执行任务的runner。job的tags属性下一篇会提到，也可以自行查阅.gitlab-ci.yml的语法。runner的tag可以有多个，注册时用逗号（comma）分隔即可。当某个job的tag是当前runner tags的一个子集时，这个job就可以被分配到当前runner上执行。
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>举个例子：
+</span></span><span style="display:flex;"><span>runner的tag设为：python2.7,python3.4
+</span></span><span style="display:flex;"><span>job的tag设为：python2.7或python3.4，macos就可以在这个runner上执行。
+</span></span><span style="display:flex;"><span>job的tag设为：java，这个job就不会被分配到这个runner上。
+</span></span></code></pre></div><p>executor就是执行job的环境，通常我们都会选择docker，如果有其他需要的也可以自行查阅文档。</p>
+<p>当我们完成设置以后，可以通过<code>vi /etc/gitlab-runner/config.toml</code>打开runner的配置文件，刚才所填写的信息都会记录在其中。如果配置了多个runner，就会像图中一样，出现两个runners的section。</p>
+<p>注册好之后</p>
+<p><img alt="image-20240514174940403" loading="lazy" src="/cicd/gitlab/images/image-20240514174940403.png"></p>
+<ul>
+<li><strong>方法2：直接注册</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gitlab-runner register <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --non-interactive <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --url <span style="color:#e6db74">&#34;https://gitlab.example.com/&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --registration-token <span style="color:#e6db74">&#34;AvpQDzBCL66sYKyURChH&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --executor <span style="color:#e6db74">&#34;docker&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --description <span style="color:#e6db74">&#34;runner&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --tag-list <span style="color:#e6db74">&#34;run&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --run-untagged <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --locked<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;false&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 解释</span>
+</span></span><span style="display:flex;"><span>--non-interactive：免交互式
+</span></span><span style="display:flex;"><span>--url：gitlab的连接地址
+</span></span><span style="display:flex;"><span>--registration-token gitlab的token
+</span></span><span style="display:flex;"><span>--executor：执行器
+</span></span><span style="display:flex;"><span>--description：runner名称
+</span></span><span style="display:flex;"><span>--tag-list：标签
+</span></span><span style="display:flex;"><span>--locked：是否开启锁定
+</span></span></code></pre></div><p>gitlab-runner的类型</p>
+<ul>
+<li>shared ： 运行整个平台项目的作业（gitlab）</li>
+<li>group： 运行特定group下的所有项目的作业（group）</li>
+<li>specific: 运行指定的项目作业（project）</li>
+<li>locked： 无法运行项目作业</li>
+<li>paused： 不会运行作业</li>
+</ul>
+<p>首先得知道gitlab-runner的类型有哪些，可以在不同的界面获取runner token就会生成不同类型的runner。</p>
+<p>gitlab-runner是支持分布式的，可以运行在各种环境，极大的方便开发和测试，当安装好gitlab-runner之后，需要进行注册到gitlab上，进行关联，首先登陆gitlab获取url和tocken</p>
+<p>获取shared类型runner token：</p>
+<p>进入系统设置 -&gt; Runners</p>
+<p>1xhn3LWAxuxVxd6QPhit</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

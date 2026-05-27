@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>calico与fannel | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="calico
+简介
+Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。
+Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。
+Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。
+由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。
+架构：
+
+
+**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。
+**ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用
+**BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。
+**BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。
+
+Calico两种网络工作模式
+**IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个tunl0的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。
+
+跨node节点的pod网络通信链路：
+
+Pod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口)
+然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod；
+然后到tunl0 隧道接口（或 IPIP 隧道），node1 会根据路由表找到到 pod2 所在的 Node (node2) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 node1 和 node2 的节点 IP 地址，封装后的数据包通过底层网络发送到 node2
+当数据包到达 node2 后，node2 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 pod1，目标 IP 是 pod2）。
+然后，数据包通过 caliXXX 虚拟接口进入 Node 的网络栈。node2 会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2
+
+**BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/calico%E4%B8%8Efannel/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/k8s/calico%E4%B8%8Efannel/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/calico%E4%B8%8Efannel/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="calico与fannel">
+  <meta property="og:description" content="calico 简介 Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。
+Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。 Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。
+由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。
+架构：
+**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。 **ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用 **BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。 **BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。 Calico两种网络工作模式 **IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个tunl0的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。
+跨node节点的pod网络通信链路：
+Pod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口) 然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod； 然后到tunl0 隧道接口（或 IPIP 隧道），node1 会根据路由表找到到 pod2 所在的 Node (node2) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 node1 和 node2 的节点 IP 地址，封装后的数据包通过底层网络发送到 node2 当数据包到达 node2 后，node2 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 pod1，目标 IP 是 pod2）。 然后，数据包通过 caliXXX 虚拟接口进入 Node 的网络栈。node2 会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2 **BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="calico与fannel">
+  <meta name="twitter:description" content="calico 简介 Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。
+Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。 Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。
+由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。
+架构：
+**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。 **ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用 **BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。 **BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。 Calico两种网络工作模式 **IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个tunl0的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。
+跨node节点的pod网络通信链路：
+Pod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口) 然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod； 然后到tunl0 隧道接口（或 IPIP 隧道），node1 会根据路由表找到到 pod2 所在的 Node (node2) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 node1 和 node2 的节点 IP 地址，封装后的数据包通过底层网络发送到 node2 当数据包到达 node2 后，node2 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 pod1，目标 IP 是 pod2）。 然后，数据包通过 caliXXX 虚拟接口进入 Node 的网络栈。node2 会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2 **BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "calico与fannel",
+      "item": "/k8s/calico%E4%B8%8Efannel/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "calico与fannel",
+  "name": "calico与fannel",
+  "description": "calico 简介 Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。\nCalico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。 Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。\n由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。\n架构：\n**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。 **ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用 **BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。 **BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。 Calico两种网络工作模式 **IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个tunl0的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。\n跨node节点的pod网络通信链路：\nPod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口) 然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod； 然后到tunl0 隧道接口（或 IPIP 隧道），node1 会根据路由表找到到 pod2 所在的 Node (node2) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 node1 和 node2 的节点 IP 地址，封装后的数据包通过底层网络发送到 node2 当数据包到达 node2 后，node2 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 pod1，目标 IP 是 pod2）。 然后，数据包通过 caliXXX 虚拟接口进入 Node 的网络栈。node2 会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2 **BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "calico 简介 Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。\nCalico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。 Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。\n由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。\n架构：\n**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。 **ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用 **BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。 **BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。 Calico两种网络工作模式 **IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个tunl0的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。\n跨node节点的pod网络通信链路：\nPod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口) 然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod； 然后到tunl0 隧道接口（或 IPIP 隧道），node1 会根据路由表找到到 pod2 所在的 Node (node2) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 node1 和 node2 的节点 IP 地址，封装后的数据包通过底层网络发送到 node2 当数据包到达 node2 后，node2 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 pod1，目标 IP 是 pod2）。 然后，数据包通过 caliXXX 虚拟接口进入 Node 的网络栈。node2 会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2 **BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。\nPod1 发起请求，首先到veth0 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 pod 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 cni0 或 caliXXX 接口) 然后到``caliXXX网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod，如果是其他node上，Node1 将直接将数据包通过底层网络路由发送到node2` 的主机； 当数据包到达 node2 后，会通过其路由表进行判断，确定数据包的目标 IP (pod2 的 IP) 属于本地的 Pod。路由表指向 caliXXX 网桥，数据包通过 veth 接口被转发给 pod2 配置 Calico的部署文件默认使用的是IPIP 隧道模式。如果要使用纯BGP路由模式或者混合模式可以修改变量CALICO_IPV4POOL_IPIP的值，可用值如下：\n# 默认使用IPIP模式时设置，如果是第一次安装需要改为BGP模式，直接改为Never： # Enable IPIP - name: CALICO_IPV4POOL_IPIP value: \"Always\" # 可选值 Always：只使用IPIP隧道网络，默认值 Never：不使用IPIP隧道网络，使用BGP模式 CrossSubnet：启用混合网络模式 # 已经安装了calico之后，修改IPPool中的ipipMode为Never，也就是禁用IPIP模式 # kubectl edit ippool ... ipipMode: Never flannel 简介 Flannel实质上是一种“覆盖网络(overlay network)”，也就是将TCP数据包装在另一种网络包里面进行路由转发和通信，目前已经支持UDP、VxLAN、AWS VPC和GCE路由等数据转发方式。\n设计目的就是为集群中的所有节点重新规划IP地址的使用规则，从而使得不同节点上的容器能够获得“同属一个内网”且”不重复的”IP地址，并让属于不同节点上的容器能够直接通过内网IP通信。\n工作架构模式：\n支持的网络模式 UDP： 使用用户态udp封装，默认使用8285端口。由于是在用户态封装和解包，性能上有较大的损失，也是性能最差的一种。目前已经被弃用；\nVXLAN： 虚拟可扩展的局域网,是一种虚拟化隧道通信技术，是一种overlay(覆盖网络)技术，通过三层的网络搭建虚拟的二层网络；vxlan封装，需要配置VNI，Port（默认8472）和GBP; 是Linux内核本身支持的一种网络虚拟化技术，是内核的一个模块，在内核态实现封装解封装，构建出覆盖网络，其实就是一个由各宿主机上的Flannel.1设备组成的虚拟二层网络，由于VXLAN由于额外的封包解包，导致其性能较差；\n# 组网模式 Network Overlay 隧道封装在物理交换机完成。这种Overlay的优势在于物理网络设备性能转发性能比较高，可以支持非虚拟化的物理服务器之间的组网互通。 Host Overlay 隧道封装在vSwitch、具备VXLAN功能的软件完成，不用增加新的网络设备即可完成Overlay部署，可以支持虚拟化的服务器之间的组网互通。 Hybrid Overlay是Network Overlay和Host Overlay的混合组网，可以支持物理服务器和虚拟服务器之间的组网互通。 架构图：\n上图数据流向\n1、源容器veth0向目标容器发送数据，根据容器内的默认路由，数据首先发送给宿主机的cni0网桥 2、宿主机cni0网桥接受到数据后，宿主机查询路由表，pod相关的路由都是交由flannel.1网卡，因此，将其转发给flannel.1虚拟网卡处理 3、flannel.1接受到数据后，查询etcd数据库，获取目标pod网段对应的目标宿主机地址、目标宿主机的flannel网卡的mac地址、vxlan vnid等信息。然后对数据进行udp封装如下： udp头封装： source port \u003e1024，target port 8427 udp内部封装： vxlan封装：vxlan vnid等信息 original layer 2 frame封装：source {源 flannel.1网卡mac地址} target{目标flannel.1网卡的mac地址} 完成以上udp封装后，将数据转发给物理机的eth0网卡 4、宿主机eth0接收到来自flannel.1的udp包，还需要将其封装成正常的通信用的数据包，为它加上通用的ip头、二层头，这项工作在由linux内核来完成。 Ethernet Header的信息： source:{源宿主机机网卡的MAC地址} target:{目标宿主机网卡的MAC地址} IP Header的信息： source:{源宿主机网卡的IP地址} target:{目标宿主机网卡的IP地址} 通过此次封装，一个真正可用的数据包就封装完成，可以通过物理网络传输了。 5、目标宿主机的eth0接收到数据后，对数据包进行拆封，拆到udp层后，将其转发给8427端口的flannel进程 6、目标宿主机端flannel拆除udp头、vxlan头，获取到内部的原始数据帧，在原始数据帧内部，解析出源容器ip、目标容器ip，重新封装成通用的数据包，查询路由表，转发给cni0网桥； 7、最后，cni0网桥将数据送达目标容器内的veth0网卡，完成容器之间的数据通信 VXLAN后端支持DirectRouting模式，即在集群的各节点上添加必要的路由信息，让Pod间的报文通过节点的二层网络直接传送。如下图所示，只有通信双方Pod所在节点不在同一个二层网络时才启用传统的VXLAN隧道方式转发流量。假如k8s集群的节点都位于同一个二层网络中，DirectRouting模式下的Pod通信基本接近于直接使用二层网络。即使节点分布在不同的网络中，合理使用也可以节省一部分隧道开销。 Host-gw: 直接路由的方式，将容器网络的路由信息直接更新到主机的路由表中，仅适用于二层直接可达的网络 推荐使用，效率极高；\nhost-gw模式通过建立主机IP到主机上对应flannel子网的mapping，以直接路由的方式联通flannel的各个子网。这种互联方式没有vxlan等封装方式带来的负担，通过路由机制，实现flannel网络数据包在主机之间的转发。但是这种方式也有不足，那就是所有节点之间都要相互有点对点的路由覆盖，并且所有加入flannel网络的主机需要在同一个LAN里面；所以每个节点上有n-1个路由，而n个节点一共有n(n-1)/2个路由以保证flannel的flat网络能力 host-gw的工作原理，其实就是在宿主机上，添加一条到达每个fannel子网的路由，这条路由的下一跳即网关就是相对应的fannel子网所在的“主机”。这些路由规则是flanneld根据容器部署的场景创建和更新的 配置 Flannel官方的部署文件默认使用vxlan后端，相关配置定义在kube-flannel名称空间下configmap/kube-flannel-cfg资源对象中，内容如下：\n... net-conf.json: | { \"Network\": \"10.244.0.0/16\",\t\"Backend\": {\t\"Type\": \"vxlan\" # \"Directrouting\": true # 开启DirectRouting模式，仅在vxlan模式下可用，默认不开启，无此配置 } } ... --- Network：Flannel全局使用的子网，即pod cidr的值 SubnetLen：子网分割的长度，在全局子网掩码小于24时（例如16），默认为24 SubnetMin：分配给节点使用的起始子网，默认为切割完成后的第一个子网 SubnetMax：分给给节点使用的最大子网，默认为切割完成后的最后一个子网 Backend：Flannel使用的后端(vxlan，host-gw)，以及后端的配置 另外，flannel还会在运行的节点上生成一个环境变量文件，默认是/run/flannel/subnet.env，其包含本节点使用的子网、mtu等信息。例如下面的示例：\n[root@master-01]# cat /run/flannel/subnet.env FLANNEL_NETWORK=10.244.0.0/16\t#flannel全局网段 FLANNEL_SUBNET=10.244.0.1/24\t#本节点子网 FLANNEL_MTU=1450\t#容器接口mtu值 FLANNEL_IPMASQ=true\t#地址映射 两者区别：\ncalico\n主要功能: Calico 是一个功能全面的网络插件，不仅提供网络通信，还支持细粒度的网络安全策略（Network Policy）。它的设计目标是提供高性能、可扩展的网络解决方案，适合复杂的生产环境。\n工作模式: Calico 通过三层路由实现 Pod 之间的网络通信，默认情况下使用 BGP 来通告路由。它也支持 IPIP 隧道和 VXLAN 隧道。Calico 的架构相对较重，但功能强大。\nBGP 模式: Calico 可以使用 BGP 协议直接通告和交换路由信息，在大多数情况下，无需进行封装或使用隧道（如果底层网络支持直连）。\n隧道模式（可选）: Calico 支持 IPIP 和 VXLAN 隧道封装，在底层网络不支持直连的情况下使用。\n网络策略（Network Policy）支持 ：Calico 提供完整的网络策略支持。通过 Kubernetes 的 Network Policy API，Calico 可以实现细粒度的流量控制，如允许或拒绝某些 Pod 之间的流量，基于 IP 地址、命名空间或 Pod 标签等定义的规则。Calico 的网络策略功能非常强大，适合生产环境中的安全需求。\n特点: 高性能、可扩展性好、支持网络策略（Network Policy）。\nFlannel:\n主要功能: Flannel 的设计目标是简单地为 Kubernetes 提供网络通信，最早是为了满足 Kubernetes 1.0 的基本网络需求。Flannel 主要用于为 Pod 提供基本的二层网络通信，支持多种后端实现（如 VXLAN 和 UDP）。\n工作模式: Flannel 的网络实现 依赖二层封装（如 VXLAN 和 UDP），数据包通过隧道传输到目标节点。网络结构相对简单，重点在于简化部署和管理。默认使用隧道来封装和传递 Pod 的网络流量。常用的后端包括：\nVXLAN：使用虚拟扩展局域网协议，在网络层封装流量，适用于不同网络环境。\nhost-gw 模式：使用主机的网关模式，适用于所有节点之间都能直接路由的情况。\nUDP：一种简单的封装方式，但效率较低，适合简单的网络拓扑。\n特点: 轻量级、易于配置和使用、但不支持网络策略（Network Policy）控制。\n特性 Calico Flannel 主要功能 网络通信 + 网络策略 基本网络通信 路由方式 三层路由，BGP 或 IPIP 隧道 隧道模式（VXLAN、UDP） 网络策略 支持（细粒度控制） 不支持 性能 高性能（无隧道时性能最佳） 较低（使用隧道） 可扩展性 高，可支持大规模集群 较低，适合中小型集群 适用场景 企业级生产环境，大规模集群 中小型集群，开发测试环境 ",
+  "wordCount" : "413",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/calico%E4%B8%8Efannel/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/k8s/">Kubernetes</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      calico与fannel
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>2 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#calico" aria-label="calico">calico</a><ul>
+                    
+            <li>
+                <a href="#%e7%ae%80%e4%bb%8b" aria-label="简介">简介</a></li>
+            <li>
+                <a href="#calico%e4%b8%a4%e7%a7%8d%e7%bd%91%e7%bb%9c%e5%b7%a5%e4%bd%9c%e6%a8%a1%e5%bc%8f" aria-label="Calico两种网络工作模式">Calico两种网络工作模式</a></li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae" aria-label="配置">配置</a></li></ul>
+            </li>
+            <li>
+                <a href="#flannel" aria-label="flannel">flannel</a><ul>
+                    
+            <li>
+                <a href="#%e7%ae%80%e4%bb%8b-1" aria-label="简介">简介</a></li>
+            <li>
+                <a href="#%e6%94%af%e6%8c%81%e7%9a%84%e7%bd%91%e7%bb%9c%e6%a8%a1%e5%bc%8f" aria-label="支持的网络模式">支持的网络模式</a></li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae-1" aria-label="配置">配置</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="calico">calico<a hidden class="anchor" aria-hidden="true" href="#calico">#</a></h1>
+<h2 id="简介">简介<a hidden class="anchor" aria-hidden="true" href="#简介">#</a></h2>
+<p>Calico是一个用于容器、虚拟机和主机的开源网络和网络安全解决方案。它是一个纯三层解决方案，利用BGP协议为容器或虚拟机提供IP地址，并提供网络安全功能，包括网络策略和加密。</p>
+<p>Calico 通过将网络策略应用于标签和选择器，提供了一种简单而强大的方法来保护容器或虚拟机之间的通信，并限制容器或虚拟机可以访问的网络资源。它还支持基于 Kubernetes 和 OpenStack 等平台的网络自动化和集成。
+Calico 的另一个重要特点是其可扩展性。它使用了基于 BGP 的路由技术，这使得它能够轻松地扩展到非常大规模的网络中，而不会降低性能。</p>
+<p>由于Calico是一种纯三层的方案，因此可以避免与二层方案相关的数据包封装的操作，中间没有任何的NAT，没有任何的overlay，所以它的转发效率是所有方案中最高的，因为它的包直接走原生TCP/IP的协议栈，它的隔离也因为这个栈而变得好做。因为TCP/IP的协议栈提供了一整套的防火墙的规则，所以它可以通过IPTABLES的规则达到比较复杂的隔离逻辑。</p>
+<p>架构：</p>
+<p><img alt="image-20240530183659614" loading="lazy" src="/k8s/calico%E4%B8%8Efannel/images/calico/image-20240530183659614.png"></p>
+<ul>
+<li>**Felix：**Calico Agetnt，在K8S集群的每台节点上，主要负责管理和维护该节点上的网络和安全策略，如网络接口管理和监听、路由、ARP管理、ACL管理和同步、状态上报等。</li>
+<li>**ETCD：**分布式键值存储，用来存储网络元数据、安全策略以及节点的状态信息，确保Calico网络状态的一致性和准确性，可以和K8S的etcd何用</li>
+<li>**BGP Client(BIRD)：**跟Felix一样，每一个节点上都部署GBP Client，主要吧Felix写入Kernel的路由信息分发到当前Calico网络，确保各节点间的通信的有效性。</li>
+<li>**BGP Route Reflector（BIRD）：**在大型网络中，仅仅使用BGP Client形成mesh全网互联的方案会导致规模现在，所有节点之间两辆互联，需要N^2个连接，可使用BGP的Router Reflector的方法，会使用BGP Client仅与特定RR节点互联并做路由同步，从而大大减少连接数，可大规模部署使用。</li>
+</ul>
+<h2 id="calico两种网络工作模式">Calico两种网络工作模式<a hidden class="anchor" aria-hidden="true" href="#calico两种网络工作模式">#</a></h2>
+<p>**IPIP：**把IP层封装到IP层的一个tunnel，其作用基本上就相当于一个基于IP层的网桥。普通的网桥是基于MAC层的，而这个IPIP则是通过两端的路由做一个tunnel，把两个本来不通的网络通过点对点连接起来。当Calico以IPIP模式部署完毕后，node上会有一个<code>tunl0</code>的网卡设备，这是ipip做隧道封装用的，也是一种overlay模式的网络。</p>
+<!-- raw HTML omitted -->
+<p>跨node节点的pod网络通信链路：</p>
+<ol>
+<li>Pod1 发起请求，首先到<code>veth0</code> 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 <code>pod</code> 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 <code>cni0</code> 或 <code>caliXXX</code> 接口)</li>
+<li>然后到``caliXXX` 网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod；</li>
+<li>然后到<code>tunl0</code> 隧道接口（或 IPIP 隧道），<code>node1</code> 会根据路由表找到到 <code>pod2</code> 所在的 Node (<code>node2</code>) 的路由信息，数据包将首先通过 IPIP 隧道进行封装，封装后的包头会包含 <code>node1</code> 和 <code>node2</code> 的节点 IP 地址，封装后的数据包通过底层网络发送到 <code>node2</code></li>
+<li>当数据包到达 <code>node2</code> 后，<code>node2</code> 的 Calico 将解封装数据包，移除 IPIP 隧道包头，恢复原始的 IP 包（源 IP 是 <code>pod1</code>，目标 IP 是 <code>pod2</code>）。</li>
+<li>然后，数据包通过 <code>caliXXX</code> 虚拟接口进入 Node 的网络栈。<code>node2</code> 会通过其路由表进行判断，确定数据包的目标 IP (<code>pod2</code> 的 IP) 属于本地的 Pod。路由表指向 <code>caliXXX</code> 网桥，数据包通过 <code>veth</code> 接口被转发给 pod2</li>
+</ol>
+<p>**BGP：**边界网关协议(Border Gateway Protocol)，一个去中心化自治路由协议，它通过维护IP路由表或“前缀”来实现自治系统之间的可达性，通常作为大规模数据中心维护不同自治系统之间路由信息的矢量路由协议。</p>
+<!-- raw HTML omitted -->
+<ol>
+<li>Pod1 发起请求，首先到<code>veth0</code> 虚拟网卡(每个 Pod 都有的一个虚拟网卡，该虚拟网卡的一端连接到 <code>pod</code> 内部，另一端连接到 Node 上的网桥，通常是 Linux 内核的 <code>cni0</code> 或 <code>caliXXX</code> 接口)</li>
+<li>然后到``caliXXX<code>网桥（ Node1 上的网桥接口，用来处理所有在该 Node 上的 Pod 的网络流量），数据包通过 Node 的路由表进行路由决策，基于 Pod 的目标 IP 地址，判断数据包是发往同一 Node 上的 Pod 还是其他 Node 上的 Pod，如果是其他node上，Node1 将直接将数据包通过底层网络路由发送到</code>node2` 的主机；</li>
+<li>当数据包到达 <code>node2</code> 后，会通过其路由表进行判断，确定数据包的目标 IP (<code>pod2</code> 的 IP) 属于本地的 Pod。路由表指向 <code>caliXXX</code> 网桥，数据包通过 <code>veth</code> 接口被转发给 pod2</li>
+</ol>
+<h2 id="配置">配置<a hidden class="anchor" aria-hidden="true" href="#配置">#</a></h2>
+<p>Calico的部署文件默认使用的是IPIP 隧道模式。如果要使用纯BGP路由模式或者混合模式可以修改变量CALICO_IPV4POOL_IPIP的值，可用值如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 默认使用IPIP模式时设置，如果是第一次安装需要改为BGP模式，直接改为Never：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Enable IPIP</span>
+</span></span><span style="display:flex;"><span>- name: CALICO_IPV4POOL_IPIP
+</span></span><span style="display:flex;"><span>  value: <span style="color:#e6db74">&#34;Always&#34;</span>
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 可选值</span>
+</span></span><span style="display:flex;"><span>Always：只使用IPIP隧道网络，默认值
+</span></span><span style="display:flex;"><span>Never：不使用IPIP隧道网络，使用BGP模式
+</span></span><span style="display:flex;"><span>CrossSubnet：启用混合网络模式
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 已经安装了calico之后，修改IPPool中的ipipMode为Never，也就是禁用IPIP模式</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># kubectl edit ippool</span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>ipipMode: Never
+</span></span></code></pre></div><h1 id="flannel">flannel<a hidden class="anchor" aria-hidden="true" href="#flannel">#</a></h1>
+<h2 id="简介-1">简介<a hidden class="anchor" aria-hidden="true" href="#简介-1">#</a></h2>
+<p>Flannel实质上是一种“覆盖网络(overlay network)”，也就是将TCP数据包装在另一种网络包里面进行路由转发和通信，目前已经支持UDP、VxLAN、AWS VPC和GCE路由等数据转发方式。</p>
+<p>设计目的就是为集群中的所有节点重新规划IP地址的使用规则，从而使得不同节点上的容器能够获得“同属一个内网”且”不重复的”IP地址，并让属于不同节点上的容器能够直接通过内网IP通信。</p>
+<p><strong>工作架构模式：</strong></p>
+<p><img alt="image-20240531093636163" loading="lazy" src="/k8s/calico%E4%B8%8Efannel/images/calico%E4%B8%8Efannel/image-20240531093636163.png"></p>
+<h2 id="支持的网络模式"><strong>支持的网络模式</strong><a hidden class="anchor" aria-hidden="true" href="#支持的网络模式">#</a></h2>
+<ul>
+<li>
+<p>UDP： 使用用户态udp封装，默认使用8285端口。由于是在用户态封装和解包，性能上有较大的损失，也是性能最差的一种。目前已经被弃用；</p>
+</li>
+<li>
+<p>VXLAN： 虚拟可扩展的局域网,是一种虚拟化隧道通信技术，是一种overlay(覆盖网络)技术，通过三层的网络搭建虚拟的二层网络；vxlan封装，需要配置VNI，Port（默认8472）和GBP;  是Linux内核本身支持的一种网络虚拟化技术，是内核的一个模块，在内核态实现封装解封装，构建出覆盖网络，其实就是一个由各宿主机上的Flannel.1设备组成的虚拟二层网络，由于VXLAN由于额外的封包解包，导致其性能较差；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 组网模式</span>
+</span></span><span style="display:flex;"><span>Network Overlay 隧道封装在物理交换机完成。这种Overlay的优势在于物理网络设备性能转发性能比较高，可以支持非虚拟化的物理服务器之间的组网互通。
+</span></span><span style="display:flex;"><span>Host Overlay 隧道封装在vSwitch、具备VXLAN功能的软件完成，不用增加新的网络设备即可完成Overlay部署，可以支持虚拟化的服务器之间的组网互通。
+</span></span><span style="display:flex;"><span>Hybrid Overlay是Network Overlay和Host Overlay的混合组网，可以支持物理服务器和虚拟服务器之间的组网互通。
+</span></span></code></pre></div><p>架构图：</p>
+<p><img alt="image-20240531105413824" loading="lazy" src="/k8s/calico%E4%B8%8Efannel/images/calico%E4%B8%8Efannel/image-20240531105413824.png"></p>
+<p>上图数据流向</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">1</span><span style="color:#ae81ff">、源容器veth0向目标容器发送数据，根据容器内的默认路由，数据首先发送给宿主机的cni0网桥</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span><span style="color:#ae81ff">、宿主机cni0网桥接受到数据后，宿主机查询路由表，pod相关的路由都是交由flannel.1网卡，因此，将其转发给flannel.1虚拟网卡处理</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span><span style="color:#ae81ff">、flannel.1接受到数据后，查询etcd数据库，获取目标pod网段对应的目标宿主机地址、目标宿主机的flannel网卡的mac地址、vxlan vnid等信息。然后对数据进行udp封装如下：</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">udp头封装：</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#ae81ff">source port &gt;1024，target port 8427</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">udp内部封装：</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#ae81ff">vxlan封装：vxlan vnid等信息</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#ae81ff">original layer 2 frame封装：source {源 flannel.1网卡mac地址} target{目标flannel.1网卡的mac地址}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">完成以上udp封装后，将数据转发给物理机的eth0网卡</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span><span style="color:#ae81ff">、宿主机eth0接收到来自flannel.1的udp包，还需要将其封装成正常的通信用的数据包，为它加上通用的ip头、二层头，这项工作在由linux内核来完成。</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">Ethernet Header的信息：</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">source:{源宿主机机网卡的MAC地址}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">target:{目标宿主机网卡的MAC地址}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">IP Header的信息：</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">source:{源宿主机网卡的IP地址}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">target:{目标宿主机网卡的IP地址}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">通过此次封装，一个真正可用的数据包就封装完成，可以通过物理网络传输了。</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span><span style="color:#ae81ff">、目标宿主机的eth0接收到数据后，对数据包进行拆封，拆到udp层后，将其转发给8427端口的flannel进程</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">6</span><span style="color:#ae81ff">、目标宿主机端flannel拆除udp头、vxlan头，获取到内部的原始数据帧，在原始数据帧内部，解析出源容器ip、目标容器ip，重新封装成通用的数据包，查询路由表，转发给cni0网桥；</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">7</span><span style="color:#ae81ff">、最后，cni0网桥将数据送达目标容器内的veth0网卡，完成容器之间的数据通信</span>
+</span></span></code></pre></div><p>VXLAN后端支持DirectRouting模式，即在集群的各节点上添加必要的路由信息，让Pod间的报文通过节点的二层网络直接传送。如下图所示，只有通信双方Pod所在节点不在同一个二层网络时才启用传统的VXLAN隧道方式转发流量。假如k8s集群的节点都位于同一个二层网络中，DirectRouting模式下的Pod通信基本接近于直接使用二层网络。即使节点分布在不同的网络中，合理使用也可以节省一部分隧道开销。
+<img alt="image-20240531110059917" loading="lazy" src="/k8s/calico%E4%B8%8Efannel/images/calico%E4%B8%8Efannel/image-20240531110059917.png"></p>
+</li>
+<li>
+<p>Host-gw: 直接路由的方式，将容器网络的路由信息直接更新到主机的路由表中，仅适用于二层直接可达的网络  推荐使用，效率极高；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>host-gw模式通过建立主机IP到主机上对应flannel子网的mapping，以直接路由的方式联通flannel的各个子网。这种互联方式没有vxlan等封装方式带来的负担，通过路由机制，实现flannel网络数据包在主机之间的转发。但是这种方式也有不足，那就是所有节点之间都要相互有点对点的路由覆盖，并且所有加入flannel网络的主机需要在同一个LAN里面；所以每个节点上有n-1个路由，而n个节点一共有n<span style="color:#f92672">(</span>n-1<span style="color:#f92672">)</span>/2个路由以保证flannel的flat网络能力
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>host-gw的工作原理，其实就是在宿主机上，添加一条到达每个fannel子网的路由，这条路由的下一跳即网关就是相对应的fannel子网所在的“主机”。这些路由规则是flanneld根据容器部署的场景创建和更新的
+</span></span></code></pre></div><p><img alt="image-20240531100508748" loading="lazy" src="/k8s/calico%E4%B8%8Efannel/images/calico%E4%B8%8Efannel/image-20240531100508748.png"></p>
+</li>
+</ul>
+<h2 id="配置-1">配置<a hidden class="anchor" aria-hidden="true" href="#配置-1">#</a></h2>
+<p>Flannel官方的部署文件默认使用vxlan后端，相关配置定义在kube-flannel名称空间下configmap/kube-flannel-cfg资源对象中，内容如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">net-conf.json</span>: |<span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &#34;Network&#34;: &#34;10.244.0.0/16&#34;,	
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &#34;Backend&#34;: {		
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#34;Type&#34;: &#34;vxlan&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        # &#34;Directrouting&#34;: true     # 开启DirectRouting模式，仅在vxlan模式下可用，默认不开启，无此配置
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">Network：Flannel全局使用的子网，即pod cidr的值</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">SubnetLen：子网分割的长度，在全局子网掩码小于24时（例如16），默认为24</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">SubnetMin：分配给节点使用的起始子网，默认为切割完成后的第一个子网</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">SubnetMax：分给给节点使用的最大子网，默认为切割完成后的最后一个子网</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">Backend：Flannel使用的后端(vxlan，host-gw)，以及后端的配置</span>
+</span></span></code></pre></div><p>另外，flannel还会在运行的节点上生成一个环境变量文件，默认是/run/flannel/subnet.env，其包含本节点使用的子网、mtu等信息。例如下面的示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@master-01<span style="color:#f92672">]</span><span style="color:#75715e"># cat /run/flannel/subnet.env</span>
+</span></span><span style="display:flex;"><span>FLANNEL_NETWORK<span style="color:#f92672">=</span>10.244.0.0/16	<span style="color:#75715e">#flannel全局网段</span>
+</span></span><span style="display:flex;"><span>FLANNEL_SUBNET<span style="color:#f92672">=</span>10.244.0.1/24	<span style="color:#75715e">#本节点子网</span>
+</span></span><span style="display:flex;"><span>FLANNEL_MTU<span style="color:#f92672">=</span>1450	<span style="color:#75715e">#容器接口mtu值</span>
+</span></span><span style="display:flex;"><span>FLANNEL_IPMASQ<span style="color:#f92672">=</span>true	<span style="color:#75715e">#地址映射</span>
+</span></span></code></pre></div><p><strong>两者区别：</strong></p>
+<p><strong>calico</strong></p>
+<ul>
+<li>
+<p><strong>主要功能</strong>: Calico 是一个功能全面的网络插件，不仅提供网络通信，还支持细粒度的网络安全策略（Network Policy）。它的设计目标是提供高性能、可扩展的网络解决方案，适合复杂的生产环境。</p>
+</li>
+<li>
+<p><strong>工作模式</strong>:  Calico 通过三层路由实现 Pod 之间的网络通信，默认情况下使用 BGP 来通告路由。它也支持 IPIP 隧道和 VXLAN 隧道。Calico 的架构相对较重，但功能强大。</p>
+</li>
+<li>
+<p>BGP 模式: Calico 可以使用 BGP 协议直接通告和交换路由信息，在大多数情况下，无需进行封装或使用隧道（如果底层网络支持直连）。</p>
+</li>
+<li>
+<p>隧道模式（可选）: Calico 支持 IPIP 和 VXLAN 隧道封装，在底层网络不支持直连的情况下使用。</p>
+</li>
+<li>
+<p>网络策略（Network Policy）支持 ：Calico 提供完整的网络策略支持。通过 Kubernetes 的 Network Policy API，Calico 可以实现细粒度的流量控制，如允许或拒绝某些 Pod 之间的流量，基于 IP 地址、命名空间或 Pod 标签等定义的规则。Calico 的网络策略功能非常强大，适合生产环境中的安全需求。</p>
+</li>
+<li>
+<p><strong>特点</strong>: 高性能、可扩展性好、支持网络策略（Network Policy）。</p>
+</li>
+</ul>
+<p><strong>Flannel</strong>:</p>
+<ul>
+<li>
+<p><strong>主要功能</strong>: Flannel 的设计目标是简单地为 Kubernetes 提供网络通信，最早是为了满足 Kubernetes 1.0 的基本网络需求。Flannel 主要用于为 Pod 提供基本的二层网络通信，支持多种后端实现（如 VXLAN 和 UDP）。</p>
+</li>
+<li>
+<p><strong>工作模式</strong>:  Flannel 的网络实现 依赖二层封装（如 VXLAN 和 UDP），数据包通过隧道传输到目标节点。网络结构相对简单，重点在于简化部署和管理。默认使用隧道来封装和传递 Pod 的网络流量。常用的后端包括：</p>
+</li>
+<li>
+<p>VXLAN：使用虚拟扩展局域网协议，在网络层封装流量，适用于不同网络环境。</p>
+</li>
+<li>
+<p>host-gw 模式：使用主机的网关模式，适用于所有节点之间都能直接路由的情况。</p>
+</li>
+<li>
+<p>UDP：一种简单的封装方式，但效率较低，适合简单的网络拓扑。</p>
+</li>
+<li>
+<p><strong>特点</strong>: 轻量级、易于配置和使用、但不支持网络策略（Network Policy）控制。</p>
+</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th>特性</th>
+          <th>Calico</th>
+          <th>Flannel</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>主要功能</td>
+          <td>网络通信 + 网络策略</td>
+          <td>基本网络通信</td>
+      </tr>
+      <tr>
+          <td>路由方式</td>
+          <td>三层路由，BGP 或 IPIP 隧道</td>
+          <td>隧道模式（VXLAN、UDP）</td>
+      </tr>
+      <tr>
+          <td>网络策略</td>
+          <td>支持（细粒度控制）</td>
+          <td>不支持</td>
+      </tr>
+      <tr>
+          <td>性能</td>
+          <td>高性能（无隧道时性能最佳）</td>
+          <td>较低（使用隧道）</td>
+      </tr>
+      <tr>
+          <td>可扩展性</td>
+          <td>高，可支持大规模集群</td>
+          <td>较低，适合中小型集群</td>
+      </tr>
+      <tr>
+          <td>适用场景</td>
+          <td>企业级生产环境，大规模集群</td>
+          <td>中小型集群，开发测试环境</td>
+      </tr>
+  </tbody>
+</table>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/linux/ansible/">
+    <span class="title">« Prev</span>
+    <span>ansible</span>
+  </a>
+  <a class="next" href="/python/celery/">
+    <span class="title">Next »</span>
+    <span>celery</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

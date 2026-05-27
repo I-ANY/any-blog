@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ansible | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="安装
+管理机器：
+1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好
+yum install epel-release -y 
+yum install  ansible  libselinux-python -y 
+ 
+2.检查ansible软件安装情况，查询配置文件，和可执行命令
+ 
+[root@m01 ~]# rpm -ql ansible | grep -E &#39;^/etc|^/usr/bin&#39;
+ 
+3.检查ansible版本
+ansible --version
+ 
+4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名
+cp /etc/ansible/hosts{,.ori} 
+添加ansible需要管理的机器地址，添加主机信息
+例如：
+[root@m01 ansible]# vim /etc/ansible/hosts
+[any]
+10.0.0.2
+10.0.0.3 
+# 被管理机器：
+yum install epel-release libselinux-python -y 
+ 
+# 管理方式：
+# 传统输入ssh密码认证
+# 配置ssh密钥认证
+ 
+# 执行命令方式：
+-m 指定功能模块，默认就是command模块
+-a 告诉模块需要执行的参数
+-k 询问密码验证
+-u 指定运行的用户
+# 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行
+ansible chaoge  -m  command -a &#39;hostname&#39; -k -u root
+ 
+ 
+# 免密配置：
+# 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机
+# 参数     
+ansible_host   			# 主机地址
+ansible_port        # 端口,默认是22端口 
+ansible_user        # 认证的用户
+ansible_ssh_pass    # 用户认证的密码 
+ # 修改host配置文件如下示例：
+[any]
+10.0.0.2 ansible_user=root ansible_ssh_pass=111111
+10.0.0.3 ansible_user=root ansible_ssh_pass=111111
+
+# 配置好后执行ansible命令不再需要输入密码
+ 
+# ssh密钥方式：
+# 管理机器上编写公钥脚本：
+#!/bin/bash
+rm -rf ~/.ssh/id_rsa*
+ssh-keygen -f ~/.ssh/id_rsa -P &#34;&#34; &gt; /dev/null 2&gt;&amp;1
+SSH_Pass=111111
+Key_Path=~/.ssh/id_rsa.pub
+for ip in 2 3
+do
+    sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path &#34;-o StrictHostKeyChecking=no&#34; 10.0.0.$ip
+done
+# 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息
+ 
+ 
+命令
+安装：
+管理端安装ansible
+yum install -y epel-release  #先安装epel源
+yum install -y ansible     #安装ansible
+ 
+#配置主机之间免密登录
+ 
+配置文件：（在/etc/anssible下）
+├── roles   # 角色配置文件
+├── hosts  # 主机文件
+└── ansible.cfg  # 配置文件
+参数：">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/linux/ansible/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/linux/ansible/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/linux/ansible/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="ansible">
+  <meta property="og:description" content="安装 管理机器： 1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好 yum install epel-release -y yum install ansible libselinux-python -y 2.检查ansible软件安装情况，查询配置文件，和可执行命令 [root@m01 ~]# rpm -ql ansible | grep -E &#39;^/etc|^/usr/bin&#39; 3.检查ansible版本 ansible --version 4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名 cp /etc/ansible/hosts{,.ori} 添加ansible需要管理的机器地址，添加主机信息
+例如：
+[root@m01 ansible]# vim /etc/ansible/hosts [any] 10.0.0.2 10.0.0.3 # 被管理机器： yum install epel-release libselinux-python -y # 管理方式： # 传统输入ssh密码认证 # 配置ssh密钥认证 # 执行命令方式： -m 指定功能模块，默认就是command模块 -a 告诉模块需要执行的参数 -k 询问密码验证 -u 指定运行的用户 # 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行 ansible chaoge -m command -a &#39;hostname&#39; -k -u root # 免密配置： # 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机 # 参数 ansible_host # 主机地址 ansible_port # 端口,默认是22端口 ansible_user # 认证的用户 ansible_ssh_pass # 用户认证的密码 # 修改host配置文件如下示例： [any] 10.0.0.2 ansible_user=root ansible_ssh_pass=111111 10.0.0.3 ansible_user=root ansible_ssh_pass=111111 # 配置好后执行ansible命令不再需要输入密码 # ssh密钥方式： # 管理机器上编写公钥脚本： #!/bin/bash rm -rf ~/.ssh/id_rsa* ssh-keygen -f ~/.ssh/id_rsa -P &#34;&#34; &gt; /dev/null 2&gt;&amp;1 SSH_Pass=111111 Key_Path=~/.ssh/id_rsa.pub for ip in 2 3 do sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path &#34;-o StrictHostKeyChecking=no&#34; 10.0.0.$ip done # 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息 命令 安装： 管理端安装ansible yum install -y epel-release #先安装epel源 yum install -y ansible #安装ansible #配置主机之间免密登录 配置文件：（在/etc/anssible下） ├── roles # 角色配置文件 ├── hosts # 主机文件 └── ansible.cfg # 配置文件 参数：">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="linux">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ansible">
+  <meta name="twitter:description" content="安装 管理机器： 1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好 yum install epel-release -y yum install ansible libselinux-python -y 2.检查ansible软件安装情况，查询配置文件，和可执行命令 [root@m01 ~]# rpm -ql ansible | grep -E &#39;^/etc|^/usr/bin&#39; 3.检查ansible版本 ansible --version 4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名 cp /etc/ansible/hosts{,.ori} 添加ansible需要管理的机器地址，添加主机信息
+例如：
+[root@m01 ansible]# vim /etc/ansible/hosts [any] 10.0.0.2 10.0.0.3 # 被管理机器： yum install epel-release libselinux-python -y # 管理方式： # 传统输入ssh密码认证 # 配置ssh密钥认证 # 执行命令方式： -m 指定功能模块，默认就是command模块 -a 告诉模块需要执行的参数 -k 询问密码验证 -u 指定运行的用户 # 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行 ansible chaoge -m command -a &#39;hostname&#39; -k -u root # 免密配置： # 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机 # 参数 ansible_host # 主机地址 ansible_port # 端口,默认是22端口 ansible_user # 认证的用户 ansible_ssh_pass # 用户认证的密码 # 修改host配置文件如下示例： [any] 10.0.0.2 ansible_user=root ansible_ssh_pass=111111 10.0.0.3 ansible_user=root ansible_ssh_pass=111111 # 配置好后执行ansible命令不再需要输入密码 # ssh密钥方式： # 管理机器上编写公钥脚本： #!/bin/bash rm -rf ~/.ssh/id_rsa* ssh-keygen -f ~/.ssh/id_rsa -P &#34;&#34; &gt; /dev/null 2&gt;&amp;1 SSH_Pass=111111 Key_Path=~/.ssh/id_rsa.pub for ip in 2 3 do sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path &#34;-o StrictHostKeyChecking=no&#34; 10.0.0.$ip done # 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息 命令 安装： 管理端安装ansible yum install -y epel-release #先安装epel源 yum install -y ansible #安装ansible #配置主机之间免密登录 配置文件：（在/etc/anssible下） ├── roles # 角色配置文件 ├── hosts # 主机文件 └── ansible.cfg # 配置文件 参数：">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Linux",
+      "item": "/linux/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "ansible",
+      "item": "/linux/ansible/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ansible",
+  "name": "ansible",
+  "description": "安装 管理机器： 1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好 yum install epel-release -y yum install ansible libselinux-python -y 2.检查ansible软件安装情况，查询配置文件，和可执行命令 [root@m01 ~]# rpm -ql ansible | grep -E \u0026#39;^/etc|^/usr/bin\u0026#39; 3.检查ansible版本 ansible --version 4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名 cp /etc/ansible/hosts{,.ori} 添加ansible需要管理的机器地址，添加主机信息\n例如：\n[root@m01 ansible]# vim /etc/ansible/hosts [any] 10.0.0.2 10.0.0.3 # 被管理机器： yum install epel-release libselinux-python -y # 管理方式： # 传统输入ssh密码认证 # 配置ssh密钥认证 # 执行命令方式： -m 指定功能模块，默认就是command模块 -a 告诉模块需要执行的参数 -k 询问密码验证 -u 指定运行的用户 # 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行 ansible chaoge -m command -a \u0026#39;hostname\u0026#39; -k -u root # 免密配置： # 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机 # 参数 ansible_host # 主机地址 ansible_port # 端口,默认是22端口 ansible_user # 认证的用户 ansible_ssh_pass # 用户认证的密码 # 修改host配置文件如下示例： [any] 10.0.0.2 ansible_user=root ansible_ssh_pass=111111 10.0.0.3 ansible_user=root ansible_ssh_pass=111111 # 配置好后执行ansible命令不再需要输入密码 # ssh密钥方式： # 管理机器上编写公钥脚本： #!/bin/bash rm -rf ~/.ssh/id_rsa* ssh-keygen -f ~/.ssh/id_rsa -P \u0026#34;\u0026#34; \u0026gt; /dev/null 2\u0026gt;\u0026amp;1 SSH_Pass=111111 Key_Path=~/.ssh/id_rsa.pub for ip in 2 3 do sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path \u0026#34;-o StrictHostKeyChecking=no\u0026#34; 10.0.0.$ip done # 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息 命令 安装： 管理端安装ansible yum install -y epel-release #先安装epel源 yum install -y ansible #安装ansible #配置主机之间免密登录 配置文件：（在/etc/anssible下） ├── roles # 角色配置文件 ├── hosts # 主机文件 └── ansible.cfg # 配置文件 参数：\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "安装 管理机器： 1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好 yum install epel-release -y yum install ansible libselinux-python -y 2.检查ansible软件安装情况，查询配置文件，和可执行命令 [root@m01 ~]# rpm -ql ansible | grep -E '^/etc|^/usr/bin' 3.检查ansible版本 ansible --version 4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名 cp /etc/ansible/hosts{,.ori} 添加ansible需要管理的机器地址，添加主机信息\n例如：\n[root@m01 ansible]# vim /etc/ansible/hosts [any] 10.0.0.2 10.0.0.3 # 被管理机器： yum install epel-release libselinux-python -y # 管理方式： # 传统输入ssh密码认证 # 配置ssh密钥认证 # 执行命令方式： -m 指定功能模块，默认就是command模块 -a 告诉模块需要执行的参数 -k 询问密码验证 -u 指定运行的用户 # 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行 ansible chaoge -m command -a 'hostname' -k -u root # 免密配置： # 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机 # 参数 ansible_host # 主机地址 ansible_port # 端口,默认是22端口 ansible_user # 认证的用户 ansible_ssh_pass # 用户认证的密码 # 修改host配置文件如下示例： [any] 10.0.0.2 ansible_user=root ansible_ssh_pass=111111 10.0.0.3 ansible_user=root ansible_ssh_pass=111111 # 配置好后执行ansible命令不再需要输入密码 # ssh密钥方式： # 管理机器上编写公钥脚本： #!/bin/bash rm -rf ~/.ssh/id_rsa* ssh-keygen -f ~/.ssh/id_rsa -P \"\" \u003e /dev/null 2\u003e\u00261 SSH_Pass=111111 Key_Path=~/.ssh/id_rsa.pub for ip in 2 3 do sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path \"-o StrictHostKeyChecking=no\" 10.0.0.$ip done # 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息 命令 安装： 管理端安装ansible yum install -y epel-release #先安装epel源 yum install -y ansible #安装ansible #配置主机之间免密登录 配置文件：（在/etc/anssible下） ├── roles # 角色配置文件 ├── hosts # 主机文件 └── ansible.cfg # 配置文件 参数：\n-I –inventory-file=INVENTORY：指定主机清单文件路径。 -m –module-name=MODULE_NAME：指定要使用的模块名称。 -a –args=‘MODULE_ARGS’：指定命令。 -b –become：以超级用户（root）身份执行任务。 -K –ask-become-pass：在执行任务时询问超级用户密码。 -t –tags=TAGS：只运行带有指定标签的任务。 -e –extra-vars=EXTRA_VARS：传递额外的变量给 Ansible Playbook。 –syntax-check 检查 playbook 的语法是否正确。 –list-hosts 显示在主机清单中定义的所有主机。 –list-tasks 显示 playbook 中定义的所有任务。 在远程主机执行命令，不支持管道、重定向等shell的特性。\nansible-doc -s command #-s列出指定模块的描述信息和操作动作 #指定ip执行date ansible 192.168.126.28 -m command -a 'date' #-a指定命令 #指定组执行date命令 ansible webservers -m command -a 'date' #指定webservers组执行date命令 ansible all -m command -a ' date' #all代表所有hosts 主机 ansible all -a 'date' #如省略-m模块，则默认运行command 模块 ##常用的参数: # chdir：在远程主机上运行命令前提前进入目录 # creates：判断指定文件是否存在，如果存在，不执行后面的操作 # removes：判断指定文件是否存在，如果存在，执行后面的操作 #无论管理端当前在哪个目录，执行命令都是在被管理端的家目录进行操作，可以使用chdir参数先切换目录 ansible dbservers -m command -a \"chdir=/home ls ./\" #切换到/home目录下再执行命令 #creates判断目标主机的指定是否存在，如果存在，则不执行后面的操作 ansible dbservers -m command -a \"creates=/data/f1.txt date\" #removes判断目标主机的指定是否存在，如果存在，执行后面的操作 ansible dbservers -m command -a \"removes=/data/f1.txt date\" 模式 ad-hoc模式 ansible的ad-hoc模式是ansible的命令行形式，也就是处理一些临时的，简单的任务，可以直接使用ansible的命令行来操作\n比如\n临时批量查看被管理机器的内存情况，cpu负载情况，网络情况 比如临时的分发配置文件等等 查看该模块支持的参数：\nansible-doc -s 模块名称 command 模块 不支持管道重定向\nchdir 在执行命令之前，先通过cd进入该参数指定的目录 creates 在创建一个文件之前，判断该文件是否存在，如果存在了则跳过前面的东西，如果不存在则执行前面的动作 free_form 该参数可以输入任何的系统命令，实现远程执行和管理 removes 定义一个文件是否存在，如果存在了则执行前面的动作，如果不存在则跳过动作 shell模块 在远程机器上执行命令（复杂的命令）,支持重定向，管道\n支持的参数和解释\nchdir 在执行命令之前，通过cd进入该参数指定的目录 ansible hosts_name -m shell -a ‘chdir=/tmp ls’ creates 定义一个文件是否存在，如果存在则不执行该命令，如果存在该文件，则执行shell命令 free_form 参数信息中可以输入任何的系统指令，实现远程管理 removes 定义一个文件是否存在，如果存在该文件，则执行命令，如果不存在，则跳过 script模块 script模块不具有幂等性。所以建议用剧本来执行\n管理机器上的脚本在远程节点上执行 serivce/systemd模块 ansible-doc -s service ansible-doc -s systemd # 要注意的是serivce已然对centos7有效 # 当你使用service命令管理服务，系统自动的重定向为systemctl服务管理命令 参数\nname 指定服务的名字，比如nginx.serivce 如 crond.serivce state 填入你要执行的操作，如 reloaded,restarted,started,stopped enabled 指定服务开机自启 systemctl enable nginx daemon_reload 每当修改了配置文件，使用systemd重读配置文件 crond模块-定时任务服务 定时crontab条目都是遵循了规则：\n分 时 日 月 周 执行命令的绝对路径\n* * * * *\n示例：\n每5分钟执行命令\n*/5 * * * * cmd xxx 每个月的3号，13号，早上8点整 重启nginx\n0 8 3,13 * * /usr/bin/systemctl restart nginx 添加定时任务，每5分钟进行时间同步\nansible chaoge -m cron -a \"name=ntp_cron job='/usr/sbin/ntpdate ntp.aliyun.com \u003e /dev/null 2\u003e\u00261' minute=*/5 \" 再添加一个记录，事件是每个月的3号，13号，早上8点整 重启nginx\n思路：转化如下任务即可\n0 8 3,13 * * /usr/bin/systemctl restart nginx ansible chaoge -m cron -a \"name=restart_nginx job='/usr/bin/systemctl restart nginx' minute=0 hour=8 day=3,13 \" 删除定时任务，只能删除通过ansible模块添加的任务记录\nansible chaoge -m cron -a \"name='restart_nginx' state=absent\" 查看任务：\nansible chaoge -m shell -a \"crontab -l\" file模块 常用的参数解释： group 定义文件/目录的 属组 owner 定义属主 mode 定义权限 path 必选参数，定义文件路径 src 定义源文件路径，主要用于创建link类型文件使用 dest 创建出来的软连接 它的路径 state 参数： file ：如果目标文件不存在，那么不会创建该文件 touch： 如果文件不存在，则创建一个新的文件，如果文件已经存在了，则修它的最后修改时间 directory: 如果目录不存在，那么会创建目录 link: 用于创建软连接类型 absent : 删除目录，文件或者取消连接 示例：\n1.远程的批量创建文件夹，并且设置权限是666 ansible chaoge -m file -a \"dest=/tmp/cc_dir/ mode=666 state=directory\" 2.验证文件夹是否存在，以及权限查看 ansible chaoge -m shell -a \"ls -ld /tmp/cc_dir\" 3.目标文件不存在，则不执行动作，这是state的file属性 ansible chaoge -m file -a \"dest=/tmp/cc_666.txt state=file owner=chaoge group=chaoge mode=600\" 4.应该使用state的touch属性 ansible chaoge -m file -a \"dest=/tmp/cc_666.txt state=touch owner=chaoge group=chaoge mode=600\" copy模块 1、批量拷贝文件，分发给客户端节点\nansible chaoge -m copy -a \"src=/etc/hosts dest=/tmp/m01_hosts owner=learn_ansible group=learn_ansible mode=0666\" 2、就是批量的实现了文件远程拷贝，且定义了新的内容放入文件中，并且真对目标机器的源数据文件，做了一个备份\nansible chaoge -m copy -a \"content='Hello,my name is chaoge,who are u' dest=/tmp/day.txt backup=yes\" user模块 模块的各个参数说明：\nname（必需）： 要操作的用户的名称。 uid： 用户的 UID（用户标识号）。 group： 用户所属的用户组。 groups： 用户所属的其他附加用户组列表。 append： 如果用户已存在，是否将用户添加到指定的用户组中。 state： 用户的状态，可以是 present（用户存在）、absent（用户不存在）、locked（用户被锁定）等。 createhome： 如果用户不存在，是否创建用户的 home 目录。 home： 用户的 home 目录路径。 shell： 用户的默认 shell。 comment： 用户的注释信息。 expires： 用户账号的过期时间。 password： 用户的密码（加密后的形式，可以使用 ansible-vault 进行加密）。 update_password： 指定密码的更新策略。 move_home： 如果用户的 home 目录发生变化，是否将用户的文件一起移动。 yum模块 1、通过yum模块给any主机组批量安装服务 ansible any -m yum -a \"name=nginx state=installed\" 2.any主机组批量远程卸载nginx ansible any -m yum -a \"name=nginx state=absent\" 3.升级软件包，指定升级nginx，也可以写成 name='*' 就等于 yum update升级所有软件包，latest也提供下载更新 ansible chaoge -m yum -a \"name='nginx' state=latest\" 4.升级系统所有软件包，排除某个服务不升级，这个命令，注意不要在服务器上随便敲，因为服务器不得任意更新一些服务版本，可能会造成服务挂掉 ansible chaoge -m yum -a \"state=latest name='*' exclude='nginx'\" playbook模式 ansible的playbook模式是针对比较具体，且比较大的任务，那么你就得实现写好剧本，应用场景\n一键部署rsync备份服务器\n一键部署lnmp环境\n参考博客：有高阶使用 https://www.cnblogs.com/yanjieli/p/10969299.html\n参数：\n-i INVENTORY, –inventory=INVENTORY：指定主机清单文件路径。 -e EXTRA_VARS, –extra-vars=EXTRA_VARS：传递额外的变量给 Ansible Playbook。 –list-tasks 显示 playbook 中定义的所有任务。 –syntax-check 检查 playbook 的语法是否正确。 –start-at-task=‘TASK’ 从指定任务开始执行 playbook。 执行命令 # 编写执行： ansible-playbook xxxx.yaml # 查看详细输出： ansible-playbook xxxx.yaml --verbose # 查看剧本中主机信息： ansible-playbook xxxx.yaml --list-hosts # 执行剧本加载指定的主机清单文件，默认剧本使用的是 /etc/ansible/hosts ansible-playbook xxxx.yaml -i /etc/my_ansible/hosts # 执行剧本并且检查语法 ansible-playbook xxxx.yaml --syntax-check # 调试剧本，只是调试，但是不会对被管理节点发生改变 ansible-playbook nginx.yaml -C # 模拟执行，不影响客户端机器 host部分配置 # 方式一，定义被管理主机的ip地址 - hosts: 192.168.178.138 tasks: - name: 这是我第一个任务 yum: name=nginx state=installed # 方式二，定义被管理主机的名字，注意该主机名必须能够解析 - hosts: backup01 tasks: - name: 这是我第一个任务 # 方式三，定义多个主机信息 - hosts: 192.168.178.138,192.168.178.139,backup01 tasks: - name: 这是我第一个任务 # 方式四，填写所有的主机 - hosts: all tasks: task部分配置 #定义task方式一：采用变量形式设置任务 tasks: - name: make sure apache is runing service: name=httpd state=running - name: copy file.. copy: src=/etc/ansible/hosts dest=/etc/ansible/hosts owner=root group=root mode=0644 #当传入的参数列表过长的时候，我们还可以将其分割 # 方式二，采用字典形式设置多个任务 tasks: - name: copy file to client... copy: src: /etc/ansible/hosts dest: /etc/ansible/hosts owner: root group: root mode: 0644 示例 安装nginx - hosts: any tasks: - name: 安装nginx yum: name=nginx state=installed - name: 执行脚本 script: /server/scripts/test_ansible.sh 部署rsync服务 [root@anyl]# cat install_rsync.yaml - hosts: hosts_name tasks: - name: step01,install rsync service yum: name=rsync state=installed - name: step02,edit rsync conf file copy: src=/etc/ansible/rsync_conf/rsyncd.conf dest=/etc/rsync/conf/ - name: step03,create user rsync user: name=rsync state=present createhome=no shell=/sbin/nolgoin - name: step04,create user auth file copy: src=/etc/ansible/rsync_conf/rsync.password dest=/etc/rsync/conf/ mode=0600 - name: step05,create backup dir file: dest=/data_backup/ state=directory owner=rsync group=rsync - name: step06,run rsync server shell: rsync --daemon creates=/var/run/rsync.pid 指定变量 # cat variables.yml --- - hosts: all remote_user: root tasks: - name: install pkg yum: name={{ pkg }} state=install # 执行：传参 ansible-playbook -e \"pkg=nginx\"variables.yml host文件中定义变量 # 编辑hosts文件定义变量 vim /etc/ansible/hosts [apache] 192.168.1.36 webdir=/opt/test #定义单个主机的变量 192.168.1.33 [apache:vars] #定义整个组的统一变量 webdir=/web/test [nginx] 192.168.1.3[1:2] #表示ip为192.168.1.31 192.168.1.32 [nginx:vars] webdir=/opt/web # 编辑playbook文件 # cat variables.yml --- - hosts: all remote_user: root tasks: - name: create webdir file: name={{ webdir }} state=directory #引用变量 # 执行playbook # ansible-playbook variables.yml playbook文件中定义变量 # 编辑playbook cat variables.yml --- - hosts: all remote_user: root vars: #定义变量 pkg: nginx #变量1 dir: /tmp/test1 #变量2 tasks: - name: install pkg yum: name={{ pkg }} state=installed #引用变量 - name: create new dir file: name={{ dir }} state=directory #引用变量 # 执行playbook ansible-playbook variables.yml # 如果执行时候又重新指定了变量的值，那么会已重新指定的为准 ansible-playbook -e \"dir=/tmp/test2\" variables.yml 独立的变量yaml文件中定义 # 定义存放变量的文件 cat var.yml var1: vsftpd var2: httpd # 编写playbook cat variables.yml --- - hosts: all remote_user: root vars_files: #引用变量文件 - ./var.yml #指定变量文件的path（这里可以是绝对路径，也可以是当前yaml文件的相对路径） tasks: - name: install package yum: name={{ var1 }} #引用变量 - name: create file file: name=/tmp/{{ var2 }}.log state=touch #引用变量 # 执行playbook ansible-playbook variables.yml playbook标签的使用 # 编辑playbook cat httpd.yml --- - hosts: 192.168.1.31 remote_user: root tasks: - name: install httpd yum: name=httpd state=installed tags: inhttpd - name: start httpd service: name=httpd state=started tags: sthttpd - name: restart httpd service: name=httpd state=restarted tags: - rshttpd - rs_httpd # 正常执行，会全部执行 ansible-playbook httpd.yml # 通过-t指定tags名称，多个tags用逗号隔开 ansible-playbook -t rshttpd httpd.yml #通过--skip-tags选项排除不执行的tags ansible-playbook --skip-tags inhttpd httpd.yml roles 介绍 ansible自1.2版本引入的新特性，用于层次性、结构化地组织playbook。 ​ roles能够根据层次型结构自动装载变量文件、tasks以及handlers等。​要使用roles只需要在playbook中使用include指令即可。\n简单来讲，roles就是通过分别将变量、文件、任务、模板及处理器放置于单独的目录中，\n复杂场景：建议使用roles，代码复用度高 变更指定主机或主机组 如命名不规范维护和传承成本大 某些功能需多个Playbook，通过includes即可实现\n角色(roles)：角色集合 [root@ansible ansible]# tree . └── roles ├── httpd ├── memcache ├── mysql └── nginx 可以互相调用 roles各目录作用\n/roles/project/ :项目名称,有以下子目录 files/ ：存放由copy或script模块等调用的文件 templates/：template模块查找所需要模板文件的目录 tasks/：定义task,role的基本元素，至少应该包含一个名为main.yml的文件； 其它的文件需要在此文件中通过include进行包含 handlers/：至少应该包含一个名为main.yml的文件； 其它的文件需要在此文件中通过include进行包含 vars/：定义变量，至少应该包含一个名为main.yml的文件； 其它的文件需要在此文件中通过include进行包含 meta/：定义当前角色的特殊设定及其依赖关系,至少应该包含一个名为main.yml的文件， 其它文件需在此文件中通过include进行包含 default/：设定默认变量时使用此目录中的main.yml文件 roles/appname 目录结构 tasks目录：至少应该包含一个名为main.yml的文件，其定义了此角色的任务列表； 此文件可以使用include包含其它的位于此目录中的task文件 files目录：存放由copy或script等模块调用的文件； templates目录：template模块会自动在此目录中寻找Jinja2模板文件 handlers目录：此目录中应当包含一个main.yml文件，用于定义此角色用到的各handler； 在handler中使用include包含的其它的handler文件也应该位于此目录中； vars目录：应当包含一个main.yml文件，用于定义此角色用到的变量； meta目录：应当包含一个main.yml文件，用于定义此角色的特殊设定及其依赖关系； ansible1.3及其以后的版本才支持； default目录：为当前角色设定默认变量时使用此目录；应当包含一个main.yml文件 roles/example_role/files/ 所有文件，都将可存放在这里 roles/example_role/templates/ 所有模板都存放在这里 roles/example_role/tasks/main.yml： 主函数，包括在其中的所有任务将被执行 roles/example_role/handlers/main.yml：所有包括其中的 handlers 将被执行 roles/example_role/vars/main.yml： 所有包括在其中的变量将在roles中生效 roles/example_role/meta/main.yml： roles所有依赖将被正常登入 创建roles 创建role的步骤 (1) 创建以roles命名的目录 (2) 在roles目录中分别创建以各角色名称命名的目录，如webservers等 (3) 在每个角色命名的目录中分别创建files、handlers、meta、tasks、templates和vars目录； 用不到的目录可以创建为空目录，也可以不创建 (4) 在playbook文件中，调用各角色 示例：创建一个nginx role\n# 1.创建roles目录 mkdir roles/{httpd,mysql,redis}/tasks -pv mkdir roles/httpd/{handlers,files} # 2.查看目录结构 [root@ansible ansible]# tree roles/ roles/ └── nginx ├── tasks └── templates # 3.创建目标文件 [root@ansible ansible]#touch group.yaml user.yaml yum.yaml templates.yaml start.yaml # vim group.yaml - name: create group group: name=nginx # vim user.yaml - name: create user user: name=nginx group=nginx shell=/sbin/nologin # vim yum.yaml - name: copy file copy: src=/etc/yum.repos.d/CentOS-Base.repo dest=/etc/yum.repos.d/CentOS-Base.repo - name: install packages yum: name=nginx # vim templates.yaml - name: copy conf template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf # vim start.yaml - name: start service service: name=nginx state=started enabled=yes # 4.创建main.yml主控文件,调用以上单独的yml文件,main.yml定义了谁先执行谁后执行的顺序 [root@ansible tasks]# vim main.yaml - include: group.yaml - include: user.yaml - include: yum.yaml - include: templates.yaml - include: start.yaml # 5.创建好j2的nginx配置文件 # vim templates/nginx.conf.j2 # For more information on configuration, see: # * Official English Documentation: http://nginx.org/en/docs/ # * Official Russian Documentation: http://nginx.org/ru/docs/ user nginx; worker_processes {{ansible_processor_vcpus+2}}; #改个CPU数量 error_log /var/log/nginx/error.log; pid /run/nginx.pid; # 6.在roles同级的情况下创建使用角色role的yaml文件。 [root@ansible ansible]# vim nginx_role.yaml - hosts: server remote_user: root roles: - role: nginx #调用角色 # 7.查看完整的目录结构 [root@ansible ansible]# tree roles roles ├── httpd ├── memcache ├── mysql └── nginx ├── tasks │ ├── group.yaml │ ├── main.yaml │ ├── start.yaml │ ├── templates.yaml │ ├── user.yaml │ └── yum.yaml └── templates └── nginx.conf.j2 # 8.运行role的剧本 [root@ansible ansible]# ansible-playbook nginx_role.yaml PLAY [server] ********************************************************************************************************** TASK [Gathering Facts] ************************************************************************************************* ok: [192.168.1.107] ok: [192.168.1.106] ok: [192.168.1.105] TASK [nginx : create group] ******************************************************************************************** ok: [192.168.1.105] ok: [192.168.1.107] ok: [192.168.1.106] TASK [nginx : create user] ********************************************************************************************* ok: [192.168.1.105] ok: [192.168.1.107] ok: [192.168.1.106] TASK [nginx : copy file] *********************************************************************************************** ok: [192.168.1.107] ok: [192.168.1.105] ok: [192.168.1.106] TASK [nginx : install packages] **************************************************************************************** ok: [192.168.1.107] ok: [192.168.1.106] ok: [192.168.1.105] TASK [nginx : copy conf] *********************************************************************************************** ok: [192.168.1.105] ok: [192.168.1.106] ok: [192.168.1.107] TASK [nginx : start service] ******************************************************************************************* changed: [192.168.1.106] changed: [192.168.1.107] changed: [192.168.1.105] PLAY RECAP ************************************************************************************************************* 192.168.1.105 : ok=7 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 192.168.1.106 : ok=7 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 192.168.1.107 : ok=7 changed=1 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0 多角色调用 # 调用角色方法1： [root@ansible ansible]# vim web.yaml - hosts: server remote_user: root roles: - role: httpd - role: nginx # 调用角色方法2 # 传递变量给角色 - hosts: remote_user: roles: - mysql - { role: nginx, username: nginx } #不同的角色调用不同的变量 # 键role用于指定角色名称 # 后续的k/v用于传递变量给角色 # 调用角色方法3：还可基于条件测试实现角色调用 roles: - { role: nginx, username: nginx, when: ansible_distribution_major_version == '7' } 完整roles架构 cat nginx-role.yml 顶层任务调用yml文件 --- - hosts: testweb remote_user: root roles: - role: nginx - role: httpd 可执行多个role cat roles/nginx/tasks/main.yml --- - include: groupadd.yml - include: useradd.yml - include: install.yml - include: restart.yml - include: filecp.yml cat roles/nginx/tasks/groupadd.yml --- - name: add group nginx user: name=nginx state=present cat roles/nginx/tasks/filecp.yml --- - name: file copy copy: src=tom.conf dest=/tmp/tom.conf # 以下文件格式类似： useradd.yml,install.yml,restart.yml ls roles/nginx/files/ tom.conf 通过roles传递变量 通过roles传递变量 当给一个主机应用角色的时候可以传递变量，然后在角色内使用这些变量 示例： - hosts: webservers roles: - common - { role: foo_app_instance, dir: '/web/htdocs/a.com', port: 8080 } 向role传递变量 而在playbook中，可以这样使用roles： --- - hosts: webservers roles: - common - webservers 也可以向roles传递参数 示例： --- - hosts: webservers roles: - common - { role: foo_app_instance, dir: '/opt/a', port: 5000 } - { role: foo_app_instance, dir: '/opt/b', port: 5001 } 条件式地使用roles 甚至也可以条件式地使用roles 示例： --- - hosts: webservers roles: - { role: some_role, when: \"ansible_os_family == 'RedHat'\" } Roles条件及变量等案例 When条件 roles: - {role: nginx, when: \"ansible_distribution_major_version == '7' \" ,username: nginx } 变量调用 - hosts: zabbix-proxy sudo: yes roles: - { role: geerlingguy.php-mysql } - { role: dj-wasabi.zabbix-proxy, zabbix_server_host: 192.168.37.167 } roles playbook tags使用 roles playbook tags使用 ansible-playbook --tags=\"nginx,httpd,mysql\" nginx-role.yml 对标签进行挑选执行 // nginx-role.yml --- - hosts: testweb remote_user: root roles: - { role: nginx ,tags: [ 'nginx', 'web' ] ,when: ansible_distribution_major_version == \"6“ } - { role: httpd ,tags: [ 'httpd', 'web' ] } - { role: mysql ,tags: [ 'mysql', 'db' ] } - { role: marridb ,tags: [ 'mysql', 'db' ] } - { role: php } 示例 memcacched 当做缓存用,会在内存中开启一块空间充当缓存 cat /etc/sysconfig/memcached PORT=\"11211\" USER=\"memcached\" MAXCONN=\"1024\" CACHESIZE=\"64\" # 缓存空间默认64M OPTIONS=\"\" 1\u003e 创建对用目录 cd /app/ansible mkdir roles/memcached/{tasks,templates} -pv 2\u003e 拷贝memcached配置文件模板 cp /etc/sysconfig/memcached templates/memcached.j2 vim templates/memcached.j2 CACHESIZE=\"{{ansible_memtotal_mb//4}}\" #物理内存的1/4用做缓存 3\u003e 创建对应yml文件,并做相应配置 cd tasks/ touch install.yml config.yml service.yml 创建main.yml文件定义任务执行顺序 vim main.yml - include: install.yml - include: config.yml - include: service.yml vim install.yml - name: install yum: name=memcached vim config.yml - name: config file template: src=memcached.j2 dets=/etc/sysconfig/memcached vim service.yml - name: service service: name=memcached state=started enabled=yes 4\u003e 创建调用角色文件 cd /app/ansible/roles/ vim role_memcached.yml --- - hosts: appsrvs roles: - role: memcached 5\u003e 安装 ansible-playbook role_memcached.yml memcached端口号11211 ",
+  "wordCount" : "1819",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/linux/ansible/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/linux/">Linux</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      ansible
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a></li>
+            <li>
+                <a href="#%e5%91%bd%e4%bb%a4" aria-label="命令">命令</a></li>
+            <li>
+                <a href="#%e6%a8%a1%e5%bc%8f" aria-label="模式">模式</a><ul>
+                    
+            <li>
+                <a href="#ad-hoc%e6%a8%a1%e5%bc%8f" aria-label="ad-hoc模式">ad-hoc模式</a><ul>
+                    
+            <li>
+                <a href="#command-%e6%a8%a1%e5%9d%97" aria-label="command 模块">command 模块</a></li>
+            <li>
+                <a href="#shell%e6%a8%a1%e5%9d%97" aria-label="shell模块">shell模块</a></li>
+            <li>
+                <a href="#script%e6%a8%a1%e5%9d%97" aria-label="script模块">script模块</a></li>
+            <li>
+                <a href="#serivcesystemd%e6%a8%a1%e5%9d%97" aria-label="serivce/systemd模块">serivce/systemd模块</a></li>
+            <li>
+                <a href="#crond%e6%a8%a1%e5%9d%97-%e5%ae%9a%e6%97%b6%e4%bb%bb%e5%8a%a1%e6%9c%8d%e5%8a%a1" aria-label="crond模块-定时任务服务">crond模块-定时任务服务</a></li>
+            <li>
+                <a href="#file%e6%a8%a1%e5%9d%97" aria-label="file模块">file模块</a></li>
+            <li>
+                <a href="#copy%e6%a8%a1%e5%9d%97" aria-label="copy模块">copy模块</a></li>
+            <li>
+                <a href="#user%e6%a8%a1%e5%9d%97" aria-label="user模块">user模块</a></li>
+            <li>
+                <a href="#yum%e6%a8%a1%e5%9d%97" aria-label="yum模块">yum模块</a></li></ul>
+            </li>
+            <li>
+                <a href="#playbook%e6%a8%a1%e5%bc%8f" aria-label="playbook模式">playbook模式</a><ul>
+                    
+            <li>
+                <a href="#%e6%89%a7%e8%a1%8c%e5%91%bd%e4%bb%a4" aria-label="执行命令">执行命令</a></li>
+            <li>
+                <a href="#host%e9%83%a8%e5%88%86%e9%85%8d%e7%bd%ae" aria-label="host部分配置">host部分配置</a></li>
+            <li>
+                <a href="#task%e9%83%a8%e5%88%86%e9%85%8d%e7%bd%ae" aria-label="task部分配置">task部分配置</a></li>
+            <li>
+                <a href="#%e7%a4%ba%e4%be%8b" aria-label="示例">示例</a><ul>
+                    
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85nginx" aria-label="安装nginx">安装nginx</a></li>
+            <li>
+                <a href="#%e9%83%a8%e7%bd%b2rsync%e6%9c%8d%e5%8a%a1" aria-label="部署rsync服务">部署rsync服务</a></li>
+            <li>
+                <a href="#%e6%8c%87%e5%ae%9a%e5%8f%98%e9%87%8f" aria-label="指定变量">指定变量</a></li>
+            <li>
+                <a href="#host%e6%96%87%e4%bb%b6%e4%b8%ad%e5%ae%9a%e4%b9%89%e5%8f%98%e9%87%8f" aria-label="host文件中定义变量">host文件中定义变量</a></li>
+            <li>
+                <a href="#playbook%e6%96%87%e4%bb%b6%e4%b8%ad%e5%ae%9a%e4%b9%89%e5%8f%98%e9%87%8f" aria-label="playbook文件中定义变量">playbook文件中定义变量</a></li>
+            <li>
+                <a href="#%e7%8b%ac%e7%ab%8b%e7%9a%84%e5%8f%98%e9%87%8fyaml%e6%96%87%e4%bb%b6%e4%b8%ad%e5%ae%9a%e4%b9%89" aria-label="独立的变量yaml文件中定义">独立的变量yaml文件中定义</a></li>
+            <li>
+                <a href="#playbook%e6%a0%87%e7%ad%be%e7%9a%84%e4%bd%bf%e7%94%a8" aria-label="playbook标签的使用">playbook标签的使用</a></li></ul>
+            </li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#roles" aria-label="roles">roles</a><ul>
+                    
+            <li>
+                <a href="#%e4%bb%8b%e7%bb%8d" aria-label="介绍">介绍</a></li>
+            <li>
+                <a href="#%e5%88%9b%e5%bb%baroles" aria-label="创建roles">创建roles</a></li>
+            <li>
+                <a href="#%e5%a4%9a%e8%a7%92%e8%89%b2%e8%b0%83%e7%94%a8" aria-label="多角色调用">多角色调用</a></li>
+            <li>
+                <a href="#%e5%ae%8c%e6%95%b4roles%e6%9e%b6%e6%9e%84" aria-label="完整roles架构">完整roles架构</a></li>
+            <li>
+                <a href="#%e9%80%9a%e8%bf%87roles%e4%bc%a0%e9%80%92%e5%8f%98%e9%87%8f" aria-label="通过roles传递变量">通过roles传递变量</a></li>
+            <li>
+                <a href="#%e5%90%91role%e4%bc%a0%e9%80%92%e5%8f%98%e9%87%8f" aria-label="向role传递变量">向role传递变量</a></li>
+            <li>
+                <a href="#%e6%9d%a1%e4%bb%b6%e5%bc%8f%e5%9c%b0%e4%bd%bf%e7%94%a8roles" aria-label="条件式地使用roles">条件式地使用roles</a></li>
+            <li>
+                <a href="#roles%e6%9d%a1%e4%bb%b6%e5%8f%8a%e5%8f%98%e9%87%8f%e7%ad%89%e6%a1%88%e4%be%8b" aria-label="Roles条件及变量等案例">Roles条件及变量等案例</a></li>
+            <li>
+                <a href="#roles-playbook-tags%e4%bd%bf%e7%94%a8" aria-label="roles playbook tags使用">roles playbook tags使用</a></li>
+            <li>
+                <a href="#%e7%a4%ba%e4%be%8b-1" aria-label="示例">示例</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>管理机器：
+</span></span><span style="display:flex;"><span>1.选择yum自动化安装，阿里云yum，epel源，前提就得配置好
+</span></span><span style="display:flex;"><span>yum install epel-release -y 
+</span></span><span style="display:flex;"><span>yum install  ansible  libselinux-python -y 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>2.检查ansible软件安装情况，查询配置文件，和可执行命令
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@m01 ~<span style="color:#f92672">]</span><span style="color:#75715e"># rpm -ql ansible | grep -E &#39;^/etc|^/usr/bin&#39;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>3.检查ansible版本
+</span></span><span style="display:flex;"><span>ansible --version
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>4.配置ansible的配置文件，添加被管理机器的ip地址，或者主机名
+</span></span><span style="display:flex;"><span>cp /etc/ansible/hosts<span style="color:#f92672">{</span>,.ori<span style="color:#f92672">}</span> 
+</span></span></code></pre></div><p>添加ansible需要管理的机器地址，添加主机信息</p>
+<p>例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@m01 ansible<span style="color:#f92672">]</span><span style="color:#75715e"># vim /etc/ansible/hosts</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>any<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>10.0.0.2
+</span></span><span style="display:flex;"><span>10.0.0.3 
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 被管理机器：</span>
+</span></span><span style="display:flex;"><span>yum install epel-release libselinux-python -y 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 管理方式：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 传统输入ssh密码认证</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置ssh密钥认证</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行命令方式：</span>
+</span></span><span style="display:flex;"><span>-m 指定功能模块，默认就是command模块
+</span></span><span style="display:flex;"><span>-a 告诉模块需要执行的参数
+</span></span><span style="display:flex;"><span>-k 询问密码验证
+</span></span><span style="display:flex;"><span>-u 指定运行的用户
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 在m01机器上，告诉其他被管理的机器，你要执行什么命令，以及用什么用户去执行</span>
+</span></span><span style="display:flex;"><span>ansible chaoge  -m  command -a <span style="color:#e6db74">&#39;hostname&#39;</span> -k -u root
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 免密配置：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 可以在 /etc/ansible/hosts文件中，定义好密码即可，即可实现快速的认证，远程管理主机</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 参数     </span>
+</span></span><span style="display:flex;"><span>ansible_host   			<span style="color:#75715e"># 主机地址</span>
+</span></span><span style="display:flex;"><span>ansible_port        <span style="color:#75715e"># 端口,默认是22端口 </span>
+</span></span><span style="display:flex;"><span>ansible_user        <span style="color:#75715e"># 认证的用户</span>
+</span></span><span style="display:flex;"><span>ansible_ssh_pass    <span style="color:#75715e"># 用户认证的密码 </span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> <span style="color:#75715e"># 修改host配置文件如下示例：</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>any<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>10.0.0.2 ansible_user<span style="color:#f92672">=</span>root ansible_ssh_pass<span style="color:#f92672">=</span><span style="color:#ae81ff">111111</span>
+</span></span><span style="display:flex;"><span>10.0.0.3 ansible_user<span style="color:#f92672">=</span>root ansible_ssh_pass<span style="color:#f92672">=</span><span style="color:#ae81ff">111111</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置好后执行ansible命令不再需要输入密码</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ssh密钥方式：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 管理机器上编写公钥脚本：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash</span>
+</span></span><span style="display:flex;"><span>rm -rf ~/.ssh/id_rsa*
+</span></span><span style="display:flex;"><span>ssh-keygen -f ~/.ssh/id_rsa -P <span style="color:#e6db74">&#34;&#34;</span> &gt; /dev/null 2&gt;&amp;<span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>SSH_Pass<span style="color:#f92672">=</span><span style="color:#ae81ff">111111</span>
+</span></span><span style="display:flex;"><span>Key_Path<span style="color:#f92672">=</span>~/.ssh/id_rsa.pub
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> ip in <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    sshpass -p$SSH_Pass ssh-copy-id -i $Key_Path <span style="color:#e6db74">&#34;-o StrictHostKeyChecking=no&#34;</span> 10.0.0.$ip
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 非交互式分发公钥命令需要用sshpass指定SSH密码，通过-o StrictHostKeyChecking=no 跳过SSH连接确认信息</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h1 id="命令">命令<a hidden class="anchor" aria-hidden="true" href="#命令">#</a></h1>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>安装：
+</span></span><span style="display:flex;"><span>管理端安装ansible
+</span></span><span style="display:flex;"><span>yum install -y epel-release  <span style="color:#75715e">#先安装epel源</span>
+</span></span><span style="display:flex;"><span>yum install -y ansible     <span style="color:#75715e">#安装ansible</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#配置主机之间免密登录</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>配置文件：（在/etc/anssible下）
+</span></span><span style="display:flex;"><span>├── roles   <span style="color:#75715e"># 角色配置文件</span>
+</span></span><span style="display:flex;"><span>├── hosts  <span style="color:#75715e"># 主机文件</span>
+</span></span><span style="display:flex;"><span>└── ansible.cfg  <span style="color:#75715e"># 配置文件</span>
+</span></span></code></pre></div><p>参数：</p>
+<table>
+  <thead>
+      <tr>
+          <th>-I</th>
+          <th>&ndash;inventory-file=INVENTORY：指定主机清单文件路径。</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>-m</td>
+          <td>&ndash;module-name=MODULE_NAME：指定要使用的模块名称。</td>
+      </tr>
+      <tr>
+          <td>-a</td>
+          <td>&ndash;args=&lsquo;MODULE_ARGS&rsquo;：指定命令。</td>
+      </tr>
+      <tr>
+          <td>-b</td>
+          <td>&ndash;become：以超级用户（root）身份执行任务。</td>
+      </tr>
+      <tr>
+          <td>-K</td>
+          <td>&ndash;ask-become-pass：在执行任务时询问超级用户密码。</td>
+      </tr>
+      <tr>
+          <td>-t</td>
+          <td>&ndash;tags=TAGS：只运行带有指定标签的任务。</td>
+      </tr>
+      <tr>
+          <td>-e</td>
+          <td>&ndash;extra-vars=EXTRA_VARS：传递额外的变量给 Ansible Playbook。</td>
+      </tr>
+      <tr>
+          <td>&ndash;syntax-check</td>
+          <td>检查 playbook 的语法是否正确。</td>
+      </tr>
+      <tr>
+          <td>&ndash;list-hosts</td>
+          <td>显示在主机清单中定义的所有主机。</td>
+      </tr>
+      <tr>
+          <td>&ndash;list-tasks</td>
+          <td>显示 playbook 中定义的所有任务。</td>
+      </tr>
+  </tbody>
+</table>
+<p>在远程主机执行命令，不支持管道、重定向等shell的特性。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> ansible-doc -s command  <span style="color:#75715e">#-s列出指定模块的描述信息和操作动作</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#指定ip执行date</span>
+</span></span><span style="display:flex;"><span> ansible 192.168.126.28 -m command -a <span style="color:#e6db74">&#39;date&#39;</span>  <span style="color:#75715e">#-a指定命令</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#指定组执行date命令</span>
+</span></span><span style="display:flex;"><span> ansible webservers -m command -a <span style="color:#e6db74">&#39;date&#39;</span>   <span style="color:#75715e">#指定webservers组执行date命令</span>
+</span></span><span style="display:flex;"><span> ansible all -m command -a <span style="color:#e6db74">&#39; date&#39;</span>      <span style="color:#75715e">#all代表所有hosts 主机</span>
+</span></span><span style="display:flex;"><span> ansible all -a <span style="color:#e6db74">&#39;date&#39;</span>           <span style="color:#75715e">#如省略-m模块，则默认运行command 模块</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">##常用的参数:</span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># chdir：在远程主机上运行命令前提前进入目录</span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># creates：判断指定文件是否存在，如果存在，不执行后面的操作</span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># removes：判断指定文件是否存在，如果存在，执行后面的操作</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#无论管理端当前在哪个目录，执行命令都是在被管理端的家目录进行操作，可以使用chdir参数先切换目录</span>
+</span></span><span style="display:flex;"><span> ansible dbservers -m command -a <span style="color:#e6db74">&#34;chdir=/home ls ./&#34;</span>  <span style="color:#75715e">#切换到/home目录下再执行命令</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#creates判断目标主机的指定是否存在，如果存在，则不执行后面的操作</span>
+</span></span><span style="display:flex;"><span> ansible dbservers -m command -a <span style="color:#e6db74">&#34;creates=/data/f1.txt date&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#removes判断目标主机的指定是否存在，如果存在，执行后面的操作</span>
+</span></span><span style="display:flex;"><span> ansible dbservers -m command -a <span style="color:#e6db74">&#34;removes=/data/f1.txt date&#34;</span>
+</span></span></code></pre></div><h1 id="模式">模式<a hidden class="anchor" aria-hidden="true" href="#模式">#</a></h1>
+<h2 id="ad-hoc模式">ad-hoc模式<a hidden class="anchor" aria-hidden="true" href="#ad-hoc模式">#</a></h2>
+<!-- raw HTML omitted -->
+<p>ansible的ad-hoc模式是ansible的命令行形式，也就是处理一些临时的，简单的任务，可以直接使用ansible的命令行来操作</p>
+<p>比如</p>
+<ul>
+<li>临时批量查看被管理机器的内存情况，cpu负载情况，网络情况</li>
+<li>比如临时的分发配置文件等等</li>
+</ul>
+<p>查看该模块支持的参数：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-doc -s 模块名称
+</span></span></code></pre></div><h3 id="command-模块"><strong>command</strong> 模块<a hidden class="anchor" aria-hidden="true" href="#command-模块">#</a></h3>
+<p><strong>不支持管道重定向</strong></p>
+<table>
+  <thead>
+      <tr>
+          <th>chdir</th>
+          <th>在执行命令之前，先通过cd进入该参数指定的目录</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>creates</td>
+          <td>在创建一个文件之前，判断该文件是否存在，如果存在了则跳过前面的东西，如果不存在则执行前面的动作</td>
+      </tr>
+      <tr>
+          <td>free_form</td>
+          <td>该参数可以输入任何的系统命令，实现远程执行和管理</td>
+      </tr>
+      <tr>
+          <td>removes</td>
+          <td>定义一个文件是否存在，如果存在了则执行前面的动作，如果不存在则跳过动作</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="shell模块">shell模块<a hidden class="anchor" aria-hidden="true" href="#shell模块">#</a></h3>
+<p>在远程机器上执行命令（复杂的命令）,支持重定向，管道</p>
+<p>支持的参数和解释</p>
+<table>
+  <thead>
+      <tr>
+          <th>chdir</th>
+          <th>在执行命令之前，通过cd进入该参数指定的目录  ansible hosts_name -m shell -a &lsquo;chdir=/tmp ls&rsquo;</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>creates</td>
+          <td>定义一个文件是否存在，如果存在则不执行该命令，如果存在该文件，则执行shell命令</td>
+      </tr>
+      <tr>
+          <td>free_form</td>
+          <td>参数信息中可以输入任何的系统指令，实现远程管理</td>
+      </tr>
+      <tr>
+          <td>removes</td>
+          <td>定义一个文件是否存在，如果存在该文件，则执行命令，如果不存在，则跳过</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="script模块">script模块<a hidden class="anchor" aria-hidden="true" href="#script模块">#</a></h3>
+<p>script模块不具有幂等性。所以建议用剧本来执行</p>
+<pre tabindex="0"><code>管理机器上的脚本在远程节点上执行
+</code></pre><h3 id="serivcesystemd模块">serivce/systemd模块<a hidden class="anchor" aria-hidden="true" href="#serivcesystemd模块">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> ansible-doc -s service
+</span></span><span style="display:flex;"><span> ansible-doc -s systemd
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 要注意的是serivce已然对centos7有效</span>
+</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 当你使用service命令管理服务，系统自动的重定向为systemctl服务管理命令</span>
+</span></span></code></pre></div><p>参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> name 指定服务的名字，比如nginx.serivce  如 crond.serivce
+</span></span><span style="display:flex;"><span> state 填入你要执行的操作，如 reloaded,restarted,started,stopped
+</span></span><span style="display:flex;"><span> enabled 指定服务开机自启 systemctl enable nginx
+</span></span><span style="display:flex;"><span> daemon_reload 每当修改了配置文件，使用systemd重读配置文件
+</span></span></code></pre></div><h3 id="crond模块-定时任务服务">crond模块-定时任务服务<a hidden class="anchor" aria-hidden="true" href="#crond模块-定时任务服务">#</a></h3>
+<p>定时crontab条目都是遵循了规则：</p>
+<p>分 时 日 月 周  执行命令的绝对路径</p>
+<p>*   *   *   *   *</p>
+<p>示例：</p>
+<p>每5分钟执行命令</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>*/5 * * * *  cmd xxx
+</span></span></code></pre></div><p>每个月的3号，13号，早上8点整 重启nginx</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">8</span> 3,13 * * /usr/bin/systemctl restart nginx
+</span></span></code></pre></div><p>添加定时任务，每5分钟进行时间同步</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible chaoge -m cron -a <span style="color:#e6db74">&#34;name=ntp_cron job=&#39;/usr/sbin/ntpdate ntp.aliyun.com &gt; /dev/null 2&gt;&amp;1&#39; minute=*/5 &#34;</span>
+</span></span></code></pre></div><p>再添加一个记录，事件是每个月的3号，13号，早上8点整 重启nginx</p>
+<p>思路：转化如下任务即可</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">8</span> 3,13 * * /usr/bin/systemctl restart nginx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ansible chaoge -m cron -a <span style="color:#e6db74">&#34;name=restart_nginx job=&#39;/usr/bin/systemctl restart nginx&#39; minute=0 hour=8 day=3,13 &#34;</span>
+</span></span></code></pre></div><p>删除定时任务，只能删除通过ansible模块添加的任务记录</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible chaoge -m cron -a <span style="color:#e6db74">&#34;name=&#39;restart_nginx&#39; state=absent&#34;</span> 
+</span></span></code></pre></div><p>查看任务：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> ansible chaoge -m shell -a <span style="color:#e6db74">&#34;crontab -l&#34;</span>
+</span></span></code></pre></div><h3 id="file模块"><strong>file模块</strong><a hidden class="anchor" aria-hidden="true" href="#file模块">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>常用的参数解释：
+</span></span><span style="display:flex;"><span>group  定义文件/目录的 属组
+</span></span><span style="display:flex;"><span>owner  定义属主
+</span></span><span style="display:flex;"><span>mode   定义权限
+</span></span><span style="display:flex;"><span>path   必选参数，定义文件路径 
+</span></span><span style="display:flex;"><span>src   定义源文件路径，主要用于创建link类型文件使用
+</span></span><span style="display:flex;"><span>dest   创建出来的软连接 它的路径
+</span></span><span style="display:flex;"><span>state 参数：
+</span></span><span style="display:flex;"><span>file ：如果目标文件不存在，那么不会创建该文件
+</span></span><span style="display:flex;"><span>touch： 如果文件不存在，则创建一个新的文件，如果文件已经存在了，则修它的最后修改时间
+</span></span><span style="display:flex;"><span>directory: 如果目录不存在，那么会创建目录
+</span></span><span style="display:flex;"><span>link: 用于创建软连接类型
+</span></span><span style="display:flex;"><span>absent : 删除目录，文件或者取消连接
+</span></span></code></pre></div><p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>1.远程的批量创建文件夹，并且设置权限是666
+</span></span><span style="display:flex;"><span>ansible chaoge -m file -a <span style="color:#e6db74">&#34;dest=/tmp/cc_dir/ mode=666 state=directory&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>2.验证文件夹是否存在，以及权限查看
+</span></span><span style="display:flex;"><span>ansible chaoge -m shell -a <span style="color:#e6db74">&#34;ls -ld /tmp/cc_dir&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>3.目标文件不存在，则不执行动作，这是state的file属性
+</span></span><span style="display:flex;"><span>ansible chaoge -m file -a <span style="color:#e6db74">&#34;dest=/tmp/cc_666.txt state=file owner=chaoge group=chaoge mode=600&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>4.应该使用state的touch属性
+</span></span><span style="display:flex;"><span>ansible chaoge -m file -a <span style="color:#e6db74">&#34;dest=/tmp/cc_666.txt state=touch owner=chaoge group=chaoge mode=600&#34;</span>
+</span></span></code></pre></div><h3 id="copy模块">copy模块<a hidden class="anchor" aria-hidden="true" href="#copy模块">#</a></h3>
+<p>1、批量拷贝文件，分发给客户端节点</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible chaoge -m copy -a <span style="color:#e6db74">&#34;src=/etc/hosts dest=/tmp/m01_hosts owner=learn_ansible group=learn_ansible mode=0666&#34;</span>
+</span></span></code></pre></div><p>2、就是批量的实现了文件远程拷贝，且定义了新的内容放入文件中，并且真对目标机器的源数据文件，做了一个备份</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible chaoge -m copy -a <span style="color:#e6db74">&#34;content=&#39;Hello,my name is chaoge,who are u&#39; dest=/tmp/day.txt backup=yes&#34;</span>
+</span></span></code></pre></div><h3 id="user模块">user模块<a hidden class="anchor" aria-hidden="true" href="#user模块">#</a></h3>
+<p><strong>模块的各个参数说明：</strong></p>
+<ul>
+<li>name（必需）： 要操作的用户的名称。</li>
+<li>uid： 用户的 UID（用户标识号）。</li>
+<li>group： 用户所属的用户组。</li>
+<li>groups： 用户所属的其他附加用户组列表。</li>
+<li>append： 如果用户已存在，是否将用户添加到指定的用户组中。</li>
+<li>state： 用户的状态，可以是 present（用户存在）、absent（用户不存在）、locked（用户被锁定）等。</li>
+<li>createhome： 如果用户不存在，是否创建用户的 home 目录。</li>
+<li>home： 用户的 home 目录路径。</li>
+<li>shell： 用户的默认 shell。</li>
+<li>comment： 用户的注释信息。</li>
+<li>expires： 用户账号的过期时间。</li>
+<li>password： 用户的密码（加密后的形式，可以使用 ansible-vault 进行加密）。</li>
+<li>update_password： 指定密码的更新策略。</li>
+<li>move_home： 如果用户的 home 目录发生变化，是否将用户的文件一起移动。</li>
+</ul>
+<h3 id="yum模块">yum模块<a hidden class="anchor" aria-hidden="true" href="#yum模块">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>1、通过yum模块给any主机组批量安装服务
+</span></span><span style="display:flex;"><span>ansible any -m yum -a <span style="color:#e6db74">&#34;name=nginx state=installed&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>2.any主机组批量远程卸载nginx
+</span></span><span style="display:flex;"><span>ansible any -m yum -a <span style="color:#e6db74">&#34;name=nginx state=absent&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>3.升级软件包，指定升级nginx，也可以写成 name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;*&#39;</span> 就等于 yum update升级所有软件包，latest也提供下载更新
+</span></span><span style="display:flex;"><span>ansible chaoge -m yum -a <span style="color:#e6db74">&#34;name=&#39;nginx&#39; state=latest&#34;</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>4.升级系统所有软件包，排除某个服务不升级，这个命令，注意不要在服务器上随便敲，因为服务器不得任意更新一些服务版本，可能会造成服务挂掉
+</span></span><span style="display:flex;"><span>ansible chaoge -m yum -a <span style="color:#e6db74">&#34;state=latest name=&#39;*&#39; exclude=&#39;nginx&#39;&#34;</span>
+</span></span></code></pre></div><h2 id="playbook模式">playbook模式<a hidden class="anchor" aria-hidden="true" href="#playbook模式">#</a></h2>
+<p>ansible的playbook模式是针对比较具体，且比较大的任务，那么你就得实现写好剧本，应用场景</p>
+<ul>
+<li>
+<p>一键部署rsync备份服务器</p>
+</li>
+<li>
+<p>一键部署lnmp环境</p>
+</li>
+</ul>
+<p>参考博客：有高阶使用
+<a href="https://www.cnblogs.com/yanjieli/p/10969299.html">https://www.cnblogs.com/yanjieli/p/10969299.html</a></p>
+<p>参数：</p>
+<table>
+  <thead>
+      <tr>
+          <th>-i</th>
+          <th>INVENTORY,  &ndash;inventory=INVENTORY：指定主机清单文件路径。</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>-e</td>
+          <td>EXTRA_VARS,  &ndash;extra-vars=EXTRA_VARS：传递额外的变量给 Ansible Playbook。</td>
+      </tr>
+      <tr>
+          <td>&ndash;list-tasks</td>
+          <td>显示 playbook 中定义的所有任务。</td>
+      </tr>
+      <tr>
+          <td>&ndash;syntax-check</td>
+          <td>检查 playbook 的语法是否正确。</td>
+      </tr>
+      <tr>
+          <td>&ndash;start-at-task=&lsquo;TASK&rsquo;</td>
+          <td>从指定任务开始执行 playbook。</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="执行命令">执行命令<a hidden class="anchor" aria-hidden="true" href="#执行命令">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 编写执行：</span>
+</span></span><span style="display:flex;"><span>ansible-playbook xxxx.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看详细输出：</span>
+</span></span><span style="display:flex;"><span>ansible-playbook xxxx.yaml --verbose
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看剧本中主机信息：</span>
+</span></span><span style="display:flex;"><span>ansible-playbook xxxx.yaml --list-hosts
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行剧本加载指定的主机清单文件，默认剧本使用的是 /etc/ansible/hosts</span>
+</span></span><span style="display:flex;"><span>ansible-playbook xxxx.yaml -i /etc/my_ansible/hosts
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行剧本并且检查语法</span>
+</span></span><span style="display:flex;"><span>ansible-playbook xxxx.yaml --syntax-check
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 调试剧本，只是调试，但是不会对被管理节点发生改变</span>
+</span></span><span style="display:flex;"><span>ansible-playbook nginx.yaml -C <span style="color:#75715e"># 模拟执行，不影响客户端机器</span>
+</span></span></code></pre></div><h3 id="host部分配置">host部分配置<a hidden class="anchor" aria-hidden="true" href="#host部分配置">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 方式一，定义被管理主机的ip地址</span>
+</span></span><span style="display:flex;"><span>- hosts: 192.168.178.138
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: 这是我第一个任务
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">=</span>nginx state<span style="color:#f92672">=</span>installed
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 方式二，定义被管理主机的名字，注意该主机名必须能够解析</span>
+</span></span><span style="display:flex;"><span>- hosts: backup01
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: 这是我第一个任务
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 方式三，定义多个主机信息</span>
+</span></span><span style="display:flex;"><span>- hosts: 192.168.178.138,192.168.178.139,backup01
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: 这是我第一个任务
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 方式四，填写所有的主机</span>
+</span></span><span style="display:flex;"><span>- hosts: all
+</span></span><span style="display:flex;"><span> tasks: 
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h3 id="task部分配置">task部分配置<a hidden class="anchor" aria-hidden="true" href="#task部分配置">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#定义task方式一：采用变量形式设置任务</span>
+</span></span><span style="display:flex;"><span>tasks:
+</span></span><span style="display:flex;"><span> - name: make sure apache is runing
+</span></span><span style="display:flex;"><span>  service: name<span style="color:#f92672">=</span>httpd state<span style="color:#f92672">=</span>running
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span> - name: copy file..
+</span></span><span style="display:flex;"><span>  copy: src<span style="color:#f92672">=</span>/etc/ansible/hosts dest<span style="color:#f92672">=</span>/etc/ansible/hosts
+</span></span><span style="display:flex;"><span>     owner<span style="color:#f92672">=</span>root group<span style="color:#f92672">=</span>root mode<span style="color:#f92672">=</span><span style="color:#ae81ff">0644</span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#当传入的参数列表过长的时候，我们还可以将其分割</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 方式二，采用字典形式设置多个任务</span>
+</span></span><span style="display:flex;"><span>tasks:
+</span></span><span style="display:flex;"><span> - name: copy file to client...
+</span></span><span style="display:flex;"><span>  copy:
+</span></span><span style="display:flex;"><span>   src: /etc/ansible/hosts
+</span></span><span style="display:flex;"><span>   dest: /etc/ansible/hosts
+</span></span><span style="display:flex;"><span>   owner: root
+</span></span><span style="display:flex;"><span>   group: root
+</span></span><span style="display:flex;"><span>   mode: <span style="color:#ae81ff">0644</span>
+</span></span></code></pre></div><h3 id="示例">示例<a hidden class="anchor" aria-hidden="true" href="#示例">#</a></h3>
+<h4 id="安装nginx">安装nginx<a hidden class="anchor" aria-hidden="true" href="#安装nginx">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>- hosts: any
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: 安装nginx
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">=</span>nginx state<span style="color:#f92672">=</span>installed
+</span></span><span style="display:flex;"><span>      - name: 执行脚本
+</span></span><span style="display:flex;"><span>       script: /server/scripts/test_ansible.sh
+</span></span></code></pre></div><h4 id="部署rsync服务">部署rsync服务<a hidden class="anchor" aria-hidden="true" href="#部署rsync服务">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@anyl<span style="color:#f92672">]</span><span style="color:#75715e"># cat install_rsync.yaml</span>
+</span></span><span style="display:flex;"><span>- hosts: hosts_name
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: step01,install rsync service
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">=</span>rsync state<span style="color:#f92672">=</span>installed
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: step02,edit rsync conf file
+</span></span><span style="display:flex;"><span>   copy: src<span style="color:#f92672">=</span>/etc/ansible/rsync_conf/rsyncd.conf dest<span style="color:#f92672">=</span>/etc/rsync/conf/
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: step03,create user rsync
+</span></span><span style="display:flex;"><span>   user: name<span style="color:#f92672">=</span>rsync state<span style="color:#f92672">=</span>present createhome<span style="color:#f92672">=</span>no shell<span style="color:#f92672">=</span>/sbin/nolgoin
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: step04,create user auth file
+</span></span><span style="display:flex;"><span>   copy: src<span style="color:#f92672">=</span>/etc/ansible/rsync_conf/rsync.password dest<span style="color:#f92672">=</span>/etc/rsync/conf/ mode<span style="color:#f92672">=</span><span style="color:#ae81ff">0600</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: step05,create backup dir
+</span></span><span style="display:flex;"><span>   file: dest<span style="color:#f92672">=</span>/data_backup/ state<span style="color:#f92672">=</span>directory owner<span style="color:#f92672">=</span>rsync group<span style="color:#f92672">=</span>rsync
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: step06,run rsync server
+</span></span><span style="display:flex;"><span>   shell: rsync --daemon creates<span style="color:#f92672">=</span>/var/run/rsync.pid
+</span></span></code></pre></div><h4 id="指定变量">指定变量<a hidden class="anchor" aria-hidden="true" href="#指定变量">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># cat variables.yml  --- - hosts: all  remote_user: root</span>
+</span></span><span style="display:flex;"><span>tasks:   - name: install pkg    yum: name<span style="color:#f92672">={{</span> pkg <span style="color:#f92672">}}</span> state<span style="color:#f92672">=</span>install
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行：传参</span>
+</span></span><span style="display:flex;"><span>ansible-playbook -e <span style="color:#e6db74">&#34;pkg=nginx&#34;</span>variables.yml
+</span></span></code></pre></div><h4 id="host文件中定义变量">host文件中定义变量<a hidden class="anchor" aria-hidden="true" href="#host文件中定义变量">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 编辑hosts文件定义变量</span>
+</span></span><span style="display:flex;"><span>vim /etc/ansible/hosts
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>apache<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>192.168.1.36 webdir<span style="color:#f92672">=</span>/opt/test   <span style="color:#75715e">#定义单个主机的变量</span>
+</span></span><span style="display:flex;"><span>192.168.1.33
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>apache:vars<span style="color:#f92672">]</span>   <span style="color:#75715e">#定义整个组的统一变量</span>
+</span></span><span style="display:flex;"><span>webdir<span style="color:#f92672">=</span>/web/test
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>nginx<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>192.168.1.3<span style="color:#f92672">[</span>1:2<span style="color:#f92672">]</span>  <span style="color:#75715e">#表示ip为192.168.1.31 192.168.1.32</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>nginx:vars<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>webdir<span style="color:#f92672">=</span>/opt/web
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 编辑playbook文件</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># cat variables.yml </span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- hosts: all
+</span></span><span style="display:flex;"><span> remote_user: root
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: create webdir
+</span></span><span style="display:flex;"><span>   file: name<span style="color:#f92672">={{</span> webdir <span style="color:#f92672">}}</span> state<span style="color:#f92672">=</span>directory  <span style="color:#75715e">#引用变量</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行playbook</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ansible-playbook variables.yml</span>
+</span></span></code></pre></div><h4 id="playbook文件中定义变量">playbook文件中定义变量<a hidden class="anchor" aria-hidden="true" href="#playbook文件中定义变量">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 编辑playbook</span>
+</span></span><span style="display:flex;"><span> cat variables.yml 
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- hosts: all
+</span></span><span style="display:flex;"><span> remote_user: root
+</span></span><span style="display:flex;"><span> vars:        <span style="color:#75715e">#定义变量</span>
+</span></span><span style="display:flex;"><span>  pkg: nginx     <span style="color:#75715e">#变量1</span>
+</span></span><span style="display:flex;"><span>  dir: /tmp/test1  <span style="color:#75715e">#变量2</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: install pkg
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">={{</span> pkg <span style="color:#f92672">}}</span> state<span style="color:#f92672">=</span>installed  <span style="color:#75715e">#引用变量</span>
+</span></span><span style="display:flex;"><span>  - name: create new dir
+</span></span><span style="display:flex;"><span>   file: name<span style="color:#f92672">={{</span> dir <span style="color:#f92672">}}</span> state<span style="color:#f92672">=</span>directory  <span style="color:#75715e">#引用变量</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行playbook</span>
+</span></span><span style="display:flex;"><span> ansible-playbook variables.yml
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 如果执行时候又重新指定了变量的值，那么会已重新指定的为准</span>
+</span></span><span style="display:flex;"><span> ansible-playbook -e <span style="color:#e6db74">&#34;dir=/tmp/test2&#34;</span> variables.yml
+</span></span></code></pre></div><h4 id="独立的变量yaml文件中定义">独立的变量yaml文件中定义<a hidden class="anchor" aria-hidden="true" href="#独立的变量yaml文件中定义">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 定义存放变量的文件</span>
+</span></span><span style="display:flex;"><span>cat var.yml 
+</span></span><span style="display:flex;"><span>var1: vsftpd
+</span></span><span style="display:flex;"><span>var2: httpd
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 编写playbook</span>
+</span></span><span style="display:flex;"><span>cat variables.yml 
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- hosts: all
+</span></span><span style="display:flex;"><span> remote_user: root
+</span></span><span style="display:flex;"><span> vars_files:  <span style="color:#75715e">#引用变量文件</span>
+</span></span><span style="display:flex;"><span>  - ./var.yml  <span style="color:#75715e">#指定变量文件的path（这里可以是绝对路径，也可以是当前yaml文件的相对路径）</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: install package
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">={{</span> var1 <span style="color:#f92672">}}</span>  <span style="color:#75715e">#引用变量</span>
+</span></span><span style="display:flex;"><span>  - name: create file
+</span></span><span style="display:flex;"><span>   file: name<span style="color:#f92672">=</span>/tmp/<span style="color:#f92672">{{</span> var2 <span style="color:#f92672">}}</span>.log state<span style="color:#f92672">=</span>touch  <span style="color:#75715e">#引用变量</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行playbook</span>
+</span></span><span style="display:flex;"><span>ansible-playbook variables.yml
+</span></span></code></pre></div><h4 id="playbook标签的使用">playbook标签的使用<a hidden class="anchor" aria-hidden="true" href="#playbook标签的使用">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 编辑playbook</span>
+</span></span><span style="display:flex;"><span>cat httpd.yml 
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- hosts: 192.168.1.31
+</span></span><span style="display:flex;"><span> remote_user: root
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> tasks:
+</span></span><span style="display:flex;"><span>  - name: install httpd
+</span></span><span style="display:flex;"><span>   yum: name<span style="color:#f92672">=</span>httpd state<span style="color:#f92672">=</span>installed
+</span></span><span style="display:flex;"><span>   tags: inhttpd
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: start httpd
+</span></span><span style="display:flex;"><span>   service: name<span style="color:#f92672">=</span>httpd state<span style="color:#f92672">=</span>started
+</span></span><span style="display:flex;"><span>   tags: sthttpd
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  - name: restart httpd
+</span></span><span style="display:flex;"><span>   service: name<span style="color:#f92672">=</span>httpd state<span style="color:#f92672">=</span>restarted
+</span></span><span style="display:flex;"><span>   tags: 
+</span></span><span style="display:flex;"><span>    - rshttpd
+</span></span><span style="display:flex;"><span>    - rs_httpd
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 正常执行，会全部执行</span>
+</span></span><span style="display:flex;"><span>ansible-playbook httpd.yml 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 通过-t指定tags名称，多个tags用逗号隔开</span>
+</span></span><span style="display:flex;"><span>ansible-playbook -t rshttpd httpd.yml 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#通过--skip-tags选项排除不执行的tags</span>
+</span></span><span style="display:flex;"><span>ansible-playbook --skip-tags inhttpd httpd.yml 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span></code></pre></div><h1 id="roles">roles<a hidden class="anchor" aria-hidden="true" href="#roles">#</a></h1>
+<h2 id="介绍">介绍<a hidden class="anchor" aria-hidden="true" href="#介绍">#</a></h2>
+<p>ansible自1.2版本引入的新特性，用于层次性、结构化地组织playbook。
+​ roles能够根据层次型结构自动装载变量文件、tasks以及handlers等。<code>​</code>要使用roles只需要在playbook中使用include指令即可。</p>
+<p>简单来讲，roles就是通过分别将变量、文件、任务、模板及处理器放置于单独的目录中，</p>
+<p>复杂场景：建议使用roles，代码复用度高
+变更指定主机或主机组
+如命名不规范维护和传承成本大
+某些功能需多个Playbook，通过includes即可实现</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>角色<span style="color:#f92672">(</span>roles<span style="color:#f92672">)</span>：角色集合
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># tree </span>
+</span></span><span style="display:flex;"><span>.
+</span></span><span style="display:flex;"><span>└── roles
+</span></span><span style="display:flex;"><span>    ├── httpd
+</span></span><span style="display:flex;"><span>    ├── memcache
+</span></span><span style="display:flex;"><span>    ├── mysql
+</span></span><span style="display:flex;"><span>    └── nginx
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>可以互相调用
+</span></span></code></pre></div><p>roles各目录作用</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/roles/project/ :项目名称,有以下子目录
+</span></span><span style="display:flex;"><span>    files/ ：存放由copy或script模块等调用的文件
+</span></span><span style="display:flex;"><span>    templates/：template模块查找所需要模板文件的目录
+</span></span><span style="display:flex;"><span>    tasks/：定义task,role的基本元素，至少应该包含一个名为main.yml的文件；
+</span></span><span style="display:flex;"><span>            其它的文件需要在此文件中通过include进行包含
+</span></span><span style="display:flex;"><span>    handlers/：至少应该包含一个名为main.yml的文件；
+</span></span><span style="display:flex;"><span>               其它的文件需要在此文件中通过include进行包含
+</span></span><span style="display:flex;"><span>    vars/：定义变量，至少应该包含一个名为main.yml的文件；
+</span></span><span style="display:flex;"><span>           其它的文件需要在此文件中通过include进行包含
+</span></span><span style="display:flex;"><span>    meta/：定义当前角色的特殊设定及其依赖关系,至少应该包含一个名为main.yml的文件，
+</span></span><span style="display:flex;"><span>           其它文件需在此文件中通过include进行包含
+</span></span><span style="display:flex;"><span>    default/：设定默认变量时使用此目录中的main.yml文件
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>roles/appname 目录结构
+</span></span><span style="display:flex;"><span>    tasks目录：至少应该包含一个名为main.yml的文件，其定义了此角色的任务列表；
+</span></span><span style="display:flex;"><span>               此文件可以使用include包含其它的位于此目录中的task文件
+</span></span><span style="display:flex;"><span>    files目录：存放由copy或script等模块调用的文件；
+</span></span><span style="display:flex;"><span>    templates目录：template模块会自动在此目录中寻找Jinja2模板文件
+</span></span><span style="display:flex;"><span>    handlers目录：此目录中应当包含一个main.yml文件，用于定义此角色用到的各handler；
+</span></span><span style="display:flex;"><span>                  在handler中使用include包含的其它的handler文件也应该位于此目录中；
+</span></span><span style="display:flex;"><span>    vars目录：应当包含一个main.yml文件，用于定义此角色用到的变量；
+</span></span><span style="display:flex;"><span>    meta目录：应当包含一个main.yml文件，用于定义此角色的特殊设定及其依赖关系；
+</span></span><span style="display:flex;"><span>              ansible1.3及其以后的版本才支持；
+</span></span><span style="display:flex;"><span>    default目录：为当前角色设定默认变量时使用此目录；应当包含一个main.yml文件
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>roles/example_role/files/             所有文件，都将可存放在这里
+</span></span><span style="display:flex;"><span>roles/example_role/templates/         所有模板都存放在这里
+</span></span><span style="display:flex;"><span>roles/example_role/tasks/main.yml：   主函数，包括在其中的所有任务将被执行
+</span></span><span style="display:flex;"><span>roles/example_role/handlers/main.yml：所有包括其中的 handlers 将被执行
+</span></span><span style="display:flex;"><span>roles/example_role/vars/main.yml：    所有包括在其中的变量将在roles中生效
+</span></span><span style="display:flex;"><span>roles/example_role/meta/main.yml：    roles所有依赖将被正常登入
+</span></span></code></pre></div><h2 id="创建roles">创建roles<a hidden class="anchor" aria-hidden="true" href="#创建roles">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>创建role的步骤
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>1<span style="color:#f92672">)</span> 创建以roles命名的目录
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>2<span style="color:#f92672">)</span> 在roles目录中分别创建以各角色名称命名的目录，如webservers等
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>3<span style="color:#f92672">)</span> 在每个角色命名的目录中分别创建files、handlers、meta、tasks、templates和vars目录；
+</span></span><span style="display:flex;"><span>    用不到的目录可以创建为空目录，也可以不创建
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span>4<span style="color:#f92672">)</span> 在playbook文件中，调用各角色
+</span></span></code></pre></div><p>示例：创建一个nginx role</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 1.创建roles目录</span>
+</span></span><span style="display:flex;"><span>   mkdir roles/<span style="color:#f92672">{</span>httpd,mysql,redis<span style="color:#f92672">}</span>/tasks -pv
+</span></span><span style="display:flex;"><span>   mkdir  roles/httpd/<span style="color:#f92672">{</span>handlers,files<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2.查看目录结构</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># tree  roles/</span>
+</span></span><span style="display:flex;"><span>roles/
+</span></span><span style="display:flex;"><span>└── nginx
+</span></span><span style="display:flex;"><span>    ├── tasks
+</span></span><span style="display:flex;"><span>    └── templates
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 3.创建目标文件</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e">#touch group.yaml user.yaml yum.yaml templates.yaml start.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim group.yaml </span>
+</span></span><span style="display:flex;"><span>- name: create group 
+</span></span><span style="display:flex;"><span>  group: name<span style="color:#f92672">=</span>nginx 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim  user.yaml </span>
+</span></span><span style="display:flex;"><span>- name: create user 
+</span></span><span style="display:flex;"><span>  user: name<span style="color:#f92672">=</span>nginx group<span style="color:#f92672">=</span>nginx  shell<span style="color:#f92672">=</span>/sbin/nologin
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim  yum.yaml </span>
+</span></span><span style="display:flex;"><span>- name: copy file 
+</span></span><span style="display:flex;"><span>  copy: src<span style="color:#f92672">=</span>/etc/yum.repos.d/CentOS-Base.repo dest<span style="color:#f92672">=</span>/etc/yum.repos.d/CentOS-Base.repo
+</span></span><span style="display:flex;"><span>- name: install packages 
+</span></span><span style="display:flex;"><span>  yum: name<span style="color:#f92672">=</span>nginx 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim templates.yaml </span>
+</span></span><span style="display:flex;"><span>- name:  copy conf 
+</span></span><span style="display:flex;"><span>  template: src<span style="color:#f92672">=</span>nginx.conf.j2 dest<span style="color:#f92672">=</span>/etc/nginx/nginx.conf 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim start.yaml </span>
+</span></span><span style="display:flex;"><span>- name: start service 
+</span></span><span style="display:flex;"><span>  service: name<span style="color:#f92672">=</span>nginx state<span style="color:#f92672">=</span>started enabled<span style="color:#f92672">=</span>yes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 4.创建main.yml主控文件,调用以上单独的yml文件,main.yml定义了谁先执行谁后执行的顺序</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible tasks<span style="color:#f92672">]</span><span style="color:#75715e"># vim main.yaml </span>
+</span></span><span style="display:flex;"><span>- include: group.yaml 
+</span></span><span style="display:flex;"><span>- include: user.yaml 
+</span></span><span style="display:flex;"><span>- include: yum.yaml 
+</span></span><span style="display:flex;"><span>- include: templates.yaml
+</span></span><span style="display:flex;"><span>- include: start.yaml 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 5.创建好j2的nginx配置文件</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># vim templates/nginx.conf.j2 </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For more information on configuration, see:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   * Official English Documentation: http://nginx.org/en/docs/</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#   * Official Russian Documentation: http://nginx.org/ru/docs/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>user nginx;
+</span></span><span style="display:flex;"><span>worker_processes <span style="color:#f92672">{{</span>ansible_processor_vcpus+2<span style="color:#f92672">}}</span>;  <span style="color:#75715e">#改个CPU数量</span>
+</span></span><span style="display:flex;"><span>error_log /var/log/nginx/error.log;
+</span></span><span style="display:flex;"><span>pid /run/nginx.pid;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 6.在roles同级的情况下创建使用角色role的yaml文件。</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># vim nginx_role.yaml  </span>
+</span></span><span style="display:flex;"><span>- hosts: server 
+</span></span><span style="display:flex;"><span>  remote_user: root 
+</span></span><span style="display:flex;"><span>  roles: 
+</span></span><span style="display:flex;"><span>    - role: nginx  <span style="color:#75715e">#调用角色</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 7.查看完整的目录结构</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># tree  roles </span>
+</span></span><span style="display:flex;"><span>roles
+</span></span><span style="display:flex;"><span>├── httpd
+</span></span><span style="display:flex;"><span>├── memcache
+</span></span><span style="display:flex;"><span>├── mysql
+</span></span><span style="display:flex;"><span>└── nginx
+</span></span><span style="display:flex;"><span>    ├── tasks
+</span></span><span style="display:flex;"><span>    │   ├── group.yaml
+</span></span><span style="display:flex;"><span>    │   ├── main.yaml
+</span></span><span style="display:flex;"><span>    │   ├── start.yaml
+</span></span><span style="display:flex;"><span>    │   ├── templates.yaml
+</span></span><span style="display:flex;"><span>    │   ├── user.yaml
+</span></span><span style="display:flex;"><span>    │   └── yum.yaml
+</span></span><span style="display:flex;"><span>    └── templates
+</span></span><span style="display:flex;"><span>        └── nginx.conf.j2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 8.运行role的剧本</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># ansible-playbook nginx_role.yaml </span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PLAY <span style="color:#f92672">[</span>server<span style="color:#f92672">]</span> **********************************************************************************************************
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>Gathering Facts<span style="color:#f92672">]</span> *************************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : create group<span style="color:#f92672">]</span> ********************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : create user<span style="color:#f92672">]</span> *********************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : copy file<span style="color:#f92672">]</span> ***********************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : install packages<span style="color:#f92672">]</span> ****************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : copy conf<span style="color:#f92672">]</span> ***********************************************************************************************
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>ok: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>TASK <span style="color:#f92672">[</span>nginx : start service<span style="color:#f92672">]</span> *******************************************************************************************
+</span></span><span style="display:flex;"><span>changed: <span style="color:#f92672">[</span>192.168.1.106<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>changed: <span style="color:#f92672">[</span>192.168.1.107<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>changed: <span style="color:#f92672">[</span>192.168.1.105<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PLAY RECAP *************************************************************************************************************
+</span></span><span style="display:flex;"><span>192.168.1.105              : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">7</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>   
+</span></span><span style="display:flex;"><span>192.168.1.106              : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">7</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>   
+</span></span><span style="display:flex;"><span>192.168.1.107              : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">7</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> 
+</span></span></code></pre></div><h2 id="多角色调用">多角色调用<a hidden class="anchor" aria-hidden="true" href="#多角色调用">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 调用角色方法1：</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@ansible ansible<span style="color:#f92672">]</span><span style="color:#75715e"># vim web.yaml </span>
+</span></span><span style="display:flex;"><span>- hosts: server 
+</span></span><span style="display:flex;"><span>  remote_user: root 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  roles: 
+</span></span><span style="display:flex;"><span>    - role: httpd 
+</span></span><span style="display:flex;"><span>    - role: nginx
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 调用角色方法2</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 传递变量给角色</span>
+</span></span><span style="display:flex;"><span>- hosts:
+</span></span><span style="display:flex;"><span>  remote_user:
+</span></span><span style="display:flex;"><span>  roles:
+</span></span><span style="display:flex;"><span>    - mysql
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">{</span> role: nginx, username: nginx <span style="color:#f92672">}</span>   <span style="color:#75715e">#不同的角色调用不同的变量  </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 键role用于指定角色名称</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 后续的k/v用于传递变量给角色</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 调用角色方法3：还可基于条件测试实现角色调用</span>
+</span></span><span style="display:flex;"><span>roles:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">{</span> role: nginx, username: nginx, when: ansible_distribution_major_version <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;7&#39;</span> <span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="完整roles架构">完整roles架构<a hidden class="anchor" aria-hidden="true" href="#完整roles架构">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat nginx-role.yml 顶层任务调用yml文件
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- hosts: testweb
+</span></span><span style="display:flex;"><span>  remote_user: root
+</span></span><span style="display:flex;"><span>  roles:
+</span></span><span style="display:flex;"><span>    - role: nginx
+</span></span><span style="display:flex;"><span>    - role: httpd 可执行多个role
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cat roles/nginx/tasks/main.yml
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- include: groupadd.yml
+</span></span><span style="display:flex;"><span>- include: useradd.yml
+</span></span><span style="display:flex;"><span>- include: install.yml
+</span></span><span style="display:flex;"><span>- include: restart.yml
+</span></span><span style="display:flex;"><span>- include: filecp.yml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cat roles/nginx/tasks/groupadd.yml
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- name: add group nginx
+</span></span><span style="display:flex;"><span>  user: name<span style="color:#f92672">=</span>nginx state<span style="color:#f92672">=</span>present
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cat roles/nginx/tasks/filecp.yml
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- name: file copy
+</span></span><span style="display:flex;"><span>  copy: src<span style="color:#f92672">=</span>tom.conf dest<span style="color:#f92672">=</span>/tmp/tom.conf
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 以下文件格式类似：</span>
+</span></span><span style="display:flex;"><span>useradd.yml,install.yml,restart.yml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ls roles/nginx/files/
+</span></span><span style="display:flex;"><span>tom.conf
+</span></span></code></pre></div><h2 id="通过roles传递变量">通过roles传递变量<a hidden class="anchor" aria-hidden="true" href="#通过roles传递变量">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>通过roles传递变量
+</span></span><span style="display:flex;"><span>当给一个主机应用角色的时候可以传递变量，然后在角色内使用这些变量
+</span></span><span style="display:flex;"><span>示例：
+</span></span><span style="display:flex;"><span>- hosts: webservers
+</span></span><span style="display:flex;"><span>  roles:
+</span></span><span style="display:flex;"><span>    - common
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">{</span> role: foo_app_instance, dir: <span style="color:#e6db74">&#39;/web/htdocs/a.com&#39;</span>, port: <span style="color:#ae81ff">8080</span> <span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="向role传递变量">向role传递变量<a hidden class="anchor" aria-hidden="true" href="#向role传递变量">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">而在playbook中，可以这样使用roles：</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">webservers</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">common</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">webservers</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">也可以向roles传递参数</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">示例：</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">webservers</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">common</span>
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: foo_app_instance, dir: &#39;/opt/a&#39;, port</span>: <span style="color:#ae81ff">5000</span> }
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: foo_app_instance, dir: &#39;/opt/b&#39;, port</span>: <span style="color:#ae81ff">5001</span> }
+</span></span></code></pre></div><h2 id="条件式地使用roles">条件式地使用roles<a hidden class="anchor" aria-hidden="true" href="#条件式地使用roles">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">甚至也可以条件式地使用roles</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">示例：</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">webservers</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: some_role, when</span>: <span style="color:#e6db74">&#34;ansible_os_family == &#39;RedHat&#39;&#34;</span> }
+</span></span></code></pre></div><h2 id="roles条件及变量等案例">Roles条件及变量等案例<a hidden class="anchor" aria-hidden="true" href="#roles条件及变量等案例">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">When条件</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>      - {<span style="color:#f92672">role: nginx, when</span>: <span style="color:#e6db74">&#34;ansible_distribution_major_version == &#39;7&#39; &#34;</span> <span style="color:#f92672">,username</span>: <span style="color:#ae81ff">nginx }</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">变量调用</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">zabbix-proxy</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">sudo</span>: <span style="color:#66d9ef">yes</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role</span>: <span style="color:#ae81ff">geerlingguy.php-mysql }</span>
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: dj-wasabi.zabbix-proxy, zabbix_server_host</span>: <span style="color:#ae81ff">192.168.37.167</span> }
+</span></span></code></pre></div><h2 id="roles-playbook-tags使用">roles playbook tags使用<a hidden class="anchor" aria-hidden="true" href="#roles-playbook-tags使用">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">roles playbook tags使用</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ae81ff">ansible-playbook --tags=&#34;nginx,httpd,mysql&#34; nginx-role.yml  对标签进行挑选执行</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">// nginx-role.yml</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">hosts</span>: <span style="color:#ae81ff">testweb</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">remote_user</span>: <span style="color:#ae81ff">root</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">roles</span>:
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: nginx ,tags: [ &#39;nginx&#39;, &#39;web&#39; ] ,when</span>: <span style="color:#ae81ff">ansible_distribution_major_version == &#34;6“ }</span>
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: httpd ,tags</span>: [ <span style="color:#e6db74">&#39;httpd&#39;</span>, <span style="color:#e6db74">&#39;web&#39;</span> ] }
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: mysql ,tags</span>: [ <span style="color:#e6db74">&#39;mysql&#39;</span>, <span style="color:#e6db74">&#39;db&#39;</span> ] }
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role: marridb ,tags</span>: [ <span style="color:#e6db74">&#39;mysql&#39;</span>, <span style="color:#e6db74">&#39;db&#39;</span> ] }
+</span></span><span style="display:flex;"><span>    - { <span style="color:#f92672">role</span>: <span style="color:#ae81ff">php }</span>
+</span></span></code></pre></div><h2 id="示例-1">示例<a hidden class="anchor" aria-hidden="true" href="#示例-1">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>memcacched 当做缓存用,会在内存中开启一块空间充当缓存
+</span></span><span style="display:flex;"><span>cat /etc/sysconfig/memcached 
+</span></span><span style="display:flex;"><span>    PORT<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;11211&#34;</span>
+</span></span><span style="display:flex;"><span>    USER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;memcached&#34;</span>
+</span></span><span style="display:flex;"><span>    MAXCONN<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1024&#34;</span>
+</span></span><span style="display:flex;"><span>    CACHESIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;64&#34;</span>    <span style="color:#75715e"># 缓存空间默认64M </span>
+</span></span><span style="display:flex;"><span>    OPTIONS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>1&gt; 创建对用目录
+</span></span><span style="display:flex;"><span>   cd /app/ansible
+</span></span><span style="display:flex;"><span>   mkdir roles/memcached/<span style="color:#f92672">{</span>tasks,templates<span style="color:#f92672">}</span> -pv
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>2&gt; 拷贝memcached配置文件模板
+</span></span><span style="display:flex;"><span>   cp /etc/sysconfig/memcached  templates/memcached.j2
+</span></span><span style="display:flex;"><span>   vim templates/memcached.j2
+</span></span><span style="display:flex;"><span>   CACHESIZE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;{{ansible_memtotal_mb//4}}&#34;</span>   <span style="color:#75715e">#物理内存的1/4用做缓存</span>
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>3&gt; 创建对应yml文件,并做相应配置
+</span></span><span style="display:flex;"><span>   cd tasks/
+</span></span><span style="display:flex;"><span>   touch install.yml config.yml service.yml
+</span></span><span style="display:flex;"><span>   创建main.yml文件定义任务执行顺序
+</span></span><span style="display:flex;"><span>   vim main.yml
+</span></span><span style="display:flex;"><span>   - include: install.yml
+</span></span><span style="display:flex;"><span>   - include: config.yml
+</span></span><span style="display:flex;"><span>   - include: service.yml  
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>   vim install.yml
+</span></span><span style="display:flex;"><span>   - name: install 
+</span></span><span style="display:flex;"><span>     yum: name<span style="color:#f92672">=</span>memcached
+</span></span><span style="display:flex;"><span>     
+</span></span><span style="display:flex;"><span>   vim config.yml
+</span></span><span style="display:flex;"><span>   - name: config file
+</span></span><span style="display:flex;"><span>     template: src<span style="color:#f92672">=</span>memcached.j2 dets<span style="color:#f92672">=</span>/etc/sysconfig/memcached
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   vim service.yml
+</span></span><span style="display:flex;"><span>   - name: service
+</span></span><span style="display:flex;"><span>     service: name<span style="color:#f92672">=</span>memcached state<span style="color:#f92672">=</span>started enabled<span style="color:#f92672">=</span>yes
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>4&gt; 创建调用角色文件
+</span></span><span style="display:flex;"><span>   cd /app/ansible/roles/
+</span></span><span style="display:flex;"><span>   vim role_memcached.yml
+</span></span><span style="display:flex;"><span>    ---
+</span></span><span style="display:flex;"><span>    - hosts: appsrvs
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>      roles: 
+</span></span><span style="display:flex;"><span>        - role: memcached
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>5&gt; 安装
+</span></span><span style="display:flex;"><span>   ansible-playbook  role_memcached.yml 
+</span></span><span style="display:flex;"><span>   memcached端口号11211
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="next" href="/k8s/calico%E4%B8%8Efannel/">
+    <span class="title">Next »</span>
+    <span>calico与fannel</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head>
+	<meta name="generator" content="Hugo 0.161.1"><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>any 的工程知识库</title>
+
+<meta name="description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+<meta name="author" content="any">
+<link rel="canonical" href="/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css" integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/">
+  <meta property="og:site_name" content="any 的工程知识库">
+  <meta property="og:title" content="any 的工程知识库">
+  <meta property="og:description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="any 的工程知识库">
+  <meta name="twitter:description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "any 的工程知识库",
+  "url": "/",
+  "description": "Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等工程学习笔记。",
+  "logo": "/favicon.ico",
+  "sameAs": [
+      
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="any 的工程知识库 (Alt + H)">any 的工程知识库</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span class="active">首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">graylog
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>介绍 Graylog - 日志监控系统，官文：https://docs.graylog.org/docs
+Graylog 是一个开源的日志聚合、分析、审计、展现和预警工具。在功能上来说，和 ELK 类似，但又比 ELK 要简单很多。依靠着更加简洁，高效，部署使用简单的优势很快受到许多人的青睐。当然，在扩展性上面确实没有比 ELK 好，但是其有商业版本可以选择。
+部署 graylog 最简单的架构就是单机部署，复杂的也是部署集群模式，架构图示如下所示。可以看到其中包含了三个组件，分别是 Elasticsearch、MongoDb 和 Graylog。
+Elasticsearch 用来持久化存储和检索日志文件数据(IO 密集) MongoDb 用来存储关于 Graylog 的相关配置 Graylog 来提供 Web 界面和对外接口的(CPU 密集)。 生产环境架构：
+Graylog 组件功能
+编号 组件名称 功能介绍 主要特点 1 Dashboards 数据面板固定展示 主要是用来保存特定搜索条件的数据面板 2 Searching 日志信息条件搜索 关键字搜索、时间搜索、搜索保存、创建面板、分组查询、结果导出、查询高亮显示、自定义时间 3 Alert 设置告警提示方式 支持邮件告警、HTTP 回调和自定义脚本触发 4 Inputs 日志数据抓取接收 部署 Sidercar 主动抓取或使用其他服务被动上报 5 Extractors 日志数据格式转换 json 解析、kv 解析、时间戳解析、正则解析 6 Streams 日志信息分类分组 设置日志分类条件并发送到不同的索引文件中去 7 Indices 持久化数据存储 设置数据存储性能 8 Outputs 日志数据的转发 解析的 Stream 发送到其他 Graylog 集群或服务 9 Pipelines 日志数据的过滤 建立数据清洗的过滤规则、字段添加删除、条件过滤、自定义函数等 10 Sidecar 轻量级的日志采集器 相当于 C/S 模式；大规模时使用 11 Lookup Tables 服务解析 基于 IP 的 Whois 查询和基于来源 IP 的情报监控 12 Geolocation 可视化地理位置 实现基于来源 IP 的情报监控 Graylog 通过 Input 搜集日志，每个 Input 单独配置 Extractors 用来做字段转换。Graylog 中日志搜索的基本单位是 Stream，每个 Stream 可以有自己单独的 Elastic Index Set，也可以共享一个 Index Set。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>2 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to graylog" href="/log/graylog/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">istio
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>概念介绍 服务网格(Service Mesh)与istio 三大服务模式：
+集中式代理模式： ​	例如：nginx
+嵌入式代理模式 ​	例如：eureka-client
+​	特点：
+​	1、代码侵入，需引入jar包
+​	2、绑定了语言
+​	3、需基础架构组开发二方库
+主机独立进程模式
+ServiceMesh
+​	特点：
+​	1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）
+​	2、服务间的调用通过 代理Proxy 进行调用
+​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。
+蓝色：SideCar，绿色：应用app
+Service Mesh有四大特点：
+治理能力独立（Sidecar） 应用程序无感知 服务通信的基础设施层 解耦应用程序的重试/超时、监控、追踪和服务发现 ​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略
+服务治理的特点：
+1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>14 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to istio" href="/k8s/istio/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">k8s安装-kubeadm（非高可用&#43;高可用）
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>前言：版本差异 ​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。
+​	但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。
+从1.24开始，大家需要使用其他受到支持的运行时选项：
+containerd
+CRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）
+Docker Engine，需依赖使用cri-dockerd
+一、kubeadm安装K8s（1.23非高可用版） 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行
+本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）
+设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开
+# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i &#39;/ swap / s/^\(.*\)$/#\1/g&#39; /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri &#39;s#(SELINUX=).*#\1disabled#&#39; /etc/selinux/config systemctl disable firewalld &amp;&amp; systemctl stop firewalld systemctl disable NetworkManager &amp;&amp; systemctl stop NetworkManager # 修改内核参数 cat &lt;&lt;EOF &gt; /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat &gt;&gt; /etc/sysctl.conf&lt;&lt;EOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat &lt;&lt;EOF &gt; /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p &amp;&amp; sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat &gt;&gt;/etc/chrony.conf &lt;&lt;EOF ntpdate ntp1.aliyun.com iburst EOF ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime echo &#39;Asia/Shanghai&#39; &gt; /etc/timezone 设置yum源 curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo [kubernetes] name=Kubernetes baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 enabled=1 gpgcheck=0 repo_gpgcheck=0 gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg EOF yum clean all &amp;&amp; yum makecache 设置hosts解析 操作节点：所有节点（k8s-master，k8s-slave）均需执行
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>17 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to k8s安装-kubeadm（非高可用&#43;高可用）" href="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">k8s安装-二进制
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>参考博客：https://www.cnblogs.com/liweifeng888/p/17435629.html
+系统优化 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行
+本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）
+设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开
+# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i &#39;/ swap / s/^\(.*\)$/#\1/g&#39; /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri &#39;s#(SELINUX=).*#\1disabled#&#39; /etc/selinux/config systemctl disable firewalld &amp;&amp; systemctl stop firewalld systemctl disable NetworkManager &amp;&amp; systemctl stop NetworkManager # 修改内核参数 cat &lt;&lt;EOF &gt; /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat &gt;&gt; /etc/sysctl.conf&lt;&lt;EOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat &lt;&lt;EOF &gt; /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p &amp;&amp; sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat &gt;&gt;/etc/chrony.conf &lt;&lt;EOF ntpdate ntp1.aliyun.com iburst EOF ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime echo &#39;Asia/Shanghai&#39; &gt; /etc/timezone 设置yum源 curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo [kubernetes] name=Kubernetes baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 enabled=1 gpgcheck=0 repo_gpgcheck=0 gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg EOF yum clean all &amp;&amp; yum makecache 设置hosts解析 操作节点：所有节点（k8s-master，k8s-slave）均需执行
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>27 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to k8s安装-二进制" href="/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">k8s笔记整理
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>kubernete 之路 一、前期介绍 纯容器模式的问题 业务容器数量庞大，哪些容器部署在哪些节点，使用了哪些端口，如何记录、管理，需要登录到每台机器去管理？
+跨主机通信，多个机器中的容器之间相互调用如何做，iptables规则手动维护？
+跨主机容器间互相调用，配置如何写？写死固定IP&#43;端口？
+如何实现业务高可用？多个容器对外提供服务如何实现负载均衡？
+容器的业务中断了，如何可以感知到，感知到以后，如何自动启动新的容器?
+如何实现滚动升级保证业务的连续性？
+容器调度管理平台 ​	Docker Swarm Mesos Google Kubernetes
+​	2017年开始Kubernetes凭借强大的容器集群管理功能, 逐步占据市场,目前在容器编排领域一枝独秀
+​	https://kubernetes.io/
+二、架构介绍 架构图 区分组件与资源
+核心组件 **ETCD：**分布式高性能键值数据库,存储整个集群的所有元数据 ApiServer: API服务器,集群资源访问控制入口,提供restAPI及安全访问控制 **Scheduler：**负责监视新创建的、尚未被运⾏的 Pods，并选择⼀个 Node 供它们运⾏。调度决策考虑到资源需求、硬件/软件/策略约束、负载均衡、亲和性和反亲和性等因素。 **Controller Manager：**运⾏控制器进程。逻辑上，每个控制器是⼀个单独的进程，但为了降低复杂性，它们都被编译到同⼀个⼆进制⽂件，并在单独的进程中运⾏。这些控制器包括：Node 控制器、Replication 控制器、Endpoints 控制器、Service Account &amp; Token 控制器等。 Replication Controller Node controller ResourceQuota Controller Namespace Controller ServiceAccount Controller Tocken Controller Service Controller Endpoints Controller **kubelet：**运行在每运行在每个节点上的主要的“节点代理”个节点上的主要的“节点代理” pod 管理：kubelet 定期从所监听的数据源获取节点上 pod/container 的期望状态（运行什么容器、运行的副本数量、网络或者存储如何配置等等），并调用对应的容器平台接口达到这个状态。 容器健康检查：kubelet 创建了容器之后还要查看容器是否正常运行，如果容器运行出错，就要根据 pod 设置的重启策略进行处理. 容器监控：kubelet 会监控所在节点的资源使用情况，并定时向 master 报告，资源使用数据都是通过 cAdvisor 获取的。知道整个集群所有节点的资源情况，对于 pod 的调度和正常运行至关重要 CNI实现: 通用网络接口, 常见的插件有flannel、calico， 实现跨节点通信 kubectl: 命令行接口，用于对 Kubernetes 集群运行命令 https://kubernetes.io/zh/docs/reference/kubectl/ 各个资源与apiserver对应表 apiVersion 含义 alpha 进入K8s功能的早期候选版本，可能包含Bug，最终不一定进入K8s beta 已经过测试的版本，最终会进入K8s，但功能、对象定义可能会发生变更。 stable 可安全使用的稳定版本 v1 stable 版本之后的首个版本，包含了更多的核心对象 apps/v1 使用最广泛的版本，像Deployment、ReplicaSets都已进入该版本 资源类型与apiVersion对照表
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>42 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to k8s笔记整理" href="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">k8s问题排查手册
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>前言：
+文章取自：啊铭老师
+公众号：运维狗工作日记
+K8S云原生企业实战训练营课程大纲
+链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80&amp;sub=66406314DFE348DAAC39162CF32540FA
+一、Pod 相关问题及排查： Pod 无法启动，如何查找原因？ ​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。
+​	使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。
+​	使用 kubectl get events –field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。
+Pod 无法连接到其他服务，如何排查？ ​	使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。
+​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>7 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to k8s问题排查手册" href="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">k8s集群证书过期更换
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>kubadm 使用kubeadm部署的k8s集群默认证书有效期为1年，可以通过更新k8s版本自动更新证书或修改源码更改证书有效期。下面为手动更换证书步骤总结。
+查看证书日期 # kubeadm alpha certs check-expiration kubeadm certs check-expiration 备份 cp -rp /etc/kubernetes /etc/kubernetes.bak cp -rp /var/lib/etcd /var/lib/etcd.bak 生成新的证书 集群每台master节点都需要操作
+# kubeadm alpha certs renew all kubeadm certs renew all 此时所有证书都已重新生成，在 /etc/kubernetes/pki下。 /etc/kubernetes/admin.conf、/etc/kubernetes/controller-manager.conf、/etc/kubernetes/scheduler.conf 也已经更新了。
+再次查看证书 kubeadm certs check-expiration 重启组件 集群每台master节点都需要操作
+docker ps | grep -E &#39;k8s_kube-apiserver|k8s_kube-controller-manager|k8s_kube-scheduler|k8s_etcd_etcd&#39; | awk -F &#39; &#39; &#39;{print $1}&#39; | xargs docker restart 更新config # 此时kubectl 报权限问题，无法执行（每台master都要操作） cp -i /etc/kubernetes/admin.conf $HOME/.kube/config 重启kubelete systemctl restart kubelete </p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to k8s集群证书过期更换" href="/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">kustormize
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>简介 官网：https://kubectl.docs.kubernetes.io/
+一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：
+如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源 如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量 如何简化维护应用的流程，不需要额外学习模板语法 Kustomize 通过以下几种方式解决了上述问题：
+kustomize 通过 Base &amp; Overlays 方式(下文会说明)方式维护不同环境的应用配置 kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用 kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法 kustomize概念 kustomization ​	指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。
+base ​	一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to kustormize" href="/k8s/kustormize/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Loki
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>简介 Loki的第一个稳定版本于2019年11月19日发布，是 Grafana Labs 团队最新的开源项目，是一个水平可扩展，高可用性，多租户的日志聚合系统。Loki 是专门用于聚集日志数据，重点是高可用性和可伸缩性。与竞争对手不同的是，它确实易于安装且资源效率极高。
+github地址：https://github.com/grafana/loki/
+Loki 的架构非常简单，使用了和 Prometheus 一样的标签来作为索引，也就是说，你通过这些标签既可以查询日志的内容也可以查询到监控的数据，不但减少了两种查询之间的切换成本，也极大地降低了日志索引的存储。Loki 将使用与 Prometheus 相同的服务发现和标签重新标记库，编写了 pormtail，在 Kubernetes 中 promtail 以 DaemonSet 方式运行在每个节点中，通过 Kubernetes API 等到日志的正确元数据，并将它们发送到 Loki。
+架构 promtail：首选代理，负责收集日志并将其发送给 loki （也还支持Fluentbit，Fluentd，Vector，Logstash和Grafana Agent） loki：主服务器，负责存储日志和处理查询。 Grafana：于 UI 展示。 存储架构 日志的存储架构：
+写日志 loki 进程包含 四种角色
+querier 查询器 ingester 日志存储器 query-frontend 前置查询器 distributor 写入分发器 日志数据的写主要依托的是Distributor和Ingester两个组件，整体的流程如下：
+Distributor
+一旦promtail收集日志并将其发送给loki，Distributor就是第一个接收日志的组件。由于日志的写入量可能很大，所以不能在它们传入时将它们写入数据库。这会毁掉数据库。需要批处理和压缩数据。
+Loki通过构建压缩数据块来实现这一点，在日志进入时对其进行gzip操作，组件ingester是一个有状态的组件，负责构建和刷新chunck，当chunk达到一定的数量或者时间后，刷新到存储中去。每个流的日志对应一个ingester，当日志到达Distributor后，根据元数据和hash算法计算出应该到哪个ingester上面。此外，为了冗余和弹性，将其复制n（默认情况下为3）次。
+Ingester
+Ingester接收到日志并开始构建chunk：
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>7 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to Loki" href="/log/loki/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">minio
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
+MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
+生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
+EC
+# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k &#43; m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
+docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name minio \ -v ~/minio/data:/data \ -e &#34;MINIO_ROOT_USER=minioadmin&#34; \ -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \ quay.io/minio/minio server /data --console-address &#34;:9001&#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to minio" href="/k8s/minio/"></a>
+</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="prev" href="/">
+      «&nbsp;Prev&nbsp;
+    </a>
+    <a class="next" href="/page/3/">Next&nbsp;&nbsp;»
+    </a>
+  </nav>
+</footer>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">any 的工程知识库</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

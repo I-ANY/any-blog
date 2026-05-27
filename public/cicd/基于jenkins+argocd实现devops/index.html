@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>基于jenkins&#43;ArgoCD实现Devops | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="Jenkins上安装插件
+
+kubernetes
+AnsiColor
+HTTP Request
+SonarQube Scanner
+Utility Steps
+Email Extension Template
+Gitlab Hook
+Gitlab
+
+配置Kubernetes集群信息
+在系统管理&ndash;&gt;系统配置&ndash;&gt;cloud
+
+配置邮箱地址
+系统设置&ndash;&gt;系统配置&ndash;&gt;Email
+（1）设置管理员邮箱
+
+配置SMTP服务
+
+创建一个共享库
+首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：
+包含有src/org/devops目录
+
+然后在该目录下创建一下groovy文件
+
+内容分别如下：
+build.groovy
+build.groovy
+package org.devops
+
+// docker容器直接build
+def DockerBuild(buildShell){
+    sh &#34;&#34;&#34;
+        ${buildShell}
+    &#34;&#34;&#34;
+}
+sendEmail.groovy
+sendEmail.groovy
+package org.devops
+
+//定义邮件内容
+def SendEmail(status,emailUser){
+    emailext body: &#34;&#34;&#34;
+            &lt;!DOCTYPE html&gt; 
+            &lt;html&gt; 
+            &lt;head&gt; 
+            &lt;meta charset=&#34;UTF-8&#34;&gt; 
+            &lt;/head&gt; 
+            &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; 
+                &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt;   
+                &lt;tr&gt;
+		            本邮件由系统自动发出，无需回复！&lt;br/&gt;
+		            各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt;
+		            &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt;
+		        &lt;/tr&gt;
+
+                    &lt;tr&gt; 
+                        &lt;td&gt;&lt;br /&gt; 
+                            &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; 
+                        &lt;/td&gt; 
+                    &lt;/tr&gt; 
+                    &lt;tr&gt; 
+                        &lt;td&gt; 
+                            &lt;ul&gt; 
+                                &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt;         
+                                &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; 
+                                &lt;li&gt;构建状态: ${status} &lt;/li&gt;                         
+                                &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt;    
+                                &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt;   
+                            &lt;/ul&gt; 
+                        &lt;/td&gt; 
+                    &lt;/tr&gt; 
+                    &lt;tr&gt;  
+                &lt;/table&gt; 
+            &lt;/body&gt; 
+            &lt;/html&gt;  &#34;&#34;&#34;,
+            subject: &#34;Jenkins-${JOB_NAME}项目构建信息 &#34;,
+            to: emailUser
+        
+}
+sonarAPI.groovy
+sonarAPI.groovy">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="基于jenkins&#43;ArgoCD实现Devops">
+  <meta property="og:description" content="Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–&gt;系统配置–&gt;cloud
+配置邮箱地址 系统设置–&gt;系统配置–&gt;Email
+（1）设置管理员邮箱
+配置SMTP服务
+创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：
+包含有src/org/devops目录
+然后在该目录下创建一下groovy文件
+内容分别如下：
+build.groovy build.groovy
+package org.devops // docker容器直接build def DockerBuild(buildShell){ sh &#34;&#34;&#34; ${buildShell} &#34;&#34;&#34; } sendEmail.groovy sendEmail.groovy
+package org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: &#34;&#34;&#34; &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;meta charset=&#34;UTF-8&#34;&gt; &lt;/head&gt; &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt; &lt;tr&gt; 本邮件由系统自动发出，无需回复！&lt;br/&gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt; &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;&lt;br /&gt; &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;ul&gt; &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt; &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; &lt;li&gt;构建状态: ${status} &lt;/li&gt; &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt; &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;/table&gt; &lt;/body&gt; &lt;/html&gt; &#34;&#34;&#34;, subject: &#34;Jenkins-${JOB_NAME}项目构建信息 &#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="cicd">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="基于jenkins&#43;ArgoCD实现Devops">
+  <meta name="twitter:description" content="Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–&gt;系统配置–&gt;cloud
+配置邮箱地址 系统设置–&gt;系统配置–&gt;Email
+（1）设置管理员邮箱
+配置SMTP服务
+创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：
+包含有src/org/devops目录
+然后在该目录下创建一下groovy文件
+内容分别如下：
+build.groovy build.groovy
+package org.devops // docker容器直接build def DockerBuild(buildShell){ sh &#34;&#34;&#34; ${buildShell} &#34;&#34;&#34; } sendEmail.groovy sendEmail.groovy
+package org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: &#34;&#34;&#34; &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;meta charset=&#34;UTF-8&#34;&gt; &lt;/head&gt; &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt; &lt;tr&gt; 本邮件由系统自动发出，无需回复！&lt;br/&gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt; &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;&lt;br /&gt; &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;ul&gt; &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt; &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; &lt;li&gt;构建状态: ${status} &lt;/li&gt; &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt; &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;/table&gt; &lt;/body&gt; &lt;/html&gt; &#34;&#34;&#34;, subject: &#34;Jenkins-${JOB_NAME}项目构建信息 &#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "CI/CD",
+      "item": "/cicd/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "基于jenkins+ArgoCD实现Devops",
+      "item": "/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "基于jenkins+ArgoCD实现Devops",
+  "name": "基于jenkins\u002bArgoCD实现Devops",
+  "description": "Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理\u0026ndash;\u0026gt;系统配置\u0026ndash;\u0026gt;cloud\n配置邮箱地址 系统设置\u0026ndash;\u0026gt;系统配置\u0026ndash;\u0026gt;Email\n（1）设置管理员邮箱\n配置SMTP服务\n创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：\n包含有src/org/devops目录\n然后在该目录下创建一下groovy文件\n内容分别如下：\nbuild.groovy build.groovy\npackage org.devops // docker容器直接build def DockerBuild(buildShell){ sh \u0026#34;\u0026#34;\u0026#34; ${buildShell} \u0026#34;\u0026#34;\u0026#34; } sendEmail.groovy sendEmail.groovy\npackage org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: \u0026#34;\u0026#34;\u0026#34; \u0026lt;!DOCTYPE html\u0026gt; \u0026lt;html\u0026gt; \u0026lt;head\u0026gt; \u0026lt;meta charset=\u0026#34;UTF-8\u0026#34;\u0026gt; \u0026lt;/head\u0026gt; \u0026lt;body leftmargin=\u0026#34;8\u0026#34; marginwidth=\u0026#34;0\u0026#34; topmargin=\u0026#34;8\u0026#34; marginheight=\u0026#34;4\u0026#34; offset=\u0026#34;0\u0026#34;\u0026gt; \u0026lt;table width=\u0026#34;95%\u0026#34; cellpadding=\u0026#34;0\u0026#34; cellspacing=\u0026#34;0\u0026#34; style=\u0026#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif\u0026#34;\u0026gt; \u0026lt;tr\u0026gt; 本邮件由系统自动发出，无需回复！\u0026lt;br/\u0026gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息\u0026lt;/br\u0026gt; \u0026lt;td\u0026gt;\u0026lt;font color=\u0026#34;#CC0000\u0026#34;\u0026gt;构建结果 - ${status}\u0026lt;/font\u0026gt;\u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;td\u0026gt;\u0026lt;br /\u0026gt; \u0026lt;b\u0026gt;\u0026lt;font color=\u0026#34;#0B610B\u0026#34;\u0026gt;构建信息\u0026lt;/font\u0026gt;\u0026lt;/b\u0026gt; \u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;td\u0026gt; \u0026lt;ul\u0026gt; \u0026lt;li\u0026gt;项目名称：${JOB_NAME}\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建编号：${BUILD_ID}\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建状态: ${status} \u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;项目地址：\u0026lt;a href=\u0026#34;${BUILD_URL}\u0026#34;\u0026gt;${BUILD_URL}\u0026lt;/a\u0026gt;\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建日志：\u0026lt;a href=\u0026#34;${BUILD_URL}console\u0026#34;\u0026gt;${BUILD_URL}console\u0026lt;/a\u0026gt;\u0026lt;/li\u0026gt; \u0026lt;/ul\u0026gt; \u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;/table\u0026gt; \u0026lt;/body\u0026gt; \u0026lt;/html\u0026gt; \u0026#34;\u0026#34;\u0026#34;, subject: \u0026#34;Jenkins-${JOB_NAME}项目构建信息 \u0026#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–\u003e系统配置–\u003ecloud\n配置邮箱地址 系统设置–\u003e系统配置–\u003eEmail\n（1）设置管理员邮箱\n配置SMTP服务\n创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：\n包含有src/org/devops目录\n然后在该目录下创建一下groovy文件\n内容分别如下：\nbuild.groovy build.groovy\npackage org.devops // docker容器直接build def DockerBuild(buildShell){ sh \"\"\" ${buildShell} \"\"\" } sendEmail.groovy sendEmail.groovy\npackage org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: \"\"\" \u003c!DOCTYPE html\u003e 本邮件由系统自动发出，无需回复！ 各位同事，大家好，以下为${JOB_NAME}项目构建信息 构建结果 - ${status} 构建信息 项目名称：${JOB_NAME} 构建编号：${BUILD_ID} 构建状态: ${status} 项目地址：${BUILD_URL} 构建日志：${BUILD_URL}console \"\"\", subject: \"Jenkins-${JOB_NAME}项目构建信息 \", to: emailUser } sonarAPI.groovy sonarAPI.groovy\npackage ore.devops // 封装HTTP请求 def HttpReq(requestType,requestUrl,requestBody){ // 定义sonar api接口 def sonarServer = \"http://sonar.devops.svc.cluster.local:9000/api\" result = httpRequest authentication: 'sonar-admin-user', // 管理sonarqube的用户名和密码凭证 httpMode: requestType, contentType: \"APPLICATION_JSON\", consoleLogResponseBody: true, ignoreSslErrors: true, requestBody: requestBody, url: \"${sonarServer}/${requestUrl}\" return result } // 获取soanr项目的状态 def GetSonarStatus(projectName){ def apiUrl = \"project_branches/list?project=${projectName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取状态值 result = response[\"branches\"][0][\"status\"][\"qualityGateStatus\"] return result } // 获取sonar项目，判断项目是否存在 def SearchProject(projectName){ def apiUrl = \"projects/search?projects=${projectName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") println \"搜索的结果：${response}\" // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在 result = response[\"paging\"][\"total\"] // 对result进行判断 if (result.toString() == \"0\"){ return \"false\" }else{ return \"true\" } } // 创建sonar项目 def CreateProject(projectName){ def apiUrl = \"projects/create?name=${projectName}\u0026project=${projectName}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } // 配置项目质量规则 def ConfigQualityProfiles(projectName,lang,qpname){ def apiUrl = \"qualityprofiles/add_project?language=${lang}\u0026project=${projectName}\u0026qualityProfile=${qpname}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } // 获取质量阈ID def GetQualityGateId(gateName){ def apiUrl = \"qualitygates/show?name=${gateName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在 result = response[\"id\"] return result } // 更新质量阈规则 def ConfigQualityGate(projectKey,gateName){ // 获取质量阈id gateId = GetQualityGateId(gateName) apiUrl = \"qualitygates/select?projectKey=${projectKey}\u0026gateId=${gateId}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } //获取Sonar质量阈状态 def GetProjectStatus(projectName){ apiUrl = \"project_branches/list?project=${projectName}\" response = HttpReq(\"GET\",apiUrl,'') response = readJSON text: \"\"\"${response.content}\"\"\" result = response[\"branches\"][0][\"status\"][\"qualityGateStatus\"] //println(response) return result } sonarqube.groovy sonarqube.groovy\npackage ore.devops def SonarScan(projectName,projectDesc,projectPath){ // sonarScanner安装地址 def sonarHome = \"/opt/sonar-scanner\" // sonarqube服务端地址 def sonarServer = \"http://sonar.devops.svc.cluster.local:9000/\" // 以时间戳为版本 def scanTime = sh returnStdout: true, script: 'date +%Y%m%d%H%m%S' scanTime = scanTime - \"\\n\" sh \"\"\" ${sonarHome}/bin/sonar-scanner -Dsonar.host.url=${sonarServer} \\ -Dsonar.projectKey=${projectName} \\ -Dsonar.projectName=${projectName} \\ -Dsonar.projectVersion=${scanTime} \\ -Dsonar.login=admin \\ -Dsonar.password=admin \\ -Dsonar.ws.timeout=30 \\ -Dsonar.projectDescription=\"${projectDesc}\" \\ -Dsonar.links.homepage=http://www.baidu.com \\ -Dsonar.sources=${projectPath} \\ -Dsonar.sourceEncoding=UTF-8 \\ -Dsonar.java.binaries=target/classes \\ -Dsonar.java.test.binaries=target/test-classes \\ -Dsonar.java.surefire.report=target/surefire-reports -X echo \"${projectName} scan success!\" \"\"\" } tools.groovy\npackage org.devops //格式化输出 def PrintMes(value,color){ colors = ['red' : \"\\033[40;31m \u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c \\033[0m\", 'blue' : \"\\033[47;34m ${value} \\033[0m\", 'green' : \"\u001b[1;32m\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u001b[m\", 'green1' : \"\\033[40;32m \u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c \\033[0m\" ] ansiColor('xterm') { println(colors[color]) } } // 获取镜像版本 def createVersion() { // 定义一个版本号作为当次构建的版本，输出结果 20191210175842_69 return new Date().format('yyyyMMddHHmmss') + \"_${env.BUILD_ID}\" } // 获取时间 def getTime() { // 定义一个版本号作为当次构建的版本，输出结果 20191210175842 return new Date().format('yyyyMMddHHmmss') } Jenkins上配置共享库 （1）需要在Jenkins上添加凭证\nGitlab创建YAML管理仓库 创建一个叫devops-cd的共享仓库，用来管理应用的yaml资源文件，然后以应用名创建一个目录，并在目录下创建以下几个文件。如下：\n这些是创建应用的k8s应用的资源文件，并包含有kustomization.yaml，使用kustomize工具来对资源文件进行管理\n内容分别如下：\ndeployment.yaml apiVersion: apps/v1 kind: Deployment metadata: name: the-deployment namespace: default spec: replicas: 3 selector: matchLabels: deployment: hello template: metadata: labels: deployment: hello spec: containers: - args: - -jar - /opt/myapp.jar - --server.port=8080 command: - java env: - name: HOST_IP valueFrom: fieldRef: apiVersion: v1 fieldPath: status.hostIP image: registry.cn-hangzhou.aliyuncs.com/rookieops/myapp:latest imagePullPolicy: IfNotPresent lifecycle: preStop: exec: command: - /bin/sh - -c - /bin/sleep 30 livenessProbe: failureThreshold: 3 httpGet: path: /hello port: 8080 scheme: HTTP initialDelaySeconds: 60 periodSeconds: 15 successThreshold: 1 timeoutSeconds: 1 name: myapp ports: - containerPort: 8080 name: http protocol: TCP readinessProbe: failureThreshold: 3 httpGet: path: /hello port: 8080 scheme: HTTP periodSeconds: 15 successThreshold: 1 timeoutSeconds: 1 resources: limits: cpu: \"1\" memory: 2Gi requests: cpu: 100m memory: 1Gi terminationMessagePath: /dev/termination-log terminationMessagePolicy: File dnsPolicy: ClusterFirstWithHostNet imagePullSecrets: - name: gitlab-registry service.yaml kind: Service apiVersion: v1 metadata: name: the-service namespace: default spec: selector: deployment: hello type: NodePort ports: - protocol: TCP port: 8080 targetPort: 8080 ingress.ymal apiVersion: extensions/v1beta1 kind: Ingress metadata: name: the-ingress namespace: default spec: rules: - host: test.coolops.cn http: paths: - backend: serviceName: the-service servicePort: 8080 path: / kustomization.yaml # Example configuration for the webserver # at https://github.com/monopole/hello apiVersion: kustomize.config.k8s.io/v1beta1 kind: Kustomization resources: - deployment.yaml - service.yaml - ingress.yaml commonLabels: app: myapp\t# 添加标签 images:\t# 更改镜像 - name: registry.cn-hangzhou.aliyuncs.com/rookieops/myapp\tnewTag: \"20201127150733_70\" namespace: dev 编写Jenkinsfile 共享仓库的根目录下创建一个java.Jenkinsfile文件，整个java的Jenkinsfile如下：\ndockerhub是登录镜像仓库的用户名和密码。\nci-devops是管理YAML仓库的用户名和密码。\nsonar-admin-user是管理sonarqube的用户名和密码。\ndef labels = \"slave-${UUID.randomUUID().toString()}\" // 引用共享库 @Library(\"jenkins_shareLibrary\") // 应用共享库中的方法 def tools = new org.devops.tools() def sonarapi = new org.devops.sonarAPI() def sendEmail = new org.devops.sendEmail() def build = new org.devops.build() def sonar = new org.devops.sonarqube() // 前端传来的变量，在创建jenkins流水线项目的时候传入变量 def gitBranch = env.branch def gitUrl = env.git_url def buildShell = env.build_shell def image = env.image def dockerRegistryUrl = env.dockerRegistryUrl def devops_cd_git = env.devops_cd_git def toEmailUser = env.toEmailUser pipeline { agent { kubernetes { // 使用k8s启一个jenkins的pod进行执行任务 label labels yaml \"\"\" apiVersion: v1 kind: Pod metadata: labels: some-label: some-label-value spec: volumes: - name: docker-sock hostPath: path: /var/run/docker.sock type: '' - name: maven-cache persistentVolumeClaim: claimName: maven-cache-pvc containers: - name: jnlp image: registry.cn-hangzhou.aliyuncs.com/rookieops/inbound-agent:4.3-4 - name: maven image: registry.cn-hangzhou.aliyuncs.com/rookieops/maven:3.5.0-alpine command: - cat tty: true volumeMounts: - name: maven-cache mountPath: /root/.m2 - name: docker image: registry.cn-hangzhou.aliyuncs.com/rookieops/docker:19.03.11 command: - cat tty: true volumeMounts: - name: docker-sock mountPath: /var/run/docker.sock - name: sonar-scanner image: registry.cn-hangzhou.aliyuncs.com/rookieops/sonar-scanner:latest command: - cat tty: true - name: kustomize image: registry.cn-hangzhou.aliyuncs.com/rookieops/kustomize:v3.8.1 command: - cat tty: true \"\"\" } } environment{ auth = 'joker' } options { timestamps()\t// 日志会有时间 skipDefaultCheckout()\t// 删除隐式checkout scm语句 disableConcurrentBuilds()\t//禁止并行 timeout(time:1,unit:'HOURS') //设置流水线超时时间 } stages { // 拉取代码 stage('GetCode') { steps { checkout([$class: 'GitSCM', branches: [[name: \"${gitBranch}\"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '83d2e934-75c9-48fe-9703-b48e2feff4d8', url: \"${gitUrl}\"]]]) } } // 单元测试和编译打包 stage('Build\u0026Test') { steps { container('maven') { script{ tools.PrintMes(\"编译打包\",\"blue\") build.DockerBuild(\"${buildShell}\") } } } } // 代码扫描 stage('CodeScanner') { steps { container('sonar-scanner') { script { tools.PrintMes(\"代码扫描\",\"green\") tools.PrintMes(\"搜索项目\",\"green\") result = sonarapi.SearchProject(\"${JOB_NAME}\") println(result) if (result == \"false\"){ println(\"${JOB_NAME}---项目不存在,准备创建项目---\u003e ${JOB_NAME}！\") sonarapi.CreateProject(\"${JOB_NAME}\") } else { println(\"${JOB_NAME}---项目已存在！\") } tools.PrintMes(\"代码扫描\",\"green\") sonar.SonarScan(\"${JOB_NAME}\",\"${JOB_NAME}\",\"src\") sleep 10 tools.PrintMes(\"获取扫描结果\",\"green\") result = sonarapi.GetProjectStatus(\"${JOB_NAME}\") println(result) if (result.toString() == \"ERROR\"){ toemail.Email(\"代码质量阈错误！请及时修复！\",userEmail) error \" 代码质量阈错误！请及时修复！\" } else { println(result) } } } } } // 构建镜像 stage('BuildImage') { steps { withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', // dockerhub的凭证（用户名/密码） usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD']]) { container('docker') { script{ tools.PrintMes(\"构建镜像\",\"green\") imageTag = tools.createVersion() sh \"\"\" docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD} docker build -t ${image}:${imageTag} . docker push ${image}:${imageTag} docker rmi ${image}:${imageTag} \"\"\" } } } } } // 部署，先更改yaml资源文件配置然后提交至yaml仓库目录 stage('Deploy') { steps { withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ci-devops',\t// 管理YAML仓库的凭证（用户名/密码） usernameVariable: 'DEVOPS_USER', passwordVariable: 'DEVOPS_PASSWORD']]){ container('kustomize') { script{ APP_DIR=\"${JOB_NAME}\".split(\"_\")[0] sh \"\"\" git remote set-url origin http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git} git config --global user.name \"Administrator\" git config --global user.email \"coolops@163.com\" git clone http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git} /opt/devops-cd cd /opt/devops-cd git pull cd /opt/devops-cd/${APP_DIR} kustomize edit set image ${image}:${imageTag}\t// 更改yaml文件的镜像 git commit -am 'image update' git push origin master \"\"\" } } } } } // 接口测试 stage('InterfaceTest') { steps{ sh 'echo \"接口测试\"' } } } // 构建后的操作 post { success { script{ println(\"success:只有构建成功才会执行\") currentBuild.description += \"\\n构建成功！\" // deploy.AnsibleDeploy(\"${deployHosts}\",\"-m ping\") sendEmail.SendEmail(\"构建成功\",toEmailUser) // dingmes.SendDingTalk(\"构建成功 ✅\") } } failure { script{ println(\"failure:只有构建失败才会执行\") currentBuild.description += \"\\n构建失败!\" sendEmail.SendEmail(\"构建失败\",toEmailUser) // dingmes.SendDingTalk(\"构建失败 ❌\") } } aborted { script{ println(\"aborted:只有取消构建才会执行\") currentBuild.description += \"\\n构建取消!\" sendEmail.SendEmail(\"取消构建\",toEmailUser) // dingmes.SendDingTalk(\"构建失败 ❌\",\"暂停或中断\") } } } } 在Jenkins上配置项目 在Jenkins上新建一个流水线项目\n然后添加以下参数化构建，对应jenkinsfile文件中的变量。\ngit_url\t# 代码仓库地址 branch # 代码分支 build_shell\t# 镜像构建命令 image\t# 镜像 dockerRegistryUrl\t# 镜像仓库地址 devops_cd_git\t# yaml资源的仓库地址 toEmailUser\t# 目标邮箱 然后在流水线处配置Pipeline from SCM\n在Argocd上配置CD流程 在argocd上添加代码仓库，如下：\n创建应用\n点击创建后，就点击SYNC触发同步，进行部署了\n",
+  "wordCount" : "1151",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/cicd/">CI/CD</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      基于jenkins&#43;ArgoCD实现Devops
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#jenkins%e4%b8%8a%e5%ae%89%e8%a3%85%e6%8f%92%e4%bb%b6" aria-label="Jenkins上安装插件">Jenkins上安装插件</a></li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%aekubernetes%e9%9b%86%e7%be%a4%e4%bf%a1%e6%81%af" aria-label="配置Kubernetes集群信息">配置Kubernetes集群信息</a></li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae%e9%82%ae%e7%ae%b1%e5%9c%b0%e5%9d%80" aria-label="配置邮箱地址">配置邮箱地址</a></li>
+            <li>
+                <a href="#%e5%88%9b%e5%bb%ba%e4%b8%80%e4%b8%aa%e5%85%b1%e4%ba%ab%e5%ba%93" aria-label="创建一个共享库">创建一个共享库</a><ul>
+                    
+            <li>
+                <a href="#buildgroovy" aria-label="build.groovy">build.groovy</a></li>
+            <li>
+                <a href="#sendemailgroovy" aria-label="sendEmail.groovy">sendEmail.groovy</a></li>
+            <li>
+                <a href="#sonarapigroovy" aria-label="sonarAPI.groovy">sonarAPI.groovy</a></li>
+            <li>
+                <a href="#sonarqubegroovy" aria-label="sonarqube.groovy">sonarqube.groovy</a></li></ul>
+            </li>
+            <li>
+                <a href="#jenkins%e4%b8%8a%e9%85%8d%e7%bd%ae%e5%85%b1%e4%ba%ab%e5%ba%93" aria-label="Jenkins上配置共享库">Jenkins上配置共享库</a></li>
+            <li>
+                <a href="#gitlab%e5%88%9b%e5%bb%bayaml%e7%ae%a1%e7%90%86%e4%bb%93%e5%ba%93" aria-label="Gitlab创建YAML管理仓库">Gitlab创建YAML管理仓库</a></li>
+            <li>
+                <a href="#%e7%bc%96%e5%86%99jenkinsfile" aria-label="编写Jenkinsfile">编写Jenkinsfile</a></li>
+            <li>
+                <a href="#%e5%9c%a8jenkins%e4%b8%8a%e9%85%8d%e7%bd%ae%e9%a1%b9%e7%9b%ae" aria-label="在Jenkins上配置项目">在Jenkins上配置项目</a></li>
+            <li>
+                <a href="#%e5%9c%a8argocd%e4%b8%8a%e9%85%8d%e7%bd%aecd%e6%b5%81%e7%a8%8b" aria-label="在Argocd上配置CD流程">在Argocd上配置CD流程</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h2 id="jenkins上安装插件">Jenkins上安装插件<a hidden class="anchor" aria-hidden="true" href="#jenkins上安装插件">#</a></h2>
+<ul>
+<li>kubernetes</li>
+<li>AnsiColor</li>
+<li>HTTP Request</li>
+<li>SonarQube Scanner</li>
+<li>Utility Steps</li>
+<li>Email Extension Template</li>
+<li>Gitlab Hook</li>
+<li>Gitlab</li>
+</ul>
+<h2 id="配置kubernetes集群信息">配置Kubernetes集群信息<a hidden class="anchor" aria-hidden="true" href="#配置kubernetes集群信息">#</a></h2>
+<p>在系统管理&ndash;&gt;系统配置&ndash;&gt;cloud</p>
+<p><img alt="image-20240619165841691" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165841691.png"></p>
+<h2 id="配置邮箱地址">配置邮箱地址<a hidden class="anchor" aria-hidden="true" href="#配置邮箱地址">#</a></h2>
+<p>系统设置&ndash;&gt;系统配置&ndash;&gt;Email</p>
+<p>（1）设置管理员邮箱</p>
+<p><img alt="image-20240619165400609" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165400609.png"></p>
+<p>配置SMTP服务</p>
+<p><img alt="image-20240619164922130" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619164922130.png"></p>
+<h2 id="创建一个共享库">创建一个共享库<a hidden class="anchor" aria-hidden="true" href="#创建一个共享库">#</a></h2>
+<p>首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：</p>
+<p>包含有src/org/devops目录</p>
+<p><img alt="image-20240619114115871" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114115871.png"></p>
+<p>然后在该目录下创建一下groovy文件</p>
+<p><img alt="image-20240619114246292" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114246292.png"></p>
+<p>内容分别如下：</p>
+<h3 id="buildgroovy">build.groovy<a hidden class="anchor" aria-hidden="true" href="#buildgroovy">#</a></h3>
+<p>build.groovy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#f92672">package</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// docker容器直接build
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">DockerBuild</span><span style="color:#f92672">(</span>buildShell<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    sh <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ${buildShell}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h3 id="sendemailgroovy">sendEmail.groovy<a hidden class="anchor" aria-hidden="true" href="#sendemailgroovy">#</a></h3>
+<p>sendEmail.groovy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#f92672">package</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//定义邮件内容
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">SendEmail</span><span style="color:#f92672">(</span>status<span style="color:#f92672">,</span>emailUser<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    emailext body: <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;!DOCTYPE html&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;html&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;head&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;meta charset=&#34;UTF-8&#34;&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;/head&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt;   
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                &lt;tr&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">		            本邮件由系统自动发出，无需回复！&lt;br/&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">		            各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">		            &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">		        &lt;/tr&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    &lt;tr&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                        &lt;td&gt;&lt;br /&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                        &lt;/td&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    &lt;/tr&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    &lt;tr&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                        &lt;td&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            &lt;ul&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt;         
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                &lt;li&gt;构建状态: ${status} &lt;/li&gt;                         
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt;    
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt;   
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            &lt;/ul&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                        &lt;/td&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    &lt;/tr&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    &lt;tr&gt;  
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                &lt;/table&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;/body&gt; 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &lt;/html&gt;  &#34;&#34;&#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            subject: <span style="color:#e6db74">&#34;Jenkins-${JOB_NAME}项目构建信息 &#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            to: emailUser
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h3 id="sonarapigroovy">sonarAPI.groovy<a hidden class="anchor" aria-hidden="true" href="#sonarapigroovy">#</a></h3>
+<p>sonarAPI.groovy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#f92672">package</span> ore<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 封装HTTP请求
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">HttpReq</span><span style="color:#f92672">(</span>requestType<span style="color:#f92672">,</span>requestUrl<span style="color:#f92672">,</span>requestBody<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 定义sonar api接口
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> sonarServer <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://sonar.devops.svc.cluster.local:9000/api&#34;</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> httpRequest authentication: <span style="color:#e6db74">&#39;sonar-admin-user&#39;</span><span style="color:#f92672">,</span>    <span style="color:#75715e">// 管理sonarqube的用户名和密码凭证
+</span></span></span><span style="display:flex;"><span>            httpMode: requestType<span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            contentType: <span style="color:#e6db74">&#34;APPLICATION_JSON&#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            consoleLogResponseBody: <span style="color:#66d9ef">true</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            ignoreSslErrors: <span style="color:#66d9ef">true</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            requestBody: requestBody<span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>            url: <span style="color:#e6db74">&#34;${sonarServer}/${requestUrl}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取soanr项目的状态
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">GetSonarStatus</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;project_branches/list?project=${projectName}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 对返回的文本做JSON解析
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> readJSON text: <span style="color:#e6db74">&#34;&#34;&#34;${response.content}&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取状态值
+</span></span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> response<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;branches&#34;</span><span style="color:#f92672">][</span><span style="color:#ae81ff">0</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;status&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;qualityGateStatus&#34;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取sonar项目，判断项目是否存在
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">SearchProject</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;projects/search?projects=${projectName}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    println <span style="color:#e6db74">&#34;搜索的结果：${response}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 对返回的文本做JSON解析
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> readJSON text: <span style="color:#e6db74">&#34;&#34;&#34;${response.content}&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在
+</span></span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> response<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;paging&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;total&#34;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 对result进行判断
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;0&#34;</span><span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;false&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span><span style="color:#66d9ef">else</span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 创建sonar项目
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">CreateProject</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;projects/create?name=${projectName}&amp;project=${projectName}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;POST&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span>response<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 配置项目质量规则
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ConfigQualityProfiles</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">,</span>lang<span style="color:#f92672">,</span>qpname<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;qualityprofiles/add_project?language=${lang}&amp;project=${projectName}&amp;qualityProfile=${qpname}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;POST&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span>response<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取质量阈ID
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">GetQualityGateId</span><span style="color:#f92672">(</span>gateName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;qualitygates/show?name=${gateName}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 对返回的文本做JSON解析
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> readJSON text: <span style="color:#e6db74">&#34;&#34;&#34;${response.content}&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在
+</span></span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> response<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;id&#34;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 更新质量阈规则
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ConfigQualityGate</span><span style="color:#f92672">(</span>projectKey<span style="color:#f92672">,</span>gateName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取质量阈id
+</span></span></span><span style="display:flex;"><span>    gateId <span style="color:#f92672">=</span> GetQualityGateId<span style="color:#f92672">(</span>gateName<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;qualitygates/select?projectKey=${projectKey}&amp;gateId=${gateId}&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 发请求
+</span></span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;POST&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#34;&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span>response<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//获取Sonar质量阈状态
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">GetProjectStatus</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    apiUrl <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;project_branches/list?project=${projectName}&#34;</span>
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> HttpReq<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;GET&#34;</span><span style="color:#f92672">,</span>apiUrl<span style="color:#f92672">,</span><span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> readJSON text: <span style="color:#e6db74">&#34;&#34;&#34;${response.content}&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> response<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;branches&#34;</span><span style="color:#f92672">][</span><span style="color:#ae81ff">0</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;status&#34;</span><span style="color:#f92672">][</span><span style="color:#e6db74">&#34;qualityGateStatus&#34;</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//println(response)
+</span></span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h3 id="sonarqubegroovy">sonarqube.groovy<a hidden class="anchor" aria-hidden="true" href="#sonarqubegroovy">#</a></h3>
+<p>sonarqube.groovy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#f92672">package</span> ore<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">SonarScan</span><span style="color:#f92672">(</span>projectName<span style="color:#f92672">,</span>projectDesc<span style="color:#f92672">,</span>projectPath<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// sonarScanner安装地址
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> sonarHome <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/opt/sonar-scanner&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// sonarqube服务端地址
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> sonarServer <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://sonar.devops.svc.cluster.local:9000/&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 以时间戳为版本
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> scanTime <span style="color:#f92672">=</span> sh returnStdout: <span style="color:#66d9ef">true</span><span style="color:#f92672">,</span> script: <span style="color:#e6db74">&#39;date +%Y%m%d%H%m%S&#39;</span>
+</span></span><span style="display:flex;"><span>    scanTime <span style="color:#f92672">=</span> scanTime <span style="color:#f92672">-</span> <span style="color:#e6db74">&#34;\n&#34;</span>
+</span></span><span style="display:flex;"><span>    sh <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    ${sonarHome}/bin/sonar-scanner  -Dsonar.host.url=${sonarServer}  \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.projectKey=${projectName}  \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.projectName=${projectName}  \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.projectVersion=${scanTime} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.login=admin \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.password=admin \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.ws.timeout=30 \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.projectDescription=&#34;${projectDesc}&#34;  \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.links.homepage=http://www.baidu.com \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.sources=${projectPath} \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.sourceEncoding=UTF-8 \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.java.binaries=target/classes \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.java.test.binaries=target/test-classes \
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    -Dsonar.java.surefire.report=target/surefire-reports -X 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    echo &#34;${projectName}  scan success!&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>tools.groovy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#f92672">package</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//格式化输出
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span>value<span style="color:#f92672">,</span>color<span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>    colors <span style="color:#f92672">=</span> <span style="color:#f92672">[</span><span style="color:#e6db74">&#39;red&#39;</span>   <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;\033[40;31m &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;${value}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; \033[0m&#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#e6db74">&#39;blue&#39;</span>  <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;\033[47;34m ${value} \033[0m&#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#e6db74">&#39;green&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;[1;32m&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;${value}&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;[m&#34;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#e6db74">&#39;green1&#39;</span> <span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;\033[40;32m &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;${value}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; \033[0m&#34;</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    ansiColor<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;xterm&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        println<span style="color:#f92672">(</span>colors<span style="color:#f92672">[</span>color<span style="color:#f92672">])</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取镜像版本
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">createVersion</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 定义一个版本号作为当次构建的版本，输出结果 20191210175842_69
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Date</span><span style="color:#f92672">().</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;yyyyMMddHHmmss&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;_${env.BUILD_ID}&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取时间
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">getTime</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 定义一个版本号作为当次构建的版本，输出结果 20191210175842
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Date</span><span style="color:#f92672">().</span><span style="color:#a6e22e">format</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#39;yyyyMMddHHmmss&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="jenkins上配置共享库">Jenkins上配置共享库<a hidden class="anchor" aria-hidden="true" href="#jenkins上配置共享库">#</a></h2>
+<p>（1）需要在Jenkins上添加凭证</p>
+<p><img alt="image-20240619164530858" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619164530858.png"></p>
+<p><img alt="image-20240619164359467" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619164359467.png"></p>
+<h2 id="gitlab创建yaml管理仓库">Gitlab创建YAML管理仓库<a hidden class="anchor" aria-hidden="true" href="#gitlab创建yaml管理仓库">#</a></h2>
+<p>创建一个叫devops-cd的共享仓库，用来管理应用的yaml资源文件，然后以应用名创建一个目录，并在目录下创建以下几个文件。如下：</p>
+<p>这些是创建应用的k8s应用的资源文件，并包含有kustomization.yaml，使用kustomize工具来对资源文件进行管理</p>
+<p><img alt="image-20240619134340565" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619134340565.png"></p>
+<p>内容分别如下：</p>
+<ul>
+<li>deployment.yaml</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">the-deployment</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">matchLabels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">hello</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">hello</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">args</span>:
+</span></span><span style="display:flex;"><span>            - -<span style="color:#ae81ff">jar</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#ae81ff">/opt/myapp.jar</span>
+</span></span><span style="display:flex;"><span>            - --<span style="color:#ae81ff">server.port=8080</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">command</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#ae81ff">java</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">env</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">HOST_IP</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">valueFrom</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">fieldRef</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">fieldPath</span>: <span style="color:#ae81ff">status.hostIP</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">registry.cn-hangzhou.aliyuncs.com/rookieops/myapp:latest</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">IfNotPresent</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">lifecycle</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">preStop</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">exec</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">command</span>:
+</span></span><span style="display:flex;"><span>                  - <span style="color:#ae81ff">/bin/sh</span>
+</span></span><span style="display:flex;"><span>                  - -<span style="color:#ae81ff">c</span>
+</span></span><span style="display:flex;"><span>                  - <span style="color:#ae81ff">/bin/sleep 30</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">livenessProbe</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">failureThreshold</span>: <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">httpGet</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/hello</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">port</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">HTTP</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">initialDelaySeconds</span>: <span style="color:#ae81ff">60</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">periodSeconds</span>: <span style="color:#ae81ff">15</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">successThreshold</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">timeoutSeconds</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">name</span>: <span style="color:#ae81ff">myapp</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">http</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">readinessProbe</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">failureThreshold</span>: <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">httpGet</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/hello</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">port</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">scheme</span>: <span style="color:#ae81ff">HTTP</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">periodSeconds</span>: <span style="color:#ae81ff">15</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">successThreshold</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">timeoutSeconds</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">limits</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">cpu</span>: <span style="color:#e6db74">&#34;1&#34;</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">2Gi</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">cpu</span>: <span style="color:#ae81ff">100m</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">memory</span>: <span style="color:#ae81ff">1Gi</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">terminationMessagePath</span>: <span style="color:#ae81ff">/dev/termination-log</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">terminationMessagePolicy</span>: <span style="color:#ae81ff">File</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">dnsPolicy</span>: <span style="color:#ae81ff">ClusterFirstWithHostNet</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">imagePullSecrets</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">gitlab-registry</span>
+</span></span></code></pre></div><ul>
+<li>service.yaml</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">the-service</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">deployment</span>: <span style="color:#ae81ff">hello</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">NodePort</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">port</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">8080</span>
+</span></span></code></pre></div><ul>
+<li>ingress.ymal</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">extensions/v1beta1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Ingress</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">the-ingress </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">rules</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">host</span>: <span style="color:#ae81ff">test.coolops.cn </span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">paths</span>:
+</span></span><span style="display:flex;"><span>          - <span style="color:#f92672">backend</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">serviceName</span>: <span style="color:#ae81ff">the-service </span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">servicePort</span>: <span style="color:#ae81ff">8080</span> 
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">path</span>: <span style="color:#ae81ff">/</span>
+</span></span></code></pre></div><ul>
+<li>kustomization.yaml</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># Example configuration for the webserver</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># at https://github.com/monopole/hello</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">kustomize.config.k8s.io/v1beta1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Kustomization</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>- <span style="color:#ae81ff">deployment.yaml</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#ae81ff">service.yaml</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#ae81ff">ingress.yaml</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">commonLabels</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">app</span>: <span style="color:#ae81ff">myapp			# 添加标签</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">images:					# 更改镜像</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#f92672">name</span>: <span style="color:#ae81ff">registry.cn-hangzhou.aliyuncs.com/rookieops/myapp			</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">newTag</span>: <span style="color:#e6db74">&#34;20201127150733_70&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">dev</span>
+</span></span></code></pre></div><h2 id="编写jenkinsfile">编写Jenkinsfile<a hidden class="anchor" aria-hidden="true" href="#编写jenkinsfile">#</a></h2>
+<p>共享仓库的根目录下创建一个java.Jenkinsfile文件，整个java的Jenkinsfile如下：</p>
+<p><img alt="image-20240619114943520" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619114943520.png"></p>
+<p>dockerhub是登录镜像仓库的用户名和密码。</p>
+<p>ci-devops是管理YAML仓库的用户名和密码。</p>
+<p>sonar-admin-user是管理sonarqube的用户名和密码。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> labels <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;slave-${UUID.randomUUID().toString()}&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 引用共享库
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">@Library</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;jenkins_shareLibrary&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 应用共享库中的方法
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> tools <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span><span style="color:#f92672">.</span><span style="color:#a6e22e">tools</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> sonarapi <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span><span style="color:#f92672">.</span><span style="color:#a6e22e">sonarAPI</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> sendEmail <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span><span style="color:#f92672">.</span><span style="color:#a6e22e">sendEmail</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> build <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span><span style="color:#f92672">.</span><span style="color:#a6e22e">build</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> sonar <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> org<span style="color:#f92672">.</span><span style="color:#a6e22e">devops</span><span style="color:#f92672">.</span><span style="color:#a6e22e">sonarqube</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 前端传来的变量，在创建jenkins流水线项目的时候传入变量
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> gitBranch <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">branch</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> gitUrl <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">git_url</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> buildShell <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">build_shell</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> image <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">image</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> dockerRegistryUrl <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">dockerRegistryUrl</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> devops_cd_git <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">devops_cd_git</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> toEmailUser <span style="color:#f92672">=</span> env<span style="color:#f92672">.</span><span style="color:#a6e22e">toEmailUser</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pipeline <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    agent <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    kubernetes <span style="color:#f92672">{</span>          <span style="color:#75715e">// 使用k8s启一个jenkins的pod进行执行任务
+</span></span></span><span style="display:flex;"><span>        label labels
+</span></span><span style="display:flex;"><span>      yaml <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: v1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: Pod
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  labels:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    some-label: some-label-value
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">spec:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  volumes:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: docker-sock
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    hostPath:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      path: /var/run/docker.sock
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      type: &#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: maven-cache
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    persistentVolumeClaim:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      claimName: maven-cache-pvc
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  containers:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: jnlp
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    image: registry.cn-hangzhou.aliyuncs.com/rookieops/inbound-agent:4.3-4
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: maven
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    image: registry.cn-hangzhou.aliyuncs.com/rookieops/maven:3.5.0-alpine
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    command:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - cat
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tty: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    volumeMounts:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - name: maven-cache
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      mountPath: /root/.m2
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: docker
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    image: registry.cn-hangzhou.aliyuncs.com/rookieops/docker:19.03.11
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    command:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - cat
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tty: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    volumeMounts:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - name: docker-sock
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      mountPath: /var/run/docker.sock
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: sonar-scanner
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    image: registry.cn-hangzhou.aliyuncs.com/rookieops/sonar-scanner:latest
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    command:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - cat
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tty: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - name: kustomize
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    image: registry.cn-hangzhou.aliyuncs.com/rookieops/kustomize:v3.8.1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    command:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - cat
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tty: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    environment<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        auth <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;joker&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    options <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		timestamps<span style="color:#f92672">()</span>	<span style="color:#75715e">// 日志会有时间
+</span></span></span><span style="display:flex;"><span>		skipDefaultCheckout<span style="color:#f92672">()</span>	<span style="color:#75715e">// 删除隐式checkout scm语句
+</span></span></span><span style="display:flex;"><span>		disableConcurrentBuilds<span style="color:#f92672">()</span>	<span style="color:#75715e">//禁止并行
+</span></span></span><span style="display:flex;"><span>		timeout<span style="color:#f92672">(</span>time:<span style="color:#ae81ff">1</span><span style="color:#f92672">,</span>unit:<span style="color:#e6db74">&#39;HOURS&#39;</span><span style="color:#f92672">)</span> <span style="color:#75715e">//设置流水线超时时间
+</span></span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    stages <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 拉取代码
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;GetCode&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                checkout<span style="color:#f92672">([</span>$class<span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;GitSCM&#39;</span><span style="color:#f92672">,</span> branches: <span style="color:#f92672">[[</span>name: <span style="color:#e6db74">&#34;${gitBranch}&#34;</span><span style="color:#f92672">]],</span>
+</span></span><span style="display:flex;"><span>                    doGenerateSubmoduleConfigurations: <span style="color:#66d9ef">false</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>                    extensions: <span style="color:#f92672">[],</span>
+</span></span><span style="display:flex;"><span>                    submoduleCfg: <span style="color:#f92672">[],</span>
+</span></span><span style="display:flex;"><span>                    userRemoteConfigs: <span style="color:#f92672">[[</span>credentialsId: <span style="color:#e6db74">&#39;83d2e934-75c9-48fe-9703-b48e2feff4d8&#39;</span><span style="color:#f92672">,</span> url: <span style="color:#e6db74">&#34;${gitUrl}&#34;</span><span style="color:#f92672">]]])</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 单元测试和编译打包
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Build&amp;Test&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                container<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;maven&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                    script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                        tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;编译打包&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;blue&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        build<span style="color:#f92672">.</span><span style="color:#a6e22e">DockerBuild</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${buildShell}&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 代码扫描
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;CodeScanner&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                container<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;sonar-scanner&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                    script <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                        tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;代码扫描&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;green&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;搜索项目&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;green&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        result <span style="color:#f92672">=</span> sonarapi<span style="color:#f92672">.</span><span style="color:#a6e22e">SearchProject</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        println<span style="color:#f92672">(</span>result<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;false&#34;</span><span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>                            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}---项目不存在,准备创建项目---&gt; ${JOB_NAME}！&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                            sonarapi<span style="color:#f92672">.</span><span style="color:#a6e22e">CreateProject</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                            println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}---项目已存在！&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;代码扫描&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;green&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        sonar<span style="color:#f92672">.</span><span style="color:#a6e22e">SonarScan</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;src&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        sleep <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>                        tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;获取扫描结果&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;green&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        result <span style="color:#f92672">=</span> sonarapi<span style="color:#f92672">.</span><span style="color:#a6e22e">GetProjectStatus</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        println<span style="color:#f92672">(</span>result<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>result<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">()</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;ERROR&#34;</span><span style="color:#f92672">){</span>
+</span></span><span style="display:flex;"><span>                            toemail<span style="color:#f92672">.</span><span style="color:#a6e22e">Email</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;代码质量阈错误！请及时修复！&#34;</span><span style="color:#f92672">,</span>userEmail<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                            error <span style="color:#e6db74">&#34; 代码质量阈错误！请及时修复！&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                            println<span style="color:#f92672">(</span>result<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 构建镜像
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;BuildImage&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                withCredentials<span style="color:#f92672">([[</span>$class<span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;UsernamePasswordMultiBinding&#39;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>                credentialsId: <span style="color:#e6db74">&#39;dockerhub&#39;</span><span style="color:#f92672">,</span>       <span style="color:#75715e">// dockerhub的凭证（用户名/密码）
+</span></span></span><span style="display:flex;"><span>                usernameVariable: <span style="color:#e6db74">&#39;DOCKER_HUB_USER&#39;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>                passwordVariable: <span style="color:#e6db74">&#39;DOCKER_HUB_PASSWORD&#39;</span><span style="color:#f92672">]])</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                    container<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;docker&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                        script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                            tools<span style="color:#f92672">.</span><span style="color:#a6e22e">PrintMes</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;构建镜像&#34;</span><span style="color:#f92672">,</span><span style="color:#e6db74">&#34;green&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>                            imageTag <span style="color:#f92672">=</span> tools<span style="color:#f92672">.</span><span style="color:#a6e22e">createVersion</span><span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>                            sh <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            docker build -t ${image}:${imageTag} .
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            docker push ${image}:${imageTag}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            docker rmi ${image}:${imageTag}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 部署，先更改yaml资源文件配置然后提交至yaml仓库目录
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;Deploy&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                 withCredentials<span style="color:#f92672">([[</span>$class<span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;UsernamePasswordMultiBinding&#39;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>                credentialsId: <span style="color:#e6db74">&#39;ci-devops&#39;</span><span style="color:#f92672">,</span>				<span style="color:#75715e">// 管理YAML仓库的凭证（用户名/密码）
+</span></span></span><span style="display:flex;"><span>                usernameVariable: <span style="color:#e6db74">&#39;DEVOPS_USER&#39;</span><span style="color:#f92672">,</span>
+</span></span><span style="display:flex;"><span>                passwordVariable: <span style="color:#e6db74">&#39;DEVOPS_PASSWORD&#39;</span><span style="color:#f92672">]]){</span>
+</span></span><span style="display:flex;"><span>                    container<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;kustomize&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                        script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                            APP_DIR<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;${JOB_NAME}&#34;</span><span style="color:#f92672">.</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;_&#34;</span><span style="color:#f92672">)[</span><span style="color:#ae81ff">0</span><span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                            sh <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git remote set-url origin http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git config --global user.name &#34;Administrator&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git config --global user.email &#34;coolops@163.com&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git clone http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git} /opt/devops-cd
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            cd /opt/devops-cd
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git pull
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            cd /opt/devops-cd/${APP_DIR}
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            kustomize edit set image ${image}:${imageTag}	// 更改yaml文件的镜像
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git commit -am &#39;image update&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            git push origin master
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                            &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 接口测试
+</span></span></span><span style="display:flex;"><span>        stage<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;InterfaceTest&#39;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            steps<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                sh <span style="color:#e6db74">&#39;echo &#34;接口测试&#34;&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 构建后的操作
+</span></span></span><span style="display:flex;"><span>	post <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>		success <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>			script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>				println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;success:只有构建成功才会执行&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				currentBuild<span style="color:#f92672">.</span><span style="color:#a6e22e">description</span> <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;\n构建成功！&#34;</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">// deploy.AnsibleDeploy(&#34;${deployHosts}&#34;,&#34;-m ping&#34;)
+</span></span></span><span style="display:flex;"><span>				sendEmail<span style="color:#f92672">.</span><span style="color:#a6e22e">SendEmail</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;构建成功&#34;</span><span style="color:#f92672">,</span>toEmailUser<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">// dingmes.SendDingTalk(&#34;构建成功 ✅&#34;)
+</span></span></span><span style="display:flex;"><span>			<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>		failure <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>			script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>				println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;failure:只有构建失败才会执行&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				currentBuild<span style="color:#f92672">.</span><span style="color:#a6e22e">description</span> <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;\n构建失败!&#34;</span>
+</span></span><span style="display:flex;"><span>				sendEmail<span style="color:#f92672">.</span><span style="color:#a6e22e">SendEmail</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;构建失败&#34;</span><span style="color:#f92672">,</span>toEmailUser<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">// dingmes.SendDingTalk(&#34;构建失败 ❌&#34;)
+</span></span></span><span style="display:flex;"><span>			<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>		aborted <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>			script<span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>				println<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;aborted:只有取消构建才会执行&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				currentBuild<span style="color:#f92672">.</span><span style="color:#a6e22e">description</span> <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;\n构建取消!&#34;</span>
+</span></span><span style="display:flex;"><span>				sendEmail<span style="color:#f92672">.</span><span style="color:#a6e22e">SendEmail</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;取消构建&#34;</span><span style="color:#f92672">,</span>toEmailUser<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">// dingmes.SendDingTalk(&#34;构建失败 ❌&#34;,&#34;暂停或中断&#34;)
+</span></span></span><span style="display:flex;"><span>			<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><h2 id="在jenkins上配置项目">在Jenkins上配置项目<a hidden class="anchor" aria-hidden="true" href="#在jenkins上配置项目">#</a></h2>
+<p>在Jenkins上新建一个流水线项目</p>
+<p>然后添加以下参数化构建，对应jenkinsfile文件中的变量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git_url					<span style="color:#75715e"># 代码仓库地址</span>
+</span></span><span style="display:flex;"><span>branch             	  	<span style="color:#75715e"># 代码分支</span>
+</span></span><span style="display:flex;"><span>build_shell				<span style="color:#75715e"># 镜像构建命令</span>
+</span></span><span style="display:flex;"><span>image					<span style="color:#75715e"># 镜像</span>
+</span></span><span style="display:flex;"><span>dockerRegistryUrl		<span style="color:#75715e"># 镜像仓库地址</span>
+</span></span><span style="display:flex;"><span>devops_cd_git			<span style="color:#75715e"># yaml资源的仓库地址</span>
+</span></span><span style="display:flex;"><span>toEmailUser				<span style="color:#75715e"># 目标邮箱</span>
+</span></span></code></pre></div><p><img alt="image-20240619162737384" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619162737384.png"></p>
+<p><img alt="image-20240619162856770" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619162856770.png"></p>
+<p><img alt="image-20240619163039243" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619163039243.png"></p>
+<p><img alt="image-20240619163114302" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619163114302.png"></p>
+<p><img alt="image-20240619163239697" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619163239697.png"></p>
+<p><img alt="image-20240619163332485" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619163332485.png"></p>
+<p><img alt="image-20240619163442864" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619163442864.png"></p>
+<p>然后在流水线处配置Pipeline from SCM</p>
+<p><img alt="image-20240619104024442" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619104024442.png"></p>
+<p><img alt="image-20240619165147821" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619165147821.png"></p>
+<h2 id="在argocd上配置cd流程">在Argocd上配置CD流程<a hidden class="anchor" aria-hidden="true" href="#在argocd上配置cd流程">#</a></h2>
+<p>在argocd上添加代码仓库，如下：</p>
+<p><img alt="image-20240619144103355" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619144103355.png"></p>
+<p>创建应用</p>
+<p><img alt="image-20240619144251767" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619144251767.png"></p>
+<p><img alt="image-20240619144402015" loading="lazy" src="/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/images/%E5%9F%BA%E4%BA%8Ejenkins+ArgoCD%E5%AE%9E%E7%8E%B0Devops/image-20240619144402015.png"></p>
+<p>点击创建后，就点击<code>SYNC</code>触发同步，进行部署了</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

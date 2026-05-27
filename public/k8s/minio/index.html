@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>minio | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="介绍
+官方文档(中文)：http://docs.minio.org.cn/docs/
+MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
+生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
+EC
+# ec
+纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID
+公式
+n = k &#43; m
+n: 总数据块
+k: 原始数据块
+m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写
+冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低
+k值影响数据恢复代价
+	k值越小，数据分散度越小，故障影响面越大
+	k值越大，多路数据拷贝增加的网络和磁盘负载越大
+一般推荐使用ec4集群冗余度1.33
+
+安装
+k8s
+https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
+docker
+mkdir -p ~/minio/data
+
+docker run \
+   -p 9000:9000 \
+   -p 9001:9001 \
+   --name minio \
+   -v ~/minio/data:/data \
+   -e &#34;MINIO_ROOT_USER=minioadmin&#34; \
+   -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \
+   quay.io/minio/minio server /data --console-address &#34;:9001&#34;
+docker run启动 MinIO 容器
+-p将本地端口绑定到容器端口
+-name为容器创建一个名称
+9000表示MinIO服务地址，其上传调用的就是这个服务地址
+9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口
+/mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上
+/mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上
+MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin
+MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin
+二进制单节点
+二进制(4磁盘3节点)
+官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/minio/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/k8s/minio/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/minio/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="minio">
+  <meta property="og:description" content="介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
+MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
+生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
+EC
+# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k &#43; m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
+docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name minio \ -v ~/minio/data:/data \ -e &#34;MINIO_ROOT_USER=minioadmin&#34; \ -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \ quay.io/minio/minio server /data --console-address &#34;:9001&#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="minio">
+  <meta name="twitter:description" content="介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
+MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
+生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
+EC
+# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k &#43; m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
+docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name minio \ -v ~/minio/data:/data \ -e &#34;MINIO_ROOT_USER=minioadmin&#34; \ -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \ quay.io/minio/minio server /data --console-address &#34;:9001&#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "minio",
+      "item": "/k8s/minio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "minio",
+  "name": "minio",
+  "description": "介绍 官方文档(中文)：http://docs.minio.org.cn/docs/\nMinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。\n生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务\nEC\n# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k + m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n+m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html\ndocker mkdir -p ~/minio/data docker run \\ -p 9000:9000 \\ -p 9001:9001 \\ --name minio \\ -v ~/minio/data:/data \\ -e \u0026#34;MINIO_ROOT_USER=minioadmin\u0026#34; \\ -e \u0026#34;MINIO_ROOT_PASSWORD=minioadmin\u0026#34; \\ quay.io/minio/minio server /data --console-address \u0026#34;:9001\u0026#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address \u0026#34;:port\u0026#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "介绍 官方文档(中文)：http://docs.minio.org.cn/docs/\nMinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。\n生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务\nEC\n# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k + m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n+m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html\ndocker mkdir -p ~/minio/data docker run \\ -p 9000:9000 \\ -p 9001:9001 \\ --name minio \\ -v ~/minio/data:/data \\ -e \"MINIO_ROOT_USER=minioadmin\" \\ -e \"MINIO_ROOT_PASSWORD=minioadmin\" \\ quay.io/minio/minio server /data --console-address \":9001\" docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address \":port\" 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html\nwget https://dl.minio.org.cn/server/minio/release/linux-amd64/minio chmod +x minio sudo mv minio /usr/local/bin/ # 创建数据目录 mkdir -p /data/minio/disk-{1...4} groupadd -r minio-user useradd -M -r -g minio-user minio-user chown minio-user:minio-user /data/minio/* 配置环境变量文件\nmkdir /etc/minio/ -p cat \u003e/etc/minio/config \u003c",
+  "wordCount" : "210",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/minio/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/k8s/">Kubernetes</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      minio
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e4%bb%8b%e7%bb%8d" aria-label="介绍">介绍</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a><ul>
+                    
+            <li>
+                <a href="#k8s" aria-label="k8s">k8s</a></li>
+            <li>
+                <a href="#docker" aria-label="docker">docker</a></li>
+            <li>
+                <a href="#%e4%ba%8c%e8%bf%9b%e5%88%b6%e5%8d%95%e8%8a%82%e7%82%b9" aria-label="二进制单节点">二进制单节点</a></li>
+            <li>
+                <a href="#%e4%ba%8c%e8%bf%9b%e5%88%b64%e7%a3%81%e7%9b%983%e8%8a%82%e7%82%b9" aria-label="二进制(4磁盘3节点)">二进制(4磁盘3节点)</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="介绍">介绍<a hidden class="anchor" aria-hidden="true" href="#介绍">#</a></h1>
+<p>官方文档(中文)：http://docs.minio.org.cn/docs/</p>
+<p>MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。</p>
+<p>生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务</p>
+<p>EC</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># ec</span>
+</span></span><span style="display:flex;"><span>纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID
+</span></span><span style="display:flex;"><span>公式
+</span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> k + m
+</span></span><span style="display:flex;"><span>n: 总数据块
+</span></span><span style="display:flex;"><span>k: 原始数据块
+</span></span><span style="display:flex;"><span>m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写
+</span></span><span style="display:flex;"><span>冗余度 n+m/n 冗余度越高，磁盘利用率越低
+</span></span><span style="display:flex;"><span>k值影响数据恢复代价
+</span></span><span style="display:flex;"><span>	k值越小，数据分散度越小，故障影响面越大
+</span></span><span style="display:flex;"><span>	k值越大，多路数据拷贝增加的网络和磁盘负载越大
+</span></span><span style="display:flex;"><span>一般推荐使用ec4集群冗余度1.33
+</span></span></code></pre></div><p><img alt="image-20240430142519295" loading="lazy" src="/k8s/minio/images/image-20240430142519295.png"></p>
+<h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<h2 id="k8s">k8s<a hidden class="anchor" aria-hidden="true" href="#k8s">#</a></h2>
+<p><a href="https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html">https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html</a></p>
+<h2 id="docker">docker<a hidden class="anchor" aria-hidden="true" href="#docker">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p ~/minio/data
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker run <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -p 9000:9000 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -p 9001:9001 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   --name minio <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -v ~/minio/data:/data <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -e <span style="color:#e6db74">&#34;MINIO_ROOT_USER=minioadmin&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   -e <span style="color:#e6db74">&#34;MINIO_ROOT_PASSWORD=minioadmin&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>   quay.io/minio/minio server /data --console-address <span style="color:#e6db74">&#34;:9001&#34;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run启动 MinIO 容器
+</span></span><span style="display:flex;"><span>-p将本地端口绑定到容器端口
+</span></span><span style="display:flex;"><span>-name为容器创建一个名称
+</span></span><span style="display:flex;"><span>9000表示MinIO服务地址，其上传调用的就是这个服务地址
+</span></span><span style="display:flex;"><span>9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address <span style="color:#e6db74">&#34;:port&#34;</span> 指定静态端口
+</span></span><span style="display:flex;"><span>/mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上
+</span></span><span style="display:flex;"><span>/mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上
+</span></span><span style="display:flex;"><span>MINIO_ROOT_USER<span style="color:#f92672">=</span>minioadmin表示MinIO部署的root用户的用户名<span style="color:#f92672">(</span>accessKey<span style="color:#f92672">)</span>，不写默认的用户名就是minioadmin
+</span></span><span style="display:flex;"><span>MINIO_ROOT_PASSWORD<span style="color:#f92672">=</span>minioadmin表示MinIO部署的root用户的密码<span style="color:#f92672">(</span>secretKey<span style="color:#f92672">)</span>，不写默认的密码就是minioadmin
+</span></span></code></pre></div><h2 id="二进制单节点">二进制单节点<a hidden class="anchor" aria-hidden="true" href="#二进制单节点">#</a></h2>
+<h2 id="二进制4磁盘3节点">二进制(4磁盘3节点)<a hidden class="anchor" aria-hidden="true" href="#二进制4磁盘3节点">#</a></h2>
+<p>官方文档： <a href="https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>wget https://dl.minio.org.cn/server/minio/release/linux-amd64/minio
+</span></span><span style="display:flex;"><span>chmod +x minio
+</span></span><span style="display:flex;"><span>sudo mv minio /usr/local/bin/
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 创建数据目录</span>
+</span></span><span style="display:flex;"><span>mkdir -p /data/minio/disk-<span style="color:#f92672">{</span>1...4<span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>groupadd -r minio-user
+</span></span><span style="display:flex;"><span>useradd -M -r -g minio-user minio-user
+</span></span><span style="display:flex;"><span>chown minio-user:minio-user /data/minio/*
+</span></span></code></pre></div><p>配置环境变量文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir /etc/minio/ -p
+</span></span><span style="display:flex;"><span>cat &gt;/etc/minio/config <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MINIO_VOLUMES=&#34;http://192.168.9.2{1...3}:9000/data/minio/disk-{1...4}&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MINIO_OPTS=&#34;--console-address :9001&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MINIO_ROOT_USER=admin
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MINIO_ROOT_PASSWORD=12345678
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MINIO_SERVER_URL=&#34;http://192.168.9.30:81&#34; # 负载均衡地址和server端口
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><p>服务启动文件</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat &gt;/usr/lib/systemd/system/minio.service <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[Unit]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Description=MinIO
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Documentation=https://docs.min.io
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Wants=network-online.target
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">After=network-online.target
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">AssertFileIsExecutable=/usr/local/bin/minio
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[Service]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Type=notify
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">WorkingDirectory=/usr/local
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">User=minio-user
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Group=minio-user
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ProtectProc=invisible
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EnvironmentFile=-/etc/default/minio
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ExecStartPre=/bin/bash -c &#34;if [ -z \&#34;${MINIO_VOLUMES}\&#34; ]; then echo \&#34;Variable MINIO_VOLUMES not set in /etc/default/minio\&#34;; exit 1; fi&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ExecStart=/usr/local/bin/minio server $MINIO_OPTS $MINIO_VOLUMES
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Restart=always
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">LimitNOFILE=1048576
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">MemoryAccounting=no
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">TasksMax=infinity
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">TimeoutSec=infinity
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">SendSIGKILL=no
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">[Install]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">WantedBy=multi-user.target
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><p>启动</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>systemctl daemon-reload
+</span></span><span style="display:flex;"><span>systemctl enable  minio.service --now
+</span></span><span style="display:flex;"><span>systemctl status  minio.service
+</span></span></code></pre></div><p>命令启动</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/usr/local/bin/minio server --console-address <span style="color:#e6db74">&#34;:9090&#34;</span> --address <span style="color:#e6db74">&#34;192.168.9.20:9000&#34;</span> /data/minio/disk-1
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/log/loki/">
+    <span class="title">« Prev</span>
+    <span>Loki</span>
+  </a>
+  <a class="next" href="/middleware/nacos/">
+    <span class="title">Next »</span>
+    <span>nacos</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

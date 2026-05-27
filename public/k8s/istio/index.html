@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>istio | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="概念介绍
+服务网格(Service Mesh)与istio
+三大服务模式：
+
+集中式代理模式：
+
+​	例如：nginx
+
+
+嵌入式代理模式
+
+​	例如：eureka-client
+
+​	特点：
+​		1、代码侵入，需引入jar包
+​		2、绑定了语言
+​		3、需基础架构组开发二方库
+
+
+主机独立进程模式
+ServiceMesh
+
+
+
+​	特点：
+​		1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）
+​		2、服务间的调用通过 代理Proxy 进行调用
+​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。
+蓝色：SideCar，绿色：应用app
+
+Service Mesh有四大特点：
+
+治理能力独立（Sidecar）
+应用程序无感知
+服务通信的基础设施层
+解耦应用程序的重试/超时、监控、追踪和服务发现
+
+
+​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略
+服务治理的特点：
+1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。">
+<meta name="author" content="ANY">
+<link rel="canonical" href="/k8s/istio/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="/k8s/istio/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/k8s/istio/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="istio">
+  <meta property="og:description" content="概念介绍 服务网格(Service Mesh)与istio 三大服务模式：
+集中式代理模式： ​	例如：nginx
+嵌入式代理模式 ​	例如：eureka-client
+​	特点：
+​	1、代码侵入，需引入jar包
+​	2、绑定了语言
+​	3、需基础架构组开发二方库
+主机独立进程模式
+ServiceMesh
+​	特点：
+​	1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）
+​	2、服务间的调用通过 代理Proxy 进行调用
+​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。
+蓝色：SideCar，绿色：应用app
+Service Mesh有四大特点：
+治理能力独立（Sidecar） 应用程序无感知 服务通信的基础设施层 解耦应用程序的重试/超时、监控、追踪和服务发现 ​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略
+服务治理的特点：
+1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="istio">
+  <meta name="twitter:description" content="概念介绍 服务网格(Service Mesh)与istio 三大服务模式：
+集中式代理模式： ​	例如：nginx
+嵌入式代理模式 ​	例如：eureka-client
+​	特点：
+​	1、代码侵入，需引入jar包
+​	2、绑定了语言
+​	3、需基础架构组开发二方库
+主机独立进程模式
+ServiceMesh
+​	特点：
+​	1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）
+​	2、服务间的调用通过 代理Proxy 进行调用
+​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。
+蓝色：SideCar，绿色：应用app
+Service Mesh有四大特点：
+治理能力独立（Sidecar） 应用程序无感知 服务通信的基础设施层 解耦应用程序的重试/超时、监控、追踪和服务发现 ​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略
+服务治理的特点：
+1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "istio",
+      "item": "/k8s/istio/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "istio",
+  "name": "istio",
+  "description": "概念介绍 服务网格(Service Mesh)与istio 三大服务模式：\n集中式代理模式： ​\t例如：nginx\n嵌入式代理模式 ​\t例如：eureka-client\n​\t特点：\n​\t1、代码侵入，需引入jar包\n​\t2、绑定了语言\n​\t3、需基础架构组开发二方库\n主机独立进程模式\nServiceMesh\n​\t特点：\n​\t1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）\n​\t2、服务间的调用通过 代理Proxy 进行调用\n​\tService Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。\n蓝色：SideCar，绿色：应用app\nService Mesh有四大特点：\n治理能力独立（Sidecar） 应用程序无感知 服务通信的基础设施层 解耦应用程序的重试/超时、监控、追踪和服务发现 ​\tService Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略\n服务治理的特点：\n1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "概念介绍 服务网格(Service Mesh)与istio 三大服务模式：\n集中式代理模式： ​\t例如：nginx\n嵌入式代理模式 ​\t例如：eureka-client\n​\t特点：\n​\t1、代码侵入，需引入jar包\n​\t2、绑定了语言\n​\t3、需基础架构组开发二方库\n主机独立进程模式\nServiceMesh\n​\t特点：\n​\t1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）\n​\t2、服务间的调用通过 代理Proxy 进行调用\n​\tService Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。\n蓝色：SideCar，绿色：应用app\nService Mesh有四大特点：\n治理能力独立（Sidecar） 应用程序无感知 服务通信的基础设施层 解耦应用程序的重试/超时、监控、追踪和服务发现 ​\tService Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略\n服务治理的特点：\n1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。\n2、异构系统的统一治理：方便多语言的实施，解锁升级带来的困难。\n3、价值：\n​\t1）可观察性：服务网格捕获诸如来源、目的地、协议、URL、状态码、延迟、持续时间等线路数据；\n​\t2）流量控制：为服务提供智能路由、超时重试、熔断、故障注入、流量镜像等各种控制能力。\n​\t3）安全性高：服务的认证、服务间通讯的加密、安全相关策略的强制执行；\n​\t4）健壮性：支持故障注入，对于容灾和故障演练等健壮性检验帮助巨大。\nistio\n官网地址：https://istio.io/\n​\tIstio由Google、IBM和Lyft在2017年5月合作推出，初始设计目标是在Kubernetes的基础上，以非侵入的方式为运行在集群中的微服务提供流量管理、安全加固、服务监控和策略管理等功能。有助于降低部署的复杂性，并减轻开发团队的压力。\n​\tIsito是Service Mesh的产品化落地，是目前最受欢迎的服务网格，功能丰富、成熟度高。它对Service Mesh完全支持，架构清晰，拆分数据面、控制面；拥有通信、安全、控制、观察等功能，实现开放，且插件化，多种可选实现。Istio可结合K8S使用，K8S提供服务生命周期的管理，Istio在K8S之上通过服务治理的整体的功能的实现。\n主要有以下特点\n连接（Connect）\n- 流量管理\n负载均衡 - 灰度发布 安全（Secure）\n- 认证 - 鉴权\n控制（Control）\n- 限流 - ACL\n观察（Observe）\n- 监控\n调用链 微服务与服务网格 微服务-SpringCloud（SpringCloud方式对代码是侵入式的；pom.xml；）\n容器编排（SpringCloud on Kubernetes）\n结合服务网格（SpringCloud on Kubernetes \u0026 Istio）\n简单对比下 Spring Cloud 与服务网格的区别：\n能力 Spring Cloud 生态系统 Service Mesh 生态系统 服务注册与发现 开发简单方便，仅需一个简单的注解，支持多种注册中心。对开发人员来说，很容易在本地环境下完成编码和调试。 **基于 K8s 的服务机制，并提供自己的注册中心。**开发人员需要理解 Kubernetes，而开发环境的设置并不容易。 故障容忍性 Resilience4j 的官方整合提供了完整的故障容忍机制。但服务需要与 SDK 整合。 通过使用 sidecar 架构，它是一个非侵入式的故障容忍机制，对服务完全透明。 可观察性 Spring Cloud 内置，例如 spring micro-meter、Zipkin 等。所有服务内部的指标、追踪和日志都可以轻松收集，对开发者完全透明。 通过 sidecar 机制，它可以监控进出通信。没有可观察的服务内部，服务追踪可能是不完整的。 流量调度 Spring Cloud 仅有非常基础的流量调度，例如，它基于 Ribbon 的负载均衡（从上一版本中删除）。 更多的流量调度方案，如金丝雀部署、蓝绿部署都可以轻松完成。 架构与组件 Istio 在 1.5 版本开始，已经弃用了 Mixer，因此也就不再支持基于 Mixer 的 Quota 方式进行限流。从 Istio 1.5 版本开始，推荐使用 Envoy 原生的限流功能，或者使用其他的第三方限流插件。\n目前 Envoy 支持种限流：全局和本地。\n全局限流依赖于外部 限流服务，envoy会通过 rpc 的方式进行调用限流服务，限流服务负责响应该请求是否被处理。 本地限流粒度是每个服务，用于限制每个服务的请求速率。基于每个Envoy进程（sidecar）配置，即每个注入了Envoy代理的Pod。相比全局限流来说，本地限流的配置更简单，不需要额外的组件。 全局限流\n全局限流的配置涉及两个部分：Envoy 的 rate_limits过滤器 和 限流服务的配置。\nrate_limits 过滤器中包含 actions 列表。Envoy 会尝试将每个请求与 rate_limits 过滤器中的每个 action 进行匹配。每个 action 会生成一个 descriptor 描述符。描述符是与 action 对应的一组描述符条目。每个描述符条目是一个键值对，通常表示为\"descriptor-key-1\": “descriptor-value-1”、“descriptor-key-2”: “descriptor-value-2\"等形式。相关配置参数 ：https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter#config-http-filters-rate-limit\n限流服务的配置则能够匹配每个请求所产生的描述符条目。针对特定的一组描述符条目，限流服务的配置能够指定其对应的请求速率限制。限流服务通过与Redis缓存交互来决定是否对请求进行限流，并将限流决策响应给Envoy代理。\n本地限流\n基于每个Envoy进程配置，即每个注入了Envoy代理的Pod。相比全局限流来说，本地限流的配置更简单，不需要额外的组件。本地限流的优先级高于全局限流，当同时使用本地速率限制器和全局速率限制器时，首先应用本地速率限制器进行限制，如果未达到本地速率限制，则应用全局速率限制器进行限制。示例场景如下： 假设本地限流对特定客户端IP的请求限制为每分钟50个请求，全局请求限制数为每分钟60个请求。客户端发送超过50个请求，则本地限流将拒绝该请求，即使全局限流尚未达到限制。 假设本地限流对特定客户端IP的请求限制为每分钟50个请求，全局请求限制数为每分钟40个请求。客户端发送超过40个请求，虽然未达到本地限流，但是已达到全局限流，因此该请求被拒绝。 本地限流如果有多个副本，则每个副本都有各自的速率限制器，也就是说如果您在一个副本上被限流，在另一个副本上可能不会被限流。 1.5版本之后的架构：\nIstio = Istiod（控制平面）+ Envoy(为istio数据层面事实上的一个标准)\n**控制平面：**主要包括Pilot、Citadel、Galley组件，主要功能是通过配置和管理Sidecar代理来进行流量控制，完成配置分发、服务发现、流量路由、授权鉴权等功能，以达到对数据平面的统一管理。控制平面不会直接解析请求数据包，通常提供 API 或者命令行工具可用于配置版本化管理，便于持续集成和部署。\n数据平面：由一组和业务服务成对出现的Sidecar代理（Envoy）构成，这些代理以 Sidecar 的形式和应用服务一起部署，主要功能是接管服务的进出流量，负责协调和控制应用服务之间的所有网络通信。每一个 Sidecar 会接管进入和离开服务的流量，并配合控制平面完成流量控制等方面的功能。\n总结一下，Service Mesh 具有的优点：\n屏蔽分布式系统通信的复杂性（负载均衡、服务发现、认证授权、监控追踪、流量控制等等），服务只用关注业务逻辑\n真正的语言无关，服务可以用任何语言编写，只需和 Service Mesh 通信即可\n对应用透明，Service Mesh 组件可以单独升级\n当然，Service Mesh 目前也面临一些挑战：\nService Mesh 组件以代理模式计算并转发请求，一定程度上会降低通信系统性能，并增加系统资源开销\nService Mesh 组件接管了网络流量，因此服务的整体稳定性依赖于 Service Mesh，同时额外引入的大量 Service Mesh 服务实例的运维和管理也是一个挑战\nIstiod 控制平面组件，具有服务发现、配置分发、证书配置的能力\nIstiod 采用 YAML 编写的高级规则，并将其转换为 Envoy 的可操作配置。然后，它把这个配置传播给网格中的所有 sidecar。Istiod 内部的 Pilot 组件抽象出特定平台的服务发现机制（Kubernetes、Consul 或 VM），并将其转换为 sidecar 可以使用的标准格式。\nPliot pliot是istio实现流量管理的组件，主要作用是配置和管理envoy代理\npliot会将控制流量行为的路由规则转换为envoy的配置，并广播到envoy\npliot可以把服务发现机制抽象出来转换成API分发给envoy，使envoy具有服务发现功能\n主要任务有两个：\n从平台获取服务信息，完成服务发现 获取istio各项配置，转换成envoy可读的格式分发下去 ​ pliot不涉及业务逻辑层，而是作为一个适配器，如果有不同类型的配置格式，都可以转换成envoy可读的格式，避免了后期接入其他格式的配置而需要修改envoy。只需要修改pliot即可\nCitadel 是个安全服务的组件，主要负责密钥和证书的管理。可以提供服务间和终端用户的身份认证，可以加密服务网格中的流量\nGalley 是pilot中适配底层平台的功能独立的组件\n是istio的配置管理组件，负责配置的获取，处理，分发。通过mcp（网格配置协议）与其他组件进行通信\n负责将其余的Istio组件从底层平台（例如k8s）获取用户配置的细节隔离开来，从而将Pilot与底层平台进行解耦\nEnvoy ​\tIstio 使用 Envoy 代理的扩展版本。Envoy 是用 C++ 开发的高性能代理，用于协调服务网格中所有服务的入站和出站流量。Envoy 代理是唯一与数据平面流量交互的 Istio 组件。（envoy和nginx有点相似，可以用envoy代替nginx。但目前大多数公司常见服务选择用的更多的还是nginx）\nEnvoy 代理被部署为服务的 Sidecar，这种 Sidecar 部署允许 Istio 可以执行策略决策，并提取丰富的遥测数据， 接着将这些数据发送到监视系统以提供有关整个网格行为的信息。Sidecar 代理模型还允许您向现有的部署添加 Istio 功能，而不需要重新设计架构或重写代码。在逻辑上为服务增加了 Envoy 的许多内置特性：\n动态服务发现 负载均衡 TLS 终端 HTTP/2 与 gRPC 代理 熔断器 健康检查 基于百分比流量分割的分阶段发布 故障注入 丰富的指标 ​\n由 Envoy 代理启用的一些 Istio 的功能和任务包括：\n流量控制功能：通过丰富的 HTTP、gRPC、WebSocket 和 TCP 流量路由规则来执行细粒度的流量控制。 网络弹性特性：重试设置、故障转移、熔断器和故障注入。 安全性和身份认证特性：执行安全性策略，并强制实行通过配置 API 定义的访问控制和速率限制。 基于 WebAssembly 的可插拔扩展模型，允许通过自定义策略执行和生成网格流量的遥测。 核心能力 非侵入架构: Envoy 是一个独立的进程，设计为伴随每个应用程序服务一起运行。所有 Envoy 实例形成一个透明的通信网格，每个应用程序通过 localhost 发送和接收消息，不需要知道网络拓扑。对服务的实现语言也完全无感知，这种模式也被称为 Sidecar 模式。\nL3/L4 过滤器架构: Envoy 的核心是一个 L3/L4 层的网络代理。可插拔的过滤器链机制允许编写不同的 TCP/UDP 代理任务的过滤器，并将其插入到主服务器中。而且已经内置支持了各种任务的过滤器，例如原始 TCP 代理、UDP 代理、HTTP 代理、TLS 客户端证书身份验证、Redis、MongoDB、Postgres 等。\nHTTP L7 过滤器架构: HTTP 是现代应用程序架构的关键组件，因此 Envoy 支持了一个额外的 HTTP L7 过滤器层。HTTP 过滤器可以被插入到 HTTP 连接管理子系统中，执行不同的任务，如缓存、速率限制、路由/转发、嗅探 Amazon 的 DynamoDB 等。\n顶级的 HTTP/2 支持: 在 HTTP 模式下运行时，Envoy 同时支持 HTTP/1.1 和 HTTP/2。Envoy 可以作为透明的 HTTP/1.1 到 HTTP/2 双向代理运行。这意味着可以连接任何组合的 HTTP/1.1 和 HTTP/2 客户端与目标服务器。推荐的服务到服务配置在所有 Envoy 之间使用 HTTP/2 创建持久连接网格，请求和响应可以在该连接上进行多路复用。\nHTTP/3 支持（目前处于 alpha 版）: 从 Envoy 1.19.0 版本开始，Envoy 现在支持上游和下游的 HTTP/3，而且可以在任何方向上进行 HTTP/1.1、HTTP/2 和 HTTP/3 之间的转换。\nHTTP L7 路由: 在 HTTP 模式下运行时，Envoy 支持路由子系统，该子系统能够根据路径、权限、内容类型、运行时值等路由和重定向请求。在使用 Envoy 作为前端/边缘代理时，此功能非常有用，但在构建服务到服务的网格时也可以利用它。（似于nginx里的location）\ngRPC 支持: gRPC 是 Google 的一个 RPC 框架，使用 HTTP/2 或更高版本作为底层多路复用传输。Envoy 支持用作 gRPC 请求和响应的路由和负载均衡基础所需的所有 HTTP/2 功能，这两个系统非常互补。\n服务发现和动态配置: Envoy 可以选择使用一组分层的动态配置 API 来进行集中管理。这些层向 Envoy 提供了关于后端集群中的主机、后端集群自身、HTTP 路由、监听套接字和加密材料的动态更新。对于更简单的部署，可以通过 DNS 解析（甚至完全跳过）来完成后端主机发现，并且进一步的层可以由静态配置文件替代。\n这个服务发现和动态配置功能是envoy有别于nginx的一个重要能力。nginx不具备这个能力。对Nginx，如果你改了一个配置就要做一次nginx -s reload操作。如果配置比较大，或者应用服务比较多的话，那么nginx频繁去做reload，其性能还是有很大的一个损耗的。envoy不会，它原生就具有这个动态配置的能力。你修改过后，它就可以自动生效了\n健康检查: 构建 Envoy 网格的推荐方法是将服务发现视为最终一致的过程。Envoy 包含一个健康检查子系统，可以选择对上游服务集群执行主动健康检查。然后，Envoy 使用服务发现和健康检查信息的结合来确定健康的负载均衡目标。Envoy 还通过异常值检测子系统支持被动健康检查。(有点类似于k8s里的service endpoints。)\n高级负载均衡: 分布式系统中不同组件之间的负载均衡是一个复杂的问题。由于 Envoy 是一个独立的代理而不是库，因此可以独立实现高级负载均衡以供任何应用程序访问。目前 Envoy 支持自动重试、熔断、通过外部速率限制服务进行全局速率限制、异常检测等。\n前端/边缘代理支持: 在边缘使用相同的软件有很大的好处（可观察性、管理、相同的服务发现和负载均衡算法等）。 Envoy 的功能集使其非常适合作为大多数现代 Web 应用程序用例的边缘代理。这包括 TLS 终止、HTTP/1.1、HTTP/2 和 HTTP/3 支持以及 HTTP L7 路由。\n最佳的可观测性: 如上所述，Envoy 的主要目标是使网络透明化。但是，问题在网络层面和应用层面都可能会出现。Envoy 为所有子系统提供了强大的统计支持。目前支持的统计数据输出端是 statsd（以及兼容的提供程序），但是接入其他不同的统计数据输出端并不困难。统计数据也可以通过管理端口进行查看，Envoy 还支持通过第三方提供者进行分布式跟踪。\n常用术语 在介绍 Envoy 架构之前，有必要先介绍一些常用的术语定义，这些术语贯穿整个 Envoy 的架构设计。\nHost(主机): 能够进行网络通信的实体（手机、服务器等上的应用程序）。在 Envoy 中主机是逻辑网络应用程序。一个物理硬件可能运行多个主机，只要每个主机可以独立进行寻址。\nDownstream(下游): 下游主机连接到 Envoy，发送请求并接收响应。 （类似客户端）\nUpstream(上游): 上游主机接收来自 Envoy 的连接和请求并返回响应。（类似服务端）\nListener(侦听器): 侦听器是一个带有名称的网络位置（例如端口、unix domain socket 等），下游客户端可以连接到该位置。Envoy 暴露一个或多个监听器，供下游主机连接。\nCluster(集群): 一个集群是一组逻辑上相似的上游主机，Envoy 连接到这些主机。Envoy 通过服务发现来发现集群的成员。它还可以通过主动健康检查来确定集群成员的健康状况。Envoy 根据负载均衡策略确定将请求路由到哪个集群成员。\nMesh(网格): 一组主机协同工作，提供一致的网络拓扑结构。在这里 Envoy Mesh 是指一组 Envoy 代理，它们构成了由多种不同服务和应用程序平台组成的分布式系统的消息传递基础。\nRuntime configuration(运行时配置): 与 Envoy 一起部署的实时配置系统。可以更改配置设置，影响操作而无需重新启动 Envoy 或更改主要配置。\n架构设计 Envoy 采用单进程多线程架构。一个独立的 primary 线程负责控制各种零散的协调任务，而一些 worker 线程则负责执行监听、过滤和转发任务。一旦侦听器接受连接，该连接就会将其生命周期绑定到一个单独的 worker 线程。这使得 Envoy 的大部分工作基本上是单线程来处理的，只有少量更复杂的代码处理工作线程之间的协调。\n通常情况下 Envoy 实现了 100% 非阻塞。对于大多数工作负载，我们建议将 worker 线程的数量配置为机器上的硬件线程数量。\n整体架构：\nEnvoy 进程中运行着一系列 Inbound/Outbound 监听器（Listener），Inbound 代理入站流量，Outbound 代理出站流量。Listener 的核心就是过滤器链（FilterChain），链中每个过滤器都能够控制流量的处理流程。\nEnvoy 接收到请求后，会先走 FilterChain，通过各种 L3/L4/L7 Filter 对请求进行处理，然后再路由到指定的集群，并通过负载均衡获取一个目标地址，最后再转发出去。\n其中每一个环节可以静态配置，也可以动态服务发现，也就是所谓的 xDS，这里的 x 是一个代词，是 lds、rds、cds、eds、sds 的总称，即服务发现，后 2 个字母 ds 就是 discovery service。\n安装 Istio 提供了 Helm、Operator 和 istioctl 三种安装方式，其中 istioctl 也是基于 Operator 模式安装，在其基础上根据应用场景提供了许多预定制的功能，有助于防止安装错误，可以在预定制的基础上，通过--set参数覆盖任何的预定制安装配置。\n单集群\n这里使用官方推荐的istioctl方式进行安装，官方：https://istio.io/latest/zh/docs/setup/install/istioctl/\n前置条件 初始化 平台安装环境。例如，Kind 环境，需要提前安装 Docker，创建至少2个节点的 Kubernetes 集群； 检查 Pod 和 服务的要求。例如，服务的端口号不能和 Sidecar 的端口（150XX）冲突，不能使用 1337用户运行应用等； 下载istio # 下载最新版 $ curl -L https://istio.io/downloadIstio | sh - # 可以指定环境变更，来下载指定版本 和 CPU架构的版本 $ curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.16.2 TARGET_ARCH=x86_64 sh - # 转到 Istio 安装包目录 cd istio-1.16.2 # 安装目录包含： # samples/：示例应用程序； # bin/：istioctl 客户端二进制文件； # 将 istioctl客户端添加到PATH环境变量 export PATH=$PWD/bin:$PATH # 查看版本 $ istioctl version client version: 1.14.3 # 查看配置档 $ istioctl profile list Istio configuration profiles: default demo empty external minimal openshift preview remote default：根据 IstioOperator API 的默认设置来启用组件。 建议用于生产部署和多集群网格 中的主集群。您可以运行 istioctl profile dump 命令来查看默认设置。 demo：这一配置具有适度的资源需求，旨在展示 Istio 的功能。 它适合运行 Bookinfo 应用程序和相关任务。 这是通过快速开始指导安装的配置。 remote：用于配置一个从集群， 这个从集群由外部控制平面管理， 或者由多集群网格的 主集群中的控制平面管理。 empty：不部署任何内容。可以作为自定义配置的基本配置文件。 preview：预览文件包含的功能都属于实验性阶段。该配置文件是为了探索 Istio 的新功能。 确保稳定性、安全性和性能（使用风险需自负）。 ambient：Ambient 配置文件旨在帮助您开始使用 Ambient Mesh。 安装 demo 配置档 $ istioctl install --set profile=demo -y 通过profile选项安装不同的配置档。\n安装 default 配置档 $ istioctl install 上面命令默认使用default配置档。可以通过--set参数配置各种选项来修改默认安装，比如，要启用访问日志：\n$ istioctl install --set meshConfig.accessLogFile=/dev/stdout 也可以使用-f传递一个配置文件来覆盖默认的安装配置，在生产环境推荐使用配置文件的方式。下面使用配置文件的形式和--set的效果是等价的：\n$ cat \u003c ./my-config.yaml apiVersion: install.istio.io/v1alpha1 kind: IstioOperator spec: meshConfig: accessLogFile: /dev/stdout EOF $ istioctl install -f my-config.yaml 完整的安装配置选项可参考 IstioOperator API：https://istio.io/latest/zh/docs/reference/config/istio.operator.v1alpha1/\n检查安装状态 Istio 所有组件默认安装在istio-system命名空间中。\n$ kubectl get deployment -n istio-system NAME READY UP-TO-DATE AVAILABLE AGE deployment.apps/istio-egressgateway 1/1 1 1 19h deployment.apps/istio-ingressgateway 1/1 1 1 19h deployment.apps/istiod 1/1 1 1 19h ● istio-egressgateway：负责处理出站流量； ● istio-ingressgateway：负责处理入站流量； ● istiod：负责服务发现、管理配置 和 TLS 证书； 安装完成后，istioctl 会将安装的状态信息保存到 IstioOperator 对象的一个名为installed-state的实例中，通过该对象可以确认 Istio 都安装了什么。\n# 文件较大，这里不展示，可自行查看 $ kubectl get istiooperators.install.istio.io -n istio-system installed-state -oyaml 注意：istioctl 命令 依赖 installed-state CR 用于执行检查任务，不能删除。\n卸载 $ istioctl uninstall --purge # uninstall 命令默认不会移除 istio-system 命名空间 $ kubectl delete namespace istio-system 可选的 --purge 参数将移除所有 Istio 资源，包括可能被其他 Istio 控制平面共享的、集群范围的资源。\n初试 istio 支持自动注入和手动注入两种方式：\n手动注入：可以使用 istioctl kube-inject手动给 deploy 注入，会修改对应的 deploy 的配置（init containers，images 等）； 自动注入：给要注入的 namespace 打标：kubectl label namespace default istio-inhection=enabled，之后任何创建在该 NS 下的 pod 会自动注入 sidecar。自动注入通过 k8s Admission webhook 实现，监听到 create pod 的操作 k8s API server 的行为之后，会自动执行 inject 逻辑。 自动注入：\n# 给命名空间打标签，这里用default kubectl label namespace default istio-inhection=enabled # 快速启动一个测试容器，包含有各种测试命令，ping，curl kubectl run client-$RANDOM --image=ikubernetes/admin-box:v1.2 --restart=Never -it --rm --command -- /bin/bash # 启动之后可以看到启动了一个pod，里面有两个容器 kubectl get po NAME READY STATUS RESTARTS AGE client-14273 2/2 Running 0 37s 部署 Bookinfo 应用 安装官方提供的一个非常经典的 Bookinfo 应用示例，这个示例部署了一个用于演示多种 Istio 特性的应用，该应用由四个单独的微服务构成。 这个应用模仿在线书店的一个分类，显示一本书的信息。页面上会显示一本书的描述，书籍的细节（ISBN、页数等），以及关于这本书的一些评论。\nBookinfo 应用分为四个独立的微服务：\nproductpage：这个微服务会调用 details 和 reviews 两个微服务，用来生成页面。使用 Python 开发。 details：这个微服务中包含了书籍的信息。使用 Ruby 开发。 reviews：这个微服务中包含了书籍相关的评论。它还会调用 ratings 微服务。使用 Java 开发。 ratings：这个微服务中包含了由书籍评价组成的 评级 信息。使用 NodeJS 开发。 reviews 微服务有 3 个版本：\nv1 版本 不会 调用 ratings 服务。 v2 版本 会 调用 ratings 服务，并使用 1 到 5 个黑色星形图标来显示评分信息。 v3 版本 会 调用 ratings 服务，并使用 1 到 5 个红色星形图标来显示评分信息。 架构：\nBookinfo 应用中的几个微服务是由不同的语言编写的。 这些服务对 Istio 并无依赖，但是构成了一个有代表性的服务网格的例子：它由多个服务、多个语言构成，并且 reviews 服务具有多个版本。\n部署：\n进入 Istio 安装目录。为 default 命名空间打上标签istio-injection=enabled，由 Istio 自动为该命名空间的 Pod 注入 Sidecar。\nkubectl label namespace default istio-injection=enabled # 安装bookinfo，有的镜像比较大需要等一段时间 kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml 如果安装 Istio 时禁用了自动注入 Sidecar 的功能，可以使用 istioctl kube-inject命令手动注入：\nkubectl apply -f \u003c(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml) 部署完成之后，查看资源\n$ kubectl get po,svc NAME READY STATUS RESTARTS AGE pod/details-v1-7f4669bdd9-tcnkw 2/2 Running 0 47m pod/productpage-v1-5586c4d4ff-rmghs 2/2 Running 0 47m pod/ratings-v1-6cf6bc7c85-stqxp 2/2 Running 0 47m pod/reviews-v1-7598cc9867-777th 2/2 Running 0 47m pod/reviews-v2-6bdd859457-87rkn 2/2 Running 0 47m pod/reviews-v3-6c98f9d7d7-fg4dl 2/2 Running 0 47m NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE service/details ClusterIP 10.105.124.133 9080/TCP 47m service/kubernetes ClusterIP 10.96.0.1 443/TCP 23d service/productpage ClusterIP 10.96.211.111 9080/TCP 47m service/ratings ClusterIP 10.107.54.41 9080/TCP 47m service/reviews ClusterIP 10.104.223.154 9080/TCP 47m 确认 Bookinfo 应用是否运行正常\n在其中一个 Pod 中用 curl 命令对应用发送请求，例如：从 ratings服务向productpage服务发送请求：\n$ kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl productpage:9080/productpage | grep -o \".*\" Simple Bookstore App 更改名为productpage的svc的模式为nodeport，然后直接访问对应的端口：http://192.168.9.30:30991/productpage\n# kubectl get svc NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE details ClusterIP 10.105.124.133 9080/TCP 3h8m kubernetes ClusterIP 10.96.0.1 443/TCP 23d productpage NodePort 10.96.211.111 9080:30991/TCP 3h8m ratings ClusterIP 10.107.54.41 9080/TCP 3h8m reviews ClusterIP 10.104.223.154 9080/TCP 3h8m 流量治理 Istio 的流量路由规则可以轻松地控制服务之间的流量和 API 调用。Istio 简化了服务级别属性(如断路器、超时和重试)的配置，并使设置重要任务(如 A/B 测试、canary 部署和基于百分比的流量分割的分阶段部署)变得容易。 它还提供了开箱即用的故障恢复特性，帮助您的应用程序更健壮地应对依赖服务或网络的故障。\n网关Gateway与VirtualService 外部流量访问流向\n内部访问外部流向\n流量入口出口\n流量路由\n以Bookinfo 应用为例，部署到网关中，以便外部可以通过浏览器访问。\n# 部署网关，文件位置：/samples/bookinfo/networking/ $ kubectl apply -f /opt/istio-1.14.3/samples/bookinfo/networking/bookinfo-gateway.yaml # 确认部署结果，可以看到生成一个gateway与virtualservice $ kubectl get gw [root@k8s-master1 networking]# kubectl get gw,vs NAME AGE gateway.networking.istio.io/bookinfo-gateway 13s NAME GATEWAYS HOSTS AGE virtualservice.networking.istio.io/bookinfo [\"bookinfo-gateway\"] [\"*\"] 13s bookinfo-gateway.yaml文件看详细信息\n$ cat /opt/istio-1.14.3/samples/bookinfo/networking/bookinfo-gateway.yaml apiVersion: networking.istio.io/v1alpha3 kind: Gateway # 创建了一个Gateway网关资源 metadata: name: bookinfo-gateway spec: selector: istio: ingressgateway # 使用的istio 默认的 controller servers: - port: number: 80 name: http protocol: HTTP hosts: - \"*\" # 指定的域名或者ip --- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService # 对应创建了一个VirtualService metadata: name: bookinfo spec: hosts: # 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全) - \"*\" gateways: - bookinfo-gateway # 流量来源于哪个网关，可以是多个 http: - match: # 匹配规则 - uri: exact: /productpage - uri: prefix: /static - uri: exact: /login - uri: exact: /logout - uri: prefix: /api/v1/products route: # 路由目标 - destination: host: productpage # 对应bookinfo的的svc port: number: 9080 # subset: v1 # 配置路由策略将流量转发到不同版本的subet上，应用于灰度发布 # weight: 80 # 流量路由的权重 获取网关访问URL\n查看istio-system的svc：istio-ingressgateway的状态\nkubectl get svc -n istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE istio-egressgateway ClusterIP 10.99.111.212 80/TCP,443/TCP 22h istio-ingressgateway LoadBalancer 10.105.241.112 15021:30629/TCP,80:31330/TCP,443:30085/TCP,31400:32249/TCP,15443:32453/TCP 22h istiod ClusterIP 10.109.222.195 15010/TCP,15012/TCP,443/TCP,15014/TCP 22h Istio 网关本质是通过 LoadBalancer 类型的 Service 通过一个”公网“IP对外暴露绑定到 Gateway 的服务，istio ingress Service 接收到请求后，根据路由规则，将请求转发到后端的 Pod 服务中。\n如果EXTERNAL-IP字段是pending状态，表示本地没有负载均衡器ip（公有云服务器才有）则：\n官网都有说明：https://istio.io/v1.14/docs/setup/getting-started/\n# 获取到流量入口端口，这里就是31330 export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name==\"http2\")].nodePort}') export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name==\"https\")].nodePort}') # 获取工作节点ip export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath='{.items[0].status.hostIP}') 如果有EXTERNAL-IP字段，则：\n# 获取端口 export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name==\"http2\")].port}') export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name==\"https\")].port}') # 获取到worker node的ip export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}') 往下继续，拼接查看访问的地址端口\nexport GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT echo \"$GATEWAY_URL\" echo \"http://$GATEWAY_URL/productpage\" 然后在浏览器访问即可\n如果刷新几次应用的页面，就会看到 productpage 页面中会随机展示 reviews 服务的不同版本的效果（红色、黑色的星形或者没有显示）。reviews 服务出现这种情况是因为我们还没有使用 Istio 来控制版本的路由。\nDestinationRule DestinationRule 对象是 VirtualService 路由生效后，配置应用与请求的策略集，用来将 VirtualService 中指定的 subset 与对应的 Pod 关联起来。\n可以将VirtualService视为将流量如何路由到给定目标地址， 然后使用目标规则来配置该目标的流量。在评估虚拟服务路由规则之后， 目标规则将应用于流量的“真实”目标地址。\n配置示例解释：\napiVersion: networking.istio.io/v1alpha3 kind: DestinationRule # 定义DestinationRule 资源 metadata: name: reviews spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 subsets: # 定义服务的版本，可通过标签键值对匹配服务中的Endpoints - name: v1 # 对应VirtualService中配置的subset: v1 labels: # 匹配标签 version: v1 - name: v2 labels: version: v2 - name: v3 labels: version: v3 负载均衡器配置(loadBalancer) 配置示例：\napiVersion: networking.istio.io/v1alpha3 kind: DestinationRule # 定义DestinationRule 资源 metadata: name: my_name spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: # 流量策略：负载均衡(loadBalancer)、连接池(connectionPool)、健康检查(outlierDeletion)、TLS策略 loadBalancer: # 负载均衡 simple: RANDOM # 随机算法 subsets: # 定义服务的版本，可通过标签键值对匹配服务中的Endpoints - name: v1 # 对应VirtualService中配置的subset: v1 labels: version: v1 - name: v2 labels: version: v2 - name: v3 labels: version: v3 有两类：simple，consistentHash\nsimple字段：提供的负载均衡算法如下\nROUND_ROBIN：轮询算法，如果未指定，则默认采用这种算法。 LEAST_CONN：最少连接算法，算法实现是从两个随机选择的服务后端选择一个活动请求数较少 的后端实例。 RANDOM：从可用的健康实例中随机选择一个。 PASSTHROUGH：直接转发连接到客户端连接的目标地址，即没有做负载均衡。 consistentHash字段：一致性hash，并根据 HTTP 头、cookies 或其他请求属性提供会话亲和性。\nhttpHeaderName:：基于Header. httpCookie：基于Cookie。 useSourcelp：基于源IP计算哈希值。 minimumRingSize：哈希环上虚拟节点数的最小值，节点数越多则负载均衡越精细。 ...... spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: # 流量策略：负载均衡(loadBalancer)、连接池(connectionPool)、健康检查(outlierDelection)、TLS策略 loadBalancer: consistentHash: # 负载均衡 httpCookie: # 基于cookie做hash name: location ttl: 4s ...... 连接池配置(connectionPool) 可以在 TCP 和 HTTP 层面应用于上游服务的每个主机，我们可以用它们来控制连接量\nTCP连接池配置\nmaxConnections:上游服务的所有实例建立的最大连接数，默认是 1024，属于 TCP层的配置，对于 HTTP，只用于 HTTP/1.1，因为 HTTP/2对每个主机都使用单个连接。\nconnectTimeout:TCP连接超时，表示主机网络连接超时，可以改善因调用服务变慢导致整个链路E变慢的情况。\ntcpKeepalive:设置TCP keepalives，是lstio1.1新支持的配置，定期给对端发送一个keepalive的探测包，判断连接是否可用。\n...... spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: connectionPool: tcp: maxConnections: 50 connectTimeout: 50ms tcpKeepalive: # 探针 probes: 5s time: 3600 tnterval: 60s ...... HTTP连接池配置\nhttp1MaxPendingRequests：最大等待 HTTP 请求数，默认值是 1024，只适用于HTTP/1.1的服务，因为 HTTP/2 协议的请求在到来时会立即复用连接，不会在连接池等待。 http2MaxRequests：最大请求数，默认是1024。只适用于HTTP/2服务，因为HTTP/1.1使用最大连接数maxConnections即可，表示上游服务的所有实例处理的最大请求数 maxRequestsPerConnection：每个连接的最大请求数。HTTP/1.1和HTTP/2连接池都遵循此参数。如果没有设置，则没有限制。设置为1时表示每个连接只处理一个请求，也就是禁用了Keep-alive maxRetries：最大重试次数，默认是3，表示服务可以执行的最大重试次数。如果调用端因为偶尔抖动导致请求直接失败，则可能会带来业务损失，一般建议配置重试，若重试成功则可正常返回数据，只不过比原来响应得慢一点，但重试次数太多会影响性能，要谨使用。idleTimeout:空闲超时，定义在多长时间内没有活动请求则关闭连接。 http可以和tcp配置使用，示例:\n...... spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: connectionPool: tcp: maxConnections: 80 # 配置最大80个连接 connectTimeout: 25ms # 连接超时时间 http: http2MaxRequests: 800 # 只允许最多有800个并发请求 maxRequestsPerConnection: 10 # 每个连接的请求数不超过10个 ...... 异常点检测(outlierDelection) 异常点检测是一个断路器的实现，它跟踪上游服务中每个主机(Pod)的状态。如果一个主机开始返回5xx HTTP 错误，它就会在预定的时间内被从负载均衡池中弹出。对于 TCP 服务，Envoy 将连接超时或失败计算为错误。\n两种健康检查:\n主动型的健康检查：定期探测目标服务实例，根据应答来判断服务实例的健康状态。如负载均衡器中的健康检查 被动型的健康检查：通过实际的访问情况来找出不健康的实例，如isito中的异常点检查 异常实例检查相关的配置:\nconsecutiveErrors：实例被驱逐前的连续错误次数，默认是 5。对于 HTTP 服务，返回 502、503 和504 的请求会被认为异常;对于 TCP 服务，连接超时或者连接错误事件会被认为异常。 interval：驱逐的时间间隔，默认值为10秒，要求大于1毫秒，单位可以是时、分、毫秒。 baseEjectionTime：最小驱逐时间。一个实例被驱逐的时间等于这个最小驱逐时间乘以驱逐的次数。这样一个因多次异常被驱逐的实例，被驱逐的时间会越来越长。默认值为30秒，要求大于1毫秒，单 位可以是时、分、毫秒。 maxEjectionPercent：指负载均衡池中可以被驱逐的故障实例的最大比例，默认是10%，设置这个值是为了避免太多的服务实例被驱逐导致服务整体能力下降。 minHealthPercent:最小健康实例比例，是lstio 1.1新增的配置。当负载均衡池中的健康实例数的 例大于这个比例时，异常点检查机制可用;当可用实例数的比例小于这个比例时，异常点检查功能将被禁用，所有服务实例不管被认定为健康还是不健康，都可以接收请求。参数的默认值为50% 下面举一个例子：设置了 800 个并发的 HTTP2 请求(http2MaxRequests)的限制，每个连接不超过10个请求(maxRequestsPerConnection) 到该服务。每5分钟扫描一次上游主机(Pod)(interval)，如果其中任何一个主机连续失败10次(contracticalErrors)，Envoy 会将其弹出 10 分钟(baseEjectionTime)。\n...... trafficPolicy: connectionPool: http: http2MaxRequests: 800 # 只允许最多有800个并发请求 maxRequestsPerConnection: 10 # 每个连接的请求数不超过10个 outlierDelection: consecutiveErrors: 10 # 连续失败10次 interval: 5m # 每5分钟扫描一次 baseEjectionTime: 10m # 将其弹出 10 分钟(baseEjectionTime) ...... 端口流量策略(port) 在端口上配置流量策略，且端口上流量策略会覆盖全局的流量策略。关于配置方法与TrafficPolicy没有大差别，一个关键的差别字段就是 port。\n示例：\n...... spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: connectionPool: tcp: maxConnections: 50 portLevelSettings: - port: number: 80 loadBalancer: simple: LEAST_CONN connectionPool: tcp: maxConnections: 50 - port: number: 8080 loadBalancer: simple: ROUND_ROBIN 服务子集(Subset) Subset，定义服务的子集。\n属性:\nname：Subset的名字，为必选字段。通过VirtualService引用的就是这个名字 labels：Subset上的标签，通过一组标签定义了属于这个Subset的服务实例。比如最常用的标识服务版本的Version标签。 trafficPolicy：应用到这个Subset上的流量策略。 示例：\napiVersion: networking.istio.io/v1alpha3 kind: DestinationRule metadata: name: my_name spec: host: my_svc subsets: - name: v1 labels: version: v1 trafficPolicy: tcp: maxConnections: 50 # 给一个特定的subset配置的d TLS设置(tls) 包含任何与上游服务连接的TLS相关设置。下面是一个使用提供的证书配置mTLS的例子： mtls: 双向认证，客户机和服务器都通过证书颁发机构彼此验证身份\n...... trafficPolicy: tls: mode: MUTUAL clientCertificate: /etc/certs/cert.pem privateKey: /etc/certs/key.pem caCertificate: /etc/certs/ca.pem ...... 由同一个 root ca 生成两套证书，即客户端证书和服务端证书。客户端使用 https 访问服务端时，双方会交换证书，并进行认证，认证通过方可通信。\n其他支持的 TLS 模式有 DISABLE(没有 TLS 连接)，SIMPLE(在上游端点发起 TLS 连接)，以及ISTIO MUTUAL(与MUTUAL 类似，使用Istio 的 mTLS 证书)。\n流量限流熔断 ​\t熔断是创建弹性微服务应用程序的重要模式，熔断能够使应用程序具备应对来自故障、潜在峰值和其他未知网络因素影响的能力。服务熔断是应对微服务雪崩效应的一种链路保护机制，类似股市、保险丝。微服务之间的数据交互是通过远程调用来完成的，服务 A 调用服务 B，服务 B 调用服务 C，某一时间链路上对服务 C 的调用响应时间过长或者服务 C 不可用，随着时间的增长，对服务 C 的调用也越来越多，然后服务 C 崩溃了，但是链路调用还在，对服务 B 的调用也在持续增多，然后服务 B 崩溃，随之 A 也崩溃，导致雪崩效应。\n​\t服务熔断是应对雪崩效应的一种微服务链路保护机制。例如在高压电路中，如果某个地方的电压过高，熔断器就会熔断，对电路进行保护。同样，在微服务架构中，熔断机制也是起着类似的作用。当调用链路的某个微服务不可用或者响应时间太长时，会进行服务熔断，不再有该节点微服务的调用，快速返回错误的响应信息。当检测到该节点微服务调用响应正常后，恢复调用链路。\n​\t服务熔断的作用类似于我们家用的保险丝，当某服务出现不可用或响应超时的情况时，为了防止整个系统出现雪崩，暂时停止对该服务的调用。在 Spring Cloud 框架里，熔断机制通过 Hystrix实现，Hystrix 会监控微服务间调用的状况，当失败的调用到一定阈值，缺省是 5 秒内 20 次调用失败，就会启动熔断机制。\n​\tIstio 也有对熔断的支持，无需对代码进行任何更改就可以为应用增加熔断和限流功能。Istio 中熔断和限流在 DestinationRule 的 CRD 资源的 TrafficPolicy 中设置，一般设置连接池（ConnectionPool）限流方式和异常检测（outlierDetection）熔断方式。两者各自配置部分参数，其中参数有可能存在对方的功能，并没有很严格的区分出来，如主要进行限流设置的 ConnectionPool 中的 maxPendingRequests 参数，最大等待请求数，如果超过则也会暂时的熔断。\n配置示例：\n设置 TCP 的连接池大小为 100 个连接，有 800 个并发的 HTTP2 请求(http2MaxRequests)的限制，每个连接不超过10个请求(maxRequestsPerConnection) 到该服务。每5分钟扫描一次上游主机(Pod)(interval)，如果其中任何一个主机连续失败10次(contracticalErrors)，Envoy 会将其弹出 10 分钟(baseEjectionTime)。\napiVersion: networking.istio.io/v1alpha3 kind: DestinationRule # 定义DestinationRule 资源 metadata: name: my_name spec: host: my_svc # 配置的service名称，如是跨空间需写全地址 trafficPolicy: connectionPool: tcp: maxConnections: 100 http: http2MaxRequests: 800 # 只允许最多有800个并发请求 maxRequestsPerConnection: 10 # 每个连接的请求数不超过10个 outlierDelection: consecutiveErrors: 10 # 连续失败10次 interval: 5m # 每5分钟扫描一次 baseEjectionTime: 10m # 将其弹出 10 分钟(baseEjectionTime) 流量路由案例 基于版本路由 安装 Bookinfo 应用时，部署了每个应用的所有版本。实现版本路由的功能，可以在 VirtualService 中通过subset指定访问服务的版本，即服务的一个子集。\n基于Bookinfo 应用，将每个服务的流量全部路由到 v1 版本\n先创建DestinationRule资源，指定要路由的目标 # kubectl apply -f samples/bookinfo/networking/destination-rule-all.yaml destinationrule.networking.istio.io/productpage created destinationrule.networking.istio.io/reviews created destinationrule.networking.istio.io/ratings created destinationrule.networking.istio.io/details created # kubectl get dr NAME HOST AGE details details 48s productpage productpage 48s ratings ratings 48s reviews reviews 48s # cat samples/bookinfo/networking/destination-rule-all.yaml apiVersion: networking.istio.io/v1alpha3 kind: DestinationRule metadata: name: productpage spec: host: productpage subsets: - name: v1 labels: version: v1 --- apiVersion: networking.istio.io/v1alpha3 kind: DestinationRule metadata: name: reviews spec: host: reviews subsets: - name: v1 labels: version: v1 - name: v2 labels: version: v2 - name: v3 labels: version: v3 --- apiVersion: networking.istio.io/v1alpha3 kind: DestinationRule metadata: name: ratings spec: host: ratings subsets: - name: v1 labels: version: v1 - name: v2 labels: version: v2 - name: v2-mysql labels: version: v2-mysql - name: v2-mysql-vm labels: version: v2-mysql-vm --- apiVersion: networking.istio.io/v1alpha3 kind: DestinationRule metadata: name: details spec: host: details subsets: - name: v1 labels: version: v1 - name: v2 labels: version: v2 --- 创建virtual-service # yaml文件路径在安装路径的/samples/bookinfo/networking/路径下 # 创建virtual-service资源 $ kubectl apply -f samples/bookinfo/networking/virtual-service-all-v1.yaml virtualservice.networking.istio.io/productpage created virtualservice.networking.istio.io/reviews created virtualservice.networking.istio.io/ratings created virtualservice.networking.istio.io/details created $ cat samples/bookinfo/networking/virtual-service-all-v1.yaml apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: productpage spec: hosts: - productpage http: - route: - destination: host: productpage subset: v1 --- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: reviews spec: hosts: - reviews http: - route: - destination: host: reviews subset: v1 --- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: ratings spec: hosts: - ratings http: - route: - destination: host: ratings subset: v1 --- apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: details spec: hosts: - details http: - route: - destination: host: details subset: v1 此时刷新/productpage页面，将一直都是v1版本\n基于权重路由 添加virtualservice\n规则定义了 80% 的对 Reviews 的流量会落入 v1 这个 subset，就是没有 Ratings 的这个服务，20% 会落入 v2 带黑色 Ratings 的这个服务\n# cat samples/bookinfo/networking/virtual-service-reviews-80-20.yaml apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: reviews spec: hosts: - reviews http: - route: - destination: host: reviews subset: v1 weight: 80 # 权重配置 - destination: host: reviews subset: v2 weight: 20 # 权重配置 基于身份路由 将特定用户的所有流量路由到服务的特定版本。例如，将来自名为jason用户的所有流量路由到 reivews服务的 v2 版本。\nIstio 对用户身份没有任何特殊的内置机制。在 Bookinfo 应用中，productpage服务在所有到reviews服务的 HTTP 请求中都增了一个自定义的end-user请求头，在路由规则中根据该 HTTP 请求头将流量路由到 reviews 服务的 v2 版本。\n基于Bookinfo应用示例：\ncat samplesbookinfo/networking/virtual-service-reviews-test-v2.yaml apiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: reviews spec: hosts: - reviews http: - match: - headers: # 添加请求头 end-user: exact: jason route: # 路由至V2版本 - destination: host: reviews subset: v2 - route: - destination: host: reviews subset: v1 # 使用match属性配置匹配请求头中的参数，如果HTTP 请求中包含end-user头，且值为jason，则将流量路由到 route定义的reviews 服务的subset: v2中，即 v2 版本。 HTTP重写-重定向-重试 重写：通过HTTP重写可以将请求转发给目标服务器前修改HTTP请求中指定部分的内容，用户不可见\n重定向：从一个URL重定向到另外一个URL，例如：在线网站网址变了，可以通过重定向，在用户输入老地址时跳转到新地址\n示例配置：\napiVersion: networking.istio.io/v1alpha3 kind: VirtualService # 对应创建了一个VirtualService metadata: name: any spec: hosts: # 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全) - \"any\" http: - match: # 匹配规则 - uri: prefix: /api/v1/products rewrite: # 重写url uri: /products redirect: # 重定向 uri: /example authority: new-example route: # 路由目标 - destination: host: productpage # 对应bookinfo的的svc port: number: 9080 重试：定义请求失败时的重试策略(重试次数、超时、重试条件等)\nattempts：必选字段，定义重试的次数 perTryTimeout： 每次重试超时时间，单位可以是ms、s、h RetryOn：重试条件，可以多个，以逗号分隔 5xx: 在上游服务返回5xx应答码，或者在没有返回时重试 gateway-eIror: 类似于5xx异常，只对502、503和504应答码进行重试。 connect-failure: 在链接上游服务失败时重试 retriable-4xx: 在上游服务返回可重试的4xx应答码时执行重试 refused-stream: 在上游服务使用REFUSED STREAM错误码重置时执行重试 cancelled: qRPC应答的Header中状态码是canceled时执行重试 deadline-exceeded: 在gRPC应答的Header中状态码是deadline-exceeded时执行重试 internal: 在gRPC应答的Header中状态码是internal时执行重试0。 resource-exhausted: 在qRPC应答的Header中状态码是resource-exhausted时执行重试 unavailable: 在qRPC应答的Header中状态码是unavailable时执行重试。 apiVersion: networking.istio.io/v1alpha3 kind: VirtualService # 对应创建了一个VirtualService metadata: name: any spec: hosts: # 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全) - \"any\" http: - match: # 匹配规则 - uri: prefix: /api/v1/products retries: # 重试配置 attempts: 3 perTryTimeout: 3s RetryOn: 5xx,connect-failure route: # 路由目标 - destination: host: productpage # 对应bookinfo的的svc port: number: 9080 HTTP流量镜像(mirror) 流量镜像，也称为影子流量，是一个以尽可能低的风险为生产带来变化的强大的功能。镜像会将实时流量的副本发送到镜像服务。镜像流量发生在主服务的关键请求路径之外。\n示例：\napiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: reviews spec: hosts: - reviews http: - route: - destination: host: reviews subset: v1 weight: 100 mirror: # 镜像路由目标配置 host: reviews subset: v2 HTTP故障注入 HTTPFaultlnjection通过delay和abort两个字段设置延时和中止两种故障，分别表示：Proxy延迟转发HTTP请求和中止HTTP请求。\n1、Proxy延迟转发HTTP请求\n延迟故障注入HTTPFaultlnjection中的延迟故障使用HTTPFaultInjection.Delay 类型描述延时故障，表示在发送请求前进行一段延时，模拟网络、远端服务负载均衡等各种原因导致的失败，主要是如下两个字段:\nfixedDelay：一个必选字段，表示延迟时间，单位可以是毫秒、秒、分钟和小时，要求至少大于1毫秒 percentage：配置的延迟故障作用在多少的比例的请求上，通过这种方式可以只让部分请求发生故障。 示例：在productpage服务v1版本上的1.5%的请求产生10秒的延时\n...... route: # 路由目标 - destination: host: productpage subset: v1 fault: # 故障注入配置 delay: # 延迟转发 percentage: value: 1.5 # 流量百分比：1.5% fixedDelay: 10s # 延迟时间，单位s 2、中止HTTP请求\n请求中止故障注入HTTPFaultInjection 使用HTTPFaultInjection.Abort 描述中止故障，模拟服务端异常，给调用的客户端返回预先定义的错误状态码，主要有以下两个字段:\nhttpStatus：是一个必选字段，表示中止的HTTP状态码 percentage：配置中止故障作用在多少比例的请求上，通过这种方式可以只让部分请求发生故障，用法通延迟故障 示例：让productpage服务v1版本上1.5%的请求返回“500”代码\n...... route: # 路由目标 - destination: host: productpage subset: v1 fault: # 故障注入配置 abort: # 终止 percentage: value: 1.5 # 流量百分比：1.5% httpStatus: 10s # 中止的HTTP状态码 HTTP跨域资源共享(CorsPolicy) 当一个资源向该资源所在服务器的不同的域发起请求时，就会产生一个跨域的HTTP请求。出于安全考虑浏览器会限制从脚本发起的跨域HTTP请求。通过跨域资源共享CORS(Cross Origin Resource Sharing)机制可允许web应用服务器进行跨域访问控制，使跨域数据传递安全进行。在实现上是在HTTP Header中追加一些额外的信息来通知浏览器准许以上访问。\n在 VirtualService 中可以对满足条件的请求配置跨域资源共享。有allowOrigin、allowMethods.allowHeader、exposeHeader、maxAge、allowCredentials，其实都是被转化为 Access-Control-* 的Header。\n如下所示，允许源自news.com的GET方法的请求的访问:\n...... http: - route: - destination: host: reviews corsPolicy: allowOrigin: - news.com # 允许的源url allowMethods: # 允许的请求方法 - Get maxAge: \"2d\" # 可观察性 网格可视化Kiali Kiali 是具有服务网格配置和验证功能的 Istio 可观察性的控制台。通过监视流量来推断拓扑和错误报告，它可以帮助您了解服务网格的结构和运行状态。Kiali 提供了详细的的指标并与 Grafana 进行基础集成，可以用于高级查询。通过与 Jaeger 来提供分布式链路追踪功能。\nyaml安装，在istio安装目录下的/samples/addons/ kubectl apply -f ${ISTIO_HOME}/samples/addons/kiali.yaml 使用 Helm Chart 安装 $ helm install \\ --namespace istio-system \\ --set auth.strategy=\"anonymous\" \\ --repo https://kiali.org/helm-charts \\ kiali-server \\ kiali-server $ istioctl dashboard kiali --address 0.0.0.0 http://0.0.0.0:20001/kiali Failed to open browser; open http://0.0.0.0:20001/kiali in your browser. 通过浏览请求http://:20001/kiali访问 kiali Web UI。\n分布式追踪 zipkin 官方文档：https://preliminary.istio.io/latest/zh/docs/tasks/observability/distributed-tracing/zipkin/\n默认链路数据会发送到zipkin\n# yaml文件在安装目录下的：samples/addons/extras # 没有安装的可直接安装 kubectl apply -f samples/addons/extras/zipkin.yaml # 测试或者临时访问 istioctl dashboard zipkin 在web页面的搜索面板中，点击 + 号，从第一个下拉列表中选择 serviceName， 从第二个下拉列表中选择 productpage.default，再点击搜索图标：\nSkyWalking istio官方文档：https://istio.io/v1.17/zh/docs/tasks/observability/distributed-tracing/skywalking/\nskywalking官方文档：https://skywalking.apache.org/zh/how-to-use-skywalking-for-distributed-tracing-in-istio/\nIstio 基于 Envoy 的分布式追踪功能记录了服务之间调用链路信息（traceid 和 spanid等），可以很方便的和 SkyWalking、zipkin、jaeger等三方追踪服务集成。核心原理是通过代理将服务间调用的追踪 Span 发送到分布式追踪服务，由这些追踪服务实现调用链路存储、聚合和查询的功能。\nSkyWalking是一个专门设计用于微服务、 云原生和容器等架构的应用性能监控 (APM) 系统。SkyWalking 是可观测性的一站式解决方案， 不仅具有像 Jaeger 和 Zipkin 的分布式追踪能力，像 Prometheus 和 Grafana 的指标能力，像 Kiali 的日志记录能力，还能将可观测性扩展到许多其他场景， 例如将日志与链路关联，收集系统事件并将事件与指标关联，基于 eBPF 的服务性能分析等。\n传递追踪上下文\n应用程序需要将 Span 通过 HTTP 请求头，将 Span 传递给上游服务（调用目标），才能把一个调用链中的 Trace 中的多个 Span 加入到链中。不同的追踪后端服务，需要提供的追踪请求头元信息不同，下面是一个汇总：\n全局 - 所有应用程序必须转发的请求头\nx-request-id：这是 Envoy 专用的请求头，用于对日志和追踪进行一致的采样。 Zipkin、Jaeger、Stackdriver 和 OpenCensus Agent\nx-b3-traceid\nx-b3-spanid\nx-b3-parentspanid\nx-b3-sampled\nx-b3-flags\nDatadog：对于许多语言和框架而言，这些转发由 Datadog 客户端库自动处理。\nx-datadog-trace-id\nx-datadog-parent-id\nx-datadog-sampling-priority\nLightstep\nx-ot-span-context Stackdriver 和 OpenCensus Agent\ngrpc-trace-bin：标准的 grpc 追踪头。\ntraceparent：追踪所用的 W3C 追踪上下文标准。受所有 OpenCensus、OpenTelemetry 和日益增加的 Jaeger 客户端库所支持。\nx-cloud-trace-context：由 Google Cloud 产品 API 使用。\n配置追踪后端 - SkyWalking\n安装SkyWalking服务 官网：https://istio.io/latest/zh/docs/ops/integrations/skywalking/#installation\n# 在istio安装目录下的/samples/addons/ （好像是1.17版本后才配有skywalking的yaml文件） kubectl apply -f samples/addons/extras/skywalking.yaml 将追踪后端服务作为扩展程序配置到 Istio。\n如果是使用了 IstioOperator CR 来安装 Istio，需要将追踪后端服务作为扩展程序配置到 Istio。\n默认链路数据不会发送到 SkyWalking\n# 展示配置档的信息 istioctl profile dump demo # 找到IstioOperator资源的yaml文件并进行修改 # kubectl get IstioOperator -n istio-system NAME REVISION STATUS AGE installed-state 14h # kubectl edit io installed-state -n istio-system # 找到meshConfig配置段并添加一下配置内容 defaultProviders: tracing: - \"skywalking\" enableTracing: true extensionProviders: - name: \"skywalking\" skywalking: service: tracing.istio-system.svc.cluster.local port: 11800 或者是在初步安装的时候配置：\n采用此配置来安装 Istio 时，将使用 SkyWalking Agent 作为默认的追踪器， 链路数据会被发送到 SkyWalking 后端\ncat \u003e ./my-config.yaml \u003c",
+  "wordCount" : "2847",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/istio/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/k8s/">Kubernetes</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      istio
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>14 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e6%a6%82%e5%bf%b5%e4%bb%8b%e7%bb%8d" aria-label="概念介绍">概念介绍</a><ul>
+                    
+            <li>
+                <a href="#%e6%9c%8d%e5%8a%a1%e7%bd%91%e6%a0%bcservice-mesh%e4%b8%8eistio" aria-label="服务网格(Service Mesh)与istio">服务网格(Service Mesh)与istio</a></li>
+            <li>
+                <a href="#%e5%be%ae%e6%9c%8d%e5%8a%a1%e4%b8%8e%e6%9c%8d%e5%8a%a1%e7%bd%91%e6%a0%bc" aria-label="微服务与服务网格">微服务与服务网格</a></li>
+            <li>
+                <a href="#%e6%9e%b6%e6%9e%84%e4%b8%8e%e7%bb%84%e4%bb%b6" aria-label="架构与组件">架构与组件</a><ul>
+                    
+            <li>
+                <a href="#istiod" aria-label="Istiod">Istiod</a><ul>
+                    
+            <li>
+                <a href="#pliot" aria-label="Pliot">Pliot</a></li>
+            <li>
+                <a href="#citadel" aria-label="Citadel">Citadel</a></li>
+            <li>
+                <a href="#galley" aria-label="Galley">Galley</a></li></ul>
+            </li>
+            <li>
+                <a href="#envoy" aria-label="Envoy">Envoy</a><ul>
+                    
+            <li>
+                <a href="#%e6%a0%b8%e5%bf%83%e8%83%bd%e5%8a%9b" aria-label="核心能力">核心能力</a></li>
+            <li>
+                <a href="#%e5%b8%b8%e7%94%a8%e6%9c%af%e8%af%ad" aria-label="常用术语">常用术语</a></li>
+            <li>
+                <a href="#%e6%9e%b6%e6%9e%84%e8%ae%be%e8%ae%a1" aria-label="架构设计">架构设计</a></li></ul>
+            </li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85" aria-label="安装">安装</a><ul>
+                    
+            <li>
+                <a href="#%e5%89%8d%e7%bd%ae%e6%9d%a1%e4%bb%b6" aria-label="前置条件">前置条件</a></li>
+            <li>
+                <a href="#%e4%b8%8b%e8%bd%bdistio" aria-label="下载istio">下载istio</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85-demo-%e9%85%8d%e7%bd%ae%e6%a1%a3" aria-label="安装 demo 配置档">安装 demo 配置档</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85-default-%e9%85%8d%e7%bd%ae%e6%a1%a3" aria-label="安装 default 配置档">安装 default 配置档</a></li>
+            <li>
+                <a href="#%e6%a3%80%e6%9f%a5%e5%ae%89%e8%a3%85%e7%8a%b6%e6%80%81" aria-label="检查安装状态">检查安装状态</a></li>
+            <li>
+                <a href="#%e5%8d%b8%e8%bd%bd" aria-label="卸载">卸载</a></li>
+            <li>
+                <a href="#%e5%88%9d%e8%af%95" aria-label="初试">初试</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e9%83%a8%e7%bd%b2-bookinfo-%e5%ba%94%e7%94%a8" aria-label="部署 Bookinfo 应用">部署 Bookinfo 应用</a></li>
+            <li>
+                <a href="#%e6%b5%81%e9%87%8f%e6%b2%bb%e7%90%86" aria-label="流量治理">流量治理</a><ul>
+                    
+            <li>
+                <a href="#%e7%bd%91%e5%85%b3gateway%e4%b8%8evirtualservice" aria-label="网关Gateway与VirtualService">网关Gateway与VirtualService</a></li>
+            <li>
+                <a href="#destinationrule" aria-label="DestinationRule">DestinationRule</a><ul>
+                    
+            <li>
+                <a href="#%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%e5%99%a8%e9%85%8d%e7%bd%aeloadbalancer" aria-label="负载均衡器配置(loadBalancer)">负载均衡器配置(loadBalancer)</a></li>
+            <li>
+                <a href="#%e8%bf%9e%e6%8e%a5%e6%b1%a0%e9%85%8d%e7%bd%aeconnectionpool" aria-label="连接池配置(connectionPool)">连接池配置(connectionPool)</a></li>
+            <li>
+                <a href="#%e5%bc%82%e5%b8%b8%e7%82%b9%e6%a3%80%e6%b5%8boutlierdelection" aria-label="异常点检测(outlierDelection)">异常点检测(outlierDelection)</a></li>
+            <li>
+                <a href="#%e7%ab%af%e5%8f%a3%e6%b5%81%e9%87%8f%e7%ad%96%e7%95%a5port" aria-label="端口流量策略(port)">端口流量策略(port)</a></li>
+            <li>
+                <a href="#%e6%9c%8d%e5%8a%a1%e5%ad%90%e9%9b%86subset" aria-label="服务子集(Subset)">服务子集(Subset)</a></li>
+            <li>
+                <a href="#tls%e8%ae%be%e7%bd%aetls" aria-label="TLS设置(tls)">TLS设置(tls)</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e6%b5%81%e9%87%8f%e9%99%90%e6%b5%81%e7%86%94%e6%96%ad" aria-label="流量限流熔断">流量限流熔断</a></li>
+            <li>
+                <a href="#%e6%b5%81%e9%87%8f%e8%b7%af%e7%94%b1%e6%a1%88%e4%be%8b" aria-label="流量路由案例">流量路由案例</a><ul>
+                    
+            <li>
+                <a href="#%e5%9f%ba%e4%ba%8e%e7%89%88%e6%9c%ac%e8%b7%af%e7%94%b1" aria-label="基于版本路由">基于版本路由</a></li>
+            <li>
+                <a href="#%e5%9f%ba%e4%ba%8e%e6%9d%83%e9%87%8d%e8%b7%af%e7%94%b1" aria-label="基于权重路由">基于权重路由</a></li>
+            <li>
+                <a href="#%e5%9f%ba%e4%ba%8e%e8%ba%ab%e4%bb%bd%e8%b7%af%e7%94%b1" aria-label="基于身份路由">基于身份路由</a></li>
+            <li>
+                <a href="#http%e9%87%8d%e5%86%99-%e9%87%8d%e5%ae%9a%e5%90%91-%e9%87%8d%e8%af%95" aria-label="HTTP重写-重定向-重试">HTTP重写-重定向-重试</a></li>
+            <li>
+                <a href="#http%e6%b5%81%e9%87%8f%e9%95%9c%e5%83%8fmirror" aria-label="HTTP流量镜像(mirror)">HTTP流量镜像(mirror)</a></li>
+            <li>
+                <a href="#http%e6%95%85%e9%9a%9c%e6%b3%a8%e5%85%a5" aria-label="HTTP故障注入">HTTP故障注入</a></li>
+            <li>
+                <a href="#http%e8%b7%a8%e5%9f%9f%e8%b5%84%e6%ba%90%e5%85%b1%e4%ba%abcorspolicy" aria-label="HTTP跨域资源共享(CorsPolicy)">HTTP跨域资源共享(CorsPolicy)</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e5%8f%af%e8%a7%82%e5%af%9f%e6%80%a7" aria-label="可观察性">可观察性</a><ul>
+                    
+            <li>
+                <a href="#%e7%bd%91%e6%a0%bc%e5%8f%af%e8%a7%86%e5%8c%96kiali" aria-label="网格可视化Kiali">网格可视化Kiali</a></li>
+            <li>
+                <a href="#%e5%88%86%e5%b8%83%e5%bc%8f%e8%bf%bd%e8%b8%aa" aria-label="分布式追踪">分布式追踪</a><ul>
+                    
+            <li>
+                <a href="#zipkin" aria-label="zipkin">zipkin</a></li>
+            <li>
+                <a href="#skywalking" aria-label="SkyWalking">SkyWalking</a></li></ul>
+            </li></ul>
+            </li>
+            <li>
+                <a href="#%e8%bf%90%e7%bb%b4%e5%ae%9e%e6%88%98" aria-label="运维实战">运维实战</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="概念介绍">概念介绍<a hidden class="anchor" aria-hidden="true" href="#概念介绍">#</a></h1>
+<h2 id="服务网格service-mesh与istio">服务网格(Service Mesh)与istio<a hidden class="anchor" aria-hidden="true" href="#服务网格service-mesh与istio">#</a></h2>
+<p><strong>三大服务模式：</strong></p>
+<ul>
+<li><strong>集中式代理模式：</strong></li>
+</ul>
+<p>​	例如：nginx</p>
+<!-- raw HTML omitted -->
+<ul>
+<li><strong>嵌入式代理模式</strong></li>
+</ul>
+<p>​	例如：eureka-client</p>
+<!-- raw HTML omitted -->
+<p>​	特点：</p>
+<p>​		1、代码侵入，需引入jar包</p>
+<p>​		2、绑定了语言</p>
+<p>​		3、需基础架构组开发二方库</p>
+<ul>
+<li>
+<p>主机独立进程模式</p>
+<p>ServiceMesh</p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>​	特点：</p>
+<p>​		1、将服务注册与发现、负载均衡的逻辑沉淀到底层（与原来的服务进程脱钩，沉淀到进程中。SideCar模式）</p>
+<p>​		2、服务间的调用通过 <strong>代理Proxy</strong> 进行调用</p>
+<p>​	Service Mesh 的中文译为“服务网格”，是一个用于处理服务和服务之间通信的基础设施层，它负责为构建复杂的云原生应用传递可靠的网络请求，并为服务通信实现了微服务所需的基本组件功能，例如服务发现、负载均衡、监控、流量管理、访问控制等。在实践中，服务网格通常实现为一组和应用程序部署在一起的轻量级的网络代理，但对应用程序来说是透明的。</p>
+<p>蓝色：SideCar，绿色：应用app</p>
+<p><img alt="img" loading="lazy" src="/k8s/istio/images/cb86769b048943d70b3df8da23b4fbc5.png"></p>
+<p>Service Mesh有四大特点：</p>
+<ul>
+<li>治理能力独立（Sidecar）</li>
+<li>应用程序无感知</li>
+<li>服务通信的基础设施层</li>
+<li>解耦应用程序的重试/超时、监控、追踪和服务发现</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>​	Service Mesh将业务模块和服务治理分开。控制面和数据面分离，应用在部署的时候，每个应用附带一个Side Car，这个Side Car是拦截每一个应用对外请求的。同时控制面的服务治理策略下到Side Car中具体的执行，即使业务模块升级和服务治理的升级也能互不影响，还能动态调整服务治理的规则和策略</p>
+<p>服务治理的特点：</p>
+<p>1、微服务治理与业务逻辑解耦：把大部分SDK能力从应用中剥离出来，并拆解为独立进程，以 sidecar 的模式进行部署。</p>
+<p>2、异构系统的统一治理：方便多语言的实施，解锁升级带来的困难。</p>
+<p>3、价值：</p>
+<p>​	1）可观察性：服务网格捕获诸如来源、目的地、协议、URL、状态码、延迟、持续时间等线路数据；</p>
+<p>​	2）流量控制：为服务提供智能路由、超时重试、熔断、故障注入、流量镜像等各种控制能力。</p>
+<p>​	3）安全性高：服务的认证、服务间通讯的加密、安全相关策略的强制执行；</p>
+<p>​	4）健壮性：支持故障注入，对于容灾和故障演练等健壮性检验帮助巨大。</p>
+<p><strong>istio</strong></p>
+<p>官网地址：https://istio.io/</p>
+<p>​	Istio由Google、IBM和Lyft在2017年5月合作推出，初始设计目标是在Kubernetes的基础上，以非侵入的方式为运行在集群中的微服务提供流量管理、安全加固、服务监控和策略管理等功能。有助于降低部署的复杂性，并减轻开发团队的压力。</p>
+<p>​	Isito是Service Mesh的产品化落地，是目前最受欢迎的服务网格，功能丰富、成熟度高。它对Service Mesh完全支持，架构清晰，拆分数据面、控制面；拥有通信、安全、控制、观察等功能，实现开放，且插件化，多种可选实现。Istio可结合K8S使用，K8S提供服务生命周期的管理，Istio在K8S之上通过服务治理的整体的功能的实现。</p>
+<p>主要有以下特点</p>
+<ul>
+<li>
+<p>连接（Connect）</p>
+<p>- 流量管理</p>
+<ul>
+<li>负载均衡
+- 灰度发布</li>
+</ul>
+</li>
+<li>
+<p>安全（Secure）</p>
+<p>- 认证
+- 鉴权</p>
+</li>
+<li>
+<p>控制（Control）</p>
+<p>- 限流
+- ACL</p>
+</li>
+<li>
+<p>观察（Observe）</p>
+<p>- 监控</p>
+<ul>
+<li>调用链</li>
+</ul>
+</li>
+</ul>
+<h2 id="微服务与服务网格">微服务与服务网格<a hidden class="anchor" aria-hidden="true" href="#微服务与服务网格">#</a></h2>
+<p><strong>微服务-SpringCloud</strong>（SpringCloud方式对代码是侵入式的；pom.xml；）</p>
+<!-- raw HTML omitted -->
+<p><strong>容器编排（SpringCloud on Kubernetes）</strong></p>
+<!-- raw HTML omitted -->
+<p><strong>结合服务网格（SpringCloud on Kubernetes &amp; Istio）</strong></p>
+<!-- raw HTML omitted -->
+<p>简单对比下 Spring Cloud 与服务网格的区别：</p>
+<table>
+  <thead>
+      <tr>
+          <th>能力</th>
+          <th>Spring Cloud 生态系统</th>
+          <th>Service Mesh 生态系统</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>服务注册与发现</td>
+          <td>开发简单方便，仅需一个简单的注解，支持多种注册中心。对开发人员来说，很容易在本地环境下完成编码和调试。</td>
+          <td>**基于 K8s 的服务机制，并提供自己的注册中心。**开发人员需要理解 Kubernetes，而开发环境的设置并不容易。</td>
+      </tr>
+      <tr>
+          <td>故障容忍性</td>
+          <td><code>Resilience4j</code> 的官方整合提供了完整的故障容忍机制。但服务需要与 SDK 整合。</td>
+          <td>通过使用 sidecar 架构，它是一个非侵入式的故障容忍机制，对服务完全透明。</td>
+      </tr>
+      <tr>
+          <td>可观察性</td>
+          <td>Spring Cloud 内置，例如 spring micro-meter、Zipkin 等。所有服务内部的指标、追踪和日志都可以轻松收集，对开发者完全透明。</td>
+          <td>通过 sidecar 机制，它可以监控进出通信。没有可观察的服务内部，服务追踪可能是不完整的。</td>
+      </tr>
+      <tr>
+          <td>流量调度</td>
+          <td>Spring Cloud 仅有非常基础的流量调度，例如，它基于 Ribbon 的负载均衡（从上一版本中删除）。</td>
+          <td>更多的流量调度方案，如金丝雀部署、蓝绿部署都可以轻松完成。</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="架构与组件">架构与组件<a hidden class="anchor" aria-hidden="true" href="#架构与组件">#</a></h2>
+<p>Istio 在 1.5 版本开始，已经弃用了 Mixer，因此也就不再支持基于 Mixer 的 Quota 方式进行限流。从 Istio 1.5 版本开始，推荐使用 Envoy 原生的限流功能，或者使用其他的第三方限流插件。</p>
+<p>目前 Envoy 支持种限流：全局和本地。</p>
+<ol>
+<li>全局限流依赖于外部 限流服务，envoy会通过 rpc 的方式进行调用限流服务，限流服务负责响应该请求是否被处理。</li>
+<li>本地限流粒度是每个服务，用于限制每个服务的请求速率。基于每个Envoy进程（sidecar）配置，即每个注入了Envoy代理的Pod。相比全局限流来说，本地限流的配置更简单，不需要额外的组件。</li>
+</ol>
+<p><strong>全局限流</strong></p>
+<p>全局限流的配置涉及两个部分：Envoy 的 rate_limits过滤器 和 限流服务的配置。</p>
+<ul>
+<li>
+<p>rate_limits 过滤器中包含 actions 列表。Envoy 会尝试将每个请求与 rate_limits 过滤器中的每个 action 进行匹配。每个 action 会生成一个 descriptor 描述符。描述符是与 action 对应的一组描述符条目。每个描述符条目是一个键值对，通常表示为&quot;descriptor-key-1&quot;: &ldquo;descriptor-value-1&rdquo;、&ldquo;descriptor-key-2&rdquo;: &ldquo;descriptor-value-2&quot;等形式。相关配置参数 ：https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter#config-http-filters-rate-limit</p>
+</li>
+<li>
+<p>限流服务的配置则能够匹配每个请求所产生的描述符条目。针对特定的一组描述符条目，限流服务的配置能够指定其对应的请求速率限制。限流服务通过与Redis缓存交互来决定是否对请求进行限流，并将限流决策响应给Envoy代理。</p>
+</li>
+</ul>
+<p><strong>本地限流</strong></p>
+<ul>
+<li>基于每个Envoy进程配置，即每个注入了Envoy代理的Pod。相比全局限流来说，本地限流的配置更简单，不需要额外的组件。<strong>本地限流的优先级高于全局限流</strong>，当同时使用本地速率限制器和全局速率限制器时，首先应用本地速率限制器进行限制，如果未达到本地速率限制，则应用全局速率限制器进行限制。示例场景如下：</li>
+<li>假设本地限流对特定客户端IP的请求限制为每分钟50个请求，全局请求限制数为每分钟60个请求。客户端发送超过50个请求，则本地限流将拒绝该请求，即使全局限流尚未达到限制。</li>
+<li>假设本地限流对特定客户端IP的请求限制为每分钟50个请求，全局请求限制数为每分钟40个请求。客户端发送超过40个请求，虽然未达到本地限流，但是已达到全局限流，因此该请求被拒绝。</li>
+<li>本地限流如果有多个副本，则每个副本都有各自的速率限制器，也就是说如果您在一个副本上被限流，在另一个副本上可能不会被限流。</li>
+</ul>
+<p>1.5版本之后的架构：</p>
+<!-- raw HTML omitted -->
+<p>Istio = Istiod（控制平面）+ Envoy(为istio数据层面事实上的一个标准)</p>
+<p>**控制平面：**主要包括Pilot、Citadel、Galley组件，主要功能是通过配置和管理Sidecar代理来进行流量控制，完成配置分发、服务发现、流量路由、授权鉴权等功能，以达到对数据平面的统一管理。控制平面不会直接解析请求数据包，通常提供 API 或者命令行工具可用于配置版本化管理，便于持续集成和部署。</p>
+<p><strong>数据平面：<strong>由一组和业务服务成对出现的Sidecar代理（Envoy）构成，这些代理以 Sidecar 的形式和应用服务一起部署，主要功能是接管服务的进出流量，负责协调和控制应用服务之间的所有网络通信。每一个 Sidecar 会接管</strong>进入和离开</strong>服务的流量，并配合控制平面完成流量控制等方面的功能。</p>
+<p>总结一下，Service Mesh 具有的优点：</p>
+<ul>
+<li>
+<p>屏蔽分布式系统通信的复杂性（负载均衡、服务发现、认证授权、监控追踪、流量控制等等），服务只用关注业务逻辑</p>
+</li>
+<li>
+<p>真正的语言无关，服务可以用任何语言编写，只需和 Service Mesh 通信即可</p>
+</li>
+<li>
+<p>对应用透明，Service Mesh 组件可以单独升级</p>
+</li>
+</ul>
+<p>当然，Service Mesh 目前也面临一些挑战：</p>
+<ul>
+<li>
+<p>Service Mesh 组件以代理模式计算并转发请求，一定程度上会降低通信系统性能，并增加系统资源开销</p>
+</li>
+<li>
+<p>Service Mesh 组件接管了网络流量，因此服务的整体稳定性依赖于 Service Mesh，同时额外引入的大量 Service Mesh 服务实例的运维和管理也是一个挑战</p>
+</li>
+</ul>
+<h3 id="istiod">Istiod<a hidden class="anchor" aria-hidden="true" href="#istiod">#</a></h3>
+<p>控制平面组件，具有服务发现、配置分发、证书配置的能力</p>
+<p>Istiod 采用 YAML 编写的高级规则，并将其转换为 Envoy 的可操作配置。然后，它把这个配置传播给网格中的所有 sidecar。Istiod 内部的 Pilot 组件抽象出特定平台的服务发现机制（Kubernetes、Consul 或 VM），并将其转换为 sidecar 可以使用的标准格式。</p>
+<h4 id="pliot">Pliot<a hidden class="anchor" aria-hidden="true" href="#pliot">#</a></h4>
+<p>pliot是istio实现流量管理的组件，主要作用是配置和管理envoy代理</p>
+<ul>
+<li>
+<p>pliot会将控制流量行为的路由规则转换为envoy的配置，并广播到envoy</p>
+</li>
+<li>
+<p>pliot可以把服务发现机制抽象出来转换成API分发给envoy，使envoy具有服务发现功能</p>
+</li>
+</ul>
+<p>主要任务有两个：</p>
+<ol>
+<li>从平台获取服务信息，完成服务发现</li>
+<li>获取istio各项配置，转换成envoy可读的格式分发下去</li>
+</ol>
+<p>​        pliot不涉及业务逻辑层，而是作为一个适配器，如果有不同类型的配置格式，都可以转换成envoy可读的格式，避免了后期接入其他格式的配置而需要修改envoy。只需要修改pliot即可</p>
+<h4 id="citadel">Citadel<a hidden class="anchor" aria-hidden="true" href="#citadel">#</a></h4>
+<p>是个安全服务的组件，主要负责密钥和证书的管理。可以提供服务间和终端用户的身份认证，可以加密服务网格中的流量</p>
+<h4 id="galley">Galley<a hidden class="anchor" aria-hidden="true" href="#galley">#</a></h4>
+<p>是pilot中适配底层平台的功能独立的组件</p>
+<p>是istio的配置管理组件，负责配置的获取，处理，分发。通过mcp（网格配置协议）与其他组件进行通信</p>
+<p>负责将其余的Istio组件从底层平台（例如k8s）获取用户配置的细节隔离开来，从而将Pilot与底层平台进行解耦</p>
+<h3 id="envoy">Envoy<a hidden class="anchor" aria-hidden="true" href="#envoy">#</a></h3>
+<p>​	Istio 使用 <a href="https://www.envoyproxy.io/">Envoy</a> 代理的扩展版本。Envoy 是用 C++ 开发的高性能代理，用于协调服务网格中所有服务的入站和出站流量。Envoy 代理是唯一与数据平面流量交互的 Istio 组件。（envoy和nginx有点相似，可以用envoy代替nginx。但目前大多数公司常见服务选择用的更多的还是nginx）</p>
+<p>Envoy 代理被部署为服务的 Sidecar，这种 Sidecar 部署允许 Istio 可以执行策略决策，并提取丰富的遥测数据， 接着将这些数据发送到监视系统以提供有关整个网格行为的信息。Sidecar 代理模型还允许您向现有的部署添加 Istio 功能，而不需要重新设计架构或重写代码。在逻辑上为服务增加了 Envoy 的许多内置特性：</p>
+<ul>
+<li>动态服务发现</li>
+<li>负载均衡</li>
+<li>TLS 终端</li>
+<li>HTTP/2 与 gRPC 代理</li>
+<li>熔断器</li>
+<li>健康检查</li>
+<li>基于百分比流量分割的分阶段发布</li>
+<li>故障注入</li>
+<li>丰富的指标</li>
+</ul>
+<p>​</p>
+<p>由 Envoy 代理启用的一些 Istio 的功能和任务包括：</p>
+<ul>
+<li>流量控制功能：通过丰富的 HTTP、gRPC、WebSocket 和 TCP 流量路由规则来执行细粒度的流量控制。</li>
+<li>网络弹性特性：重试设置、故障转移、熔断器和故障注入。</li>
+<li>安全性和身份认证特性：执行安全性策略，并强制实行通过配置 API 定义的访问控制和速率限制。</li>
+<li>基于 WebAssembly 的可插拔扩展模型，允许通过自定义策略执行和生成网格流量的遥测。</li>
+</ul>
+<h4 id="核心能力">核心能力<a hidden class="anchor" aria-hidden="true" href="#核心能力">#</a></h4>
+<ul>
+<li>
+<p><strong>非侵入架构:</strong> Envoy 是一个独立的进程，设计为伴随每个应用程序服务一起运行。所有 Envoy 实例形成一个透明的通信网格，每个应用程序通过 <code>localhost</code> 发送和接收消息，不需要知道网络拓扑。对服务的实现语言也完全无感知，这种模式也被称为 <code>Sidecar</code> 模式。</p>
+</li>
+<li>
+<p><strong>L3/L4 过滤器架构:</strong>  Envoy 的核心是一个 L3/L4 层的网络代理。可插拔的过滤器链机制允许编写不同的 TCP/UDP 代理任务的过滤器，并将其插入到主服务器中。而且已经内置支持了各种任务的过滤器，例如原始 TCP 代理、UDP 代理、HTTP 代理、TLS 客户端证书身份验证、Redis、MongoDB、Postgres 等。</p>
+</li>
+<li>
+<p><strong>HTTP L7 过滤器架构:</strong>  HTTP 是现代应用程序架构的关键组件，因此 Envoy 支持了一个额外的 HTTP L7 过滤器层。HTTP 过滤器可以被插入到 HTTP 连接管理子系统中，执行不同的任务，如缓存、速率限制、路由/转发、嗅探 Amazon 的 DynamoDB 等。</p>
+</li>
+<li>
+<p><strong>顶级的 HTTP/2 支持:</strong>  在 HTTP 模式下运行时，Envoy 同时支持 HTTP/1.1 和 HTTP/2。Envoy 可以作为透明的 HTTP/1.1 到 HTTP/2 双向代理运行。这意味着可以连接任何组合的 HTTP/1.1 和 HTTP/2 客户端与目标服务器。<em>推荐的服务到服务配置在所有 Envoy 之间使用 HTTP/2 创建持久连接网格，请求和响应可以在该连接上进行多路复用。</em></p>
+</li>
+<li>
+<p><strong>HTTP/3 支持（目前处于 alpha 版）:</strong> 从 Envoy 1.19.0 版本开始，Envoy 现在支持上游和下游的 HTTP/3，而且可以在任何方向上进行 HTTP/1.1、HTTP/2 和 HTTP/3 之间的转换。</p>
+</li>
+<li>
+<p><strong>HTTP L7 路由:</strong> 在 HTTP 模式下运行时，Envoy 支持路由子系统，该子系统能够根据路径、权限、内容类型、运行时值等路由和重定向请求。在使用 Envoy 作为前端/边缘代理时，此功能非常有用，但在构建服务到服务的网格时也可以利用它。<code>（似于nginx里的location）</code></p>
+</li>
+<li>
+<p><strong>gRPC 支持:</strong> gRPC 是 Google 的一个 RPC 框架，使用 HTTP/2 或更高版本作为底层多路复用传输。Envoy 支持用作 gRPC 请求和响应的路由和负载均衡基础所需的所有 HTTP/2 功能，这两个系统非常互补。</p>
+</li>
+<li>
+<p><strong>服务发现和动态配置:</strong> Envoy 可以选择使用一组分层的动态配置 API 来进行集中管理。这些层向 Envoy 提供了关于后端集群中的主机、后端集群自身、HTTP 路由、监听套接字和加密材料的动态更新。对于更简单的部署，可以通过 DNS 解析（甚至完全跳过）来完成后端主机发现，并且进一步的层可以由静态配置文件替代。</p>
+<p><code>这个服务发现和动态配置功能是envoy有别于nginx的一个重要能力。nginx不具备这个能力。对Nginx，如果你改了一个配置就要做一次nginx -s reload操作。如果配置比较大，或者应用服务比较多的话，那么nginx频繁去做reload，其性能还是有很大的一个损耗的。envoy不会，它原生就具有这个动态配置的能力。你修改过后，它就可以自动生效了</code></p>
+</li>
+<li>
+<p><strong>健康检查:</strong> 构建 Envoy 网格的推荐方法是将服务发现视为最终一致的过程。Envoy 包含一个健康检查子系统，可以选择对上游服务集群执行主动健康检查。然后，Envoy 使用服务发现和健康检查信息的结合来确定健康的负载均衡目标。Envoy 还通过异常值检测子系统支持被动健康检查。<code>(有点类似于k8s里的service endpoints。)</code></p>
+</li>
+<li>
+<p><strong>高级负载均衡:</strong> 分布式系统中不同组件之间的负载均衡是一个复杂的问题。由于 <strong>Envoy 是一个独立的代理</strong>而不是库，因此可以独立实现高级负载均衡以供任何应用程序访问。目前 Envoy 支持自动重试、熔断、通过外部速率限制服务进行全局速率限制、异常检测等。</p>
+</li>
+<li>
+<p><strong>前端/边缘代理支持:</strong> 在边缘使用相同的软件有很大的好处（可观察性、管理、相同的服务发现和负载均衡算法等）。 Envoy 的功能集使其非常适合作为大多数现代 Web 应用程序用例的边缘代理。这包括 <strong>TLS 终止</strong>、HTTP/1.1、HTTP/2 和 HTTP/3 支持以及 HTTP L7 路由。</p>
+</li>
+<li>
+<p><strong>最佳的可观测性:</strong> 如上所述，Envoy 的主要目标是使网络透明化。但是，问题在网络层面和应用层面都可能会出现。Envoy 为所有子系统提供了强大的统计支持。目前支持的统计数据输出端是 <code>statsd</code>（以及兼容的提供程序），但是接入其他不同的统计数据输出端并不困难。统计数据也可以通过管理端口进行查看，Envoy 还支持通过第三方提供者进行分布式跟踪。</p>
+</li>
+</ul>
+<h4 id="常用术语">常用术语<a hidden class="anchor" aria-hidden="true" href="#常用术语">#</a></h4>
+<p>在介绍 Envoy 架构之前，有必要先介绍一些常用的术语定义，这些术语贯穿整个 Envoy 的架构设计。</p>
+<ul>
+<li>
+<p><strong>Host(主机):</strong> 能够进行网络通信的实体（手机、服务器等上的应用程序）。在 Envoy 中主机是逻辑网络应用程序。一个物理硬件可能运行多个主机，只要每个主机可以独立进行寻址。</p>
+</li>
+<li>
+<p><strong>Downstream(下游):</strong> 下游主机连接到 Envoy，发送请求并接收响应。 （类似客户端）</p>
+</li>
+<li>
+<p><strong>Upstream(上游):</strong> 上游主机接收来自 Envoy 的连接和请求并返回响应。（类似服务端）</p>
+</li>
+<li>
+<p><strong>Listener(侦听器):</strong> 侦听器是一个带有名称的网络位置（例如端口、unix domain socket 等），下游客户端可以连接到该位置。Envoy 暴露一个或多个监听器，供下游主机连接。</p>
+</li>
+<li>
+<p><strong>Cluster(集群):</strong> 一个集群是一组逻辑上相似的上游主机，Envoy 连接到这些主机。Envoy 通过<strong>服务发现</strong>来发现集群的成员。它还可以通过<strong>主动健康检查</strong>来确定集群成员的健康状况。Envoy 根据<strong>负载均衡策略</strong>确定将请求路由到哪个集群成员。</p>
+</li>
+<li>
+<p><strong>Mesh(网格):</strong> 一组主机协同工作，提供一致的网络拓扑结构。在这里 <code>Envoy Mesh</code> 是指一组 Envoy 代理，它们构成了由多种不同服务和应用程序平台组成的分布式系统的消息传递基础。</p>
+</li>
+<li>
+<p><strong>Runtime configuration(运行时配置):</strong> 与 Envoy 一起部署的<strong>实时配置系统</strong>。可以更改配置设置，影响操作而无需重新启动 Envoy 或更改主要配置。</p>
+</li>
+</ul>
+<h4 id="架构设计">架构设计<a hidden class="anchor" aria-hidden="true" href="#架构设计">#</a></h4>
+<p>Envoy 采用单进程多线程架构。一个独立的 <code>primary</code> 线程负责控制各种零散的协调任务，而一些 <code>worker</code> 线程则负责执行监听、过滤和转发任务。一旦侦听器接受连接，该连接就会将其生命周期绑定到一个单独的 <code>worker</code> 线程。这使得 Envoy 的大部分工作基本上是单线程来处理的，只有少量更复杂的代码处理工作线程之间的协调。</p>
+<p>通常情况下 Envoy 实现了 100% 非阻塞。对于大多数工作负载，我们建议将 <code>worker</code> 线程的数量配置为机器上的硬件线程数量。</p>
+<p>整体架构：</p>
+<!-- raw HTML omitted -->
+<p>Envoy 进程中运行着一系列 Inbound/Outbound 监听器（Listener），Inbound 代理入站流量，Outbound 代理出站流量。Listener 的核心就是过滤器链（FilterChain），<strong>链中每个过滤器都能够控制流量的处理流程</strong>。</p>
+<p>Envoy 接收到请求后，会先走 <code>FilterChain</code>，通过各种 L3/L4/L7 Filter 对请求进行处理，然后再路由到指定的集群，并通过负载均衡获取一个目标地址，最后再转发出去。</p>
+<p>其中每一个环节可以静态配置，也可以动态服务发现，也就是所谓的 <code>xDS</code>，这里的 <code>x</code> 是一个代词，是 <code>lds</code>、<code>rds</code>、<code>cds</code>、<code>eds</code>、<code>sds</code> 的总称，即服务发现，后 2 个字母 <code>ds</code> 就是 <code>discovery service</code>。</p>
+<h1 id="安装">安装<a hidden class="anchor" aria-hidden="true" href="#安装">#</a></h1>
+<p>Istio 提供了 Helm、Operator 和 istioctl 三种安装方式，其中 istioctl 也是基于 Operator 模式安装，在其基础上根据应用场景提供了许多预定制的功能，有助于防止安装错误，可以在预定制的基础上，通过<code>--set</code>参数覆盖任何的预定制安装配置。</p>
+<p><strong>单集群</strong></p>
+<p>这里使用官方推荐的istioctl方式进行安装，官方：https://istio.io/latest/zh/docs/setup/install/istioctl/</p>
+<h2 id="前置条件">前置条件<a hidden class="anchor" aria-hidden="true" href="#前置条件">#</a></h2>
+<ul>
+<li>初始化 <a href="https://istio.io/latest/zh/docs/setup/platform-setup/">平台安装环境</a>。例如，Kind 环境，需要提前安装 Docker，创建至少2个节点的 Kubernetes 集群；</li>
+<li>检查 <a href="https://istio.io/latest/zh/docs/ops/deployment/requirements/">Pod 和 服务的要求</a>。例如，服务的端口号不能和 Sidecar 的端口（150XX）冲突，不能使用 <code>1337</code>用户运行应用等；</li>
+</ul>
+<h2 id="下载istio">下载istio<a hidden class="anchor" aria-hidden="true" href="#下载istio">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 下载最新版</span>
+</span></span><span style="display:flex;"><span>$ curl -L https://istio.io/downloadIstio | sh -
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 可以指定环境变更，来下载指定版本 和 CPU架构的版本</span>
+</span></span><span style="display:flex;"><span>$ curl -L https://istio.io/downloadIstio | ISTIO_VERSION<span style="color:#f92672">=</span>1.16.2 TARGET_ARCH<span style="color:#f92672">=</span>x86_64 sh -
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 转到 Istio 安装包目录</span>
+</span></span><span style="display:flex;"><span>cd istio-1.16.2
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 安装目录包含：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># samples/：示例应用程序；</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># bin/：istioctl 客户端二进制文件；</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 将 istioctl客户端添加到PATH环境变量</span>
+</span></span><span style="display:flex;"><span>export PATH<span style="color:#f92672">=</span>$PWD/bin:$PATH
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 查看版本</span>
+</span></span><span style="display:flex;"><span>$ istioctl version
+</span></span><span style="display:flex;"><span>client version: 1.14.3
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看配置档</span>
+</span></span><span style="display:flex;"><span>$ istioctl profile list
+</span></span><span style="display:flex;"><span>Istio configuration profiles:
+</span></span><span style="display:flex;"><span>    default
+</span></span><span style="display:flex;"><span>    demo
+</span></span><span style="display:flex;"><span>    empty
+</span></span><span style="display:flex;"><span>    external
+</span></span><span style="display:flex;"><span>    minimal
+</span></span><span style="display:flex;"><span>    openshift
+</span></span><span style="display:flex;"><span>    preview
+</span></span><span style="display:flex;"><span>    remote
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>default：根据 IstioOperator API 的默认设置来启用组件。 建议用于生产部署和多集群网格 中的主集群。您可以运行 istioctl profile dump 命令来查看默认设置。
+</span></span><span style="display:flex;"><span>demo：这一配置具有适度的资源需求，旨在展示 Istio 的功能。 它适合运行 Bookinfo 应用程序和相关任务。 这是通过快速开始指导安装的配置。
+</span></span><span style="display:flex;"><span>remote：用于配置一个从集群， 这个从集群由外部控制平面管理， 或者由多集群网格的 主集群中的控制平面管理。
+</span></span><span style="display:flex;"><span>empty：不部署任何内容。可以作为自定义配置的基本配置文件。
+</span></span><span style="display:flex;"><span>preview：预览文件包含的功能都属于实验性阶段。该配置文件是为了探索 Istio 的新功能。 确保稳定性、安全性和性能（使用风险需自负）。
+</span></span><span style="display:flex;"><span>ambient：Ambient 配置文件旨在帮助您开始使用 Ambient Mesh。
+</span></span></code></pre></div><h2 id="安装-demo-配置档">安装 demo 配置档<a hidden class="anchor" aria-hidden="true" href="#安装-demo-配置档">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ istioctl install --set profile<span style="color:#f92672">=</span>demo -y
+</span></span></code></pre></div><p>通过<code>profile</code>选项安装不同的配置档。</p>
+<h2 id="安装-default-配置档">安装 <code>default</code> 配置档<a hidden class="anchor" aria-hidden="true" href="#安装-default-配置档">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ istioctl install
+</span></span></code></pre></div><p>上面命令默认使用<code>default</code>配置档。可以通过<code>--set</code>参数配置各种选项来修改默认安装，比如，要启用访问日志：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ istioctl install --set meshConfig.accessLogFile<span style="color:#f92672">=</span>/dev/stdout
+</span></span></code></pre></div><p>也可以使用<code>-f</code>传递一个配置文件来覆盖默认的安装配置，在生产环境推荐使用配置文件的方式。下面使用配置文件的形式和<code>--set</code>的效果是等价的：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat <span style="color:#e6db74">&lt;&lt;EOF &gt; ./my-config.yaml
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: install.istio.io/v1alpha1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: IstioOperator
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">spec:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  meshConfig:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    accessLogFile: /dev/stdout
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>$ istioctl install -f my-config.yaml
+</span></span></code></pre></div><p>完整的安装配置选项可参考 IstioOperator API：https://istio.io/latest/zh/docs/reference/config/istio.operator.v1alpha1/</p>
+<h2 id="检查安装状态">检查安装状态<a hidden class="anchor" aria-hidden="true" href="#检查安装状态">#</a></h2>
+<p>Istio 所有组件默认安装在<code>istio-system</code>命名空间中。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ kubectl get deployment -n istio-system
+</span></span><span style="display:flex;"><span>NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span style="display:flex;"><span>deployment.apps/istio-egressgateway    1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           19h
+</span></span><span style="display:flex;"><span>deployment.apps/istio-ingressgateway   1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           19h
+</span></span><span style="display:flex;"><span>deployment.apps/istiod                 1/1     <span style="color:#ae81ff">1</span>            <span style="color:#ae81ff">1</span>           19h
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>● istio-egressgateway：负责处理出站流量；
+</span></span><span style="display:flex;"><span>● istio-ingressgateway：负责处理入站流量；
+</span></span><span style="display:flex;"><span>● istiod：负责服务发现、管理配置 和 TLS 证书；
+</span></span></code></pre></div><p>安装完成后，istioctl 会将安装的状态信息保存到 IstioOperator 对象的一个名为<code>installed-state</code>的实例中，通过该对象可以确认 Istio 都安装了什么。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 文件较大，这里不展示，可自行查看</span>
+</span></span><span style="display:flex;"><span>$ kubectl get istiooperators.install.istio.io -n istio-system installed-state -oyaml
+</span></span></code></pre></div><p>注意：istioctl 命令 依赖 installed-state CR 用于执行检查任务，不能删除。</p>
+<h2 id="卸载">卸载<a hidden class="anchor" aria-hidden="true" href="#卸载">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ istioctl uninstall --purge
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># uninstall 命令默认不会移除 istio-system 命名空间</span>
+</span></span><span style="display:flex;"><span>$ kubectl delete namespace istio-system
+</span></span></code></pre></div><p>可选的 <code>--purge</code> 参数将移除所有 Istio 资源，包括可能被其他 Istio 控制平面共享的、集群范围的资源。</p>
+<h2 id="初试">初试<a hidden class="anchor" aria-hidden="true" href="#初试">#</a></h2>
+<p>istio 支持自动注入和手动注入两种方式：</p>
+<ul>
+<li>手动注入：可以使用 <code>istioctl kube-inject</code>手动给 deploy 注入，会修改对应的 deploy 的配置（init containers，images 等）；</li>
+<li>自动注入：给要注入的 namespace 打标：<code>kubectl label namespace default istio-inhection=enabled</code>，之后任何创建在该 NS 下的 pod 会自动注入 sidecar。自动注入通过 k8s Admission webhook 实现，监听到 create pod 的操作 k8s API server 的行为之后，会自动执行 inject 逻辑。</li>
+</ul>
+<p>自动注入：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 给命名空间打标签，这里用default</span>
+</span></span><span style="display:flex;"><span>kubectl label namespace default istio-inhection<span style="color:#f92672">=</span>enabled
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 快速启动一个测试容器，包含有各种测试命令，ping，curl</span>
+</span></span><span style="display:flex;"><span>kubectl run client-$RANDOM --image<span style="color:#f92672">=</span>ikubernetes/admin-box:v1.2 --restart<span style="color:#f92672">=</span>Never -it --rm --command -- /bin/bash
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动之后可以看到启动了一个pod，里面有两个容器</span>
+</span></span><span style="display:flex;"><span>kubectl get po
+</span></span><span style="display:flex;"><span>NAME           READY   STATUS    RESTARTS   AGE
+</span></span><span style="display:flex;"><span>client-14273   2/2     Running   <span style="color:#ae81ff">0</span>          37s
+</span></span></code></pre></div><h1 id="部署-bookinfo-应用">部署 Bookinfo 应用<a hidden class="anchor" aria-hidden="true" href="#部署-bookinfo-应用">#</a></h1>
+<p>安装官方提供的一个非常经典的 <a href="https://github.com/istio/istio/tree/master/samples/bookinfo/">Bookinfo 应用示例</a>，这个示例部署了一个用于演示多种 Istio 特性的应用，该应用由四个单独的微服务构成。 这个应用模仿在线书店的一个分类，显示一本书的信息。页面上会显示一本书的描述，书籍的细节（ISBN、页数等），以及关于这本书的一些评论。</p>
+<p>Bookinfo 应用分为四个独立的微服务：</p>
+<ul>
+<li><strong>productpage</strong>：这个微服务会调用 <strong>details</strong> 和 <strong>reviews</strong> 两个微服务，用来生成页面。使用 <strong>Python</strong> 开发。</li>
+<li><strong>details</strong>：这个微服务中包含了书籍的信息。使用 <strong>Ruby</strong> 开发。</li>
+<li><strong>reviews</strong>：这个微服务中包含了书籍相关的评论。它还会调用 <strong>ratings</strong> 微服务。使用 <strong>Java</strong> 开发。</li>
+<li><strong>ratings</strong>：这个微服务中包含了由书籍评价组成的 <strong>评级</strong> 信息。使用 <strong>NodeJS</strong> 开发。</li>
+</ul>
+<p><strong>reviews</strong> 微服务有 <strong>3</strong> 个版本：</p>
+<ul>
+<li>v1 版本 <strong>不会</strong> 调用 <strong>ratings</strong> 服务。</li>
+<li>v2 版本 <strong>会</strong> 调用 <strong>ratings</strong> 服务，并使用 1 到 5 个<strong>黑色星形</strong>图标来显示评分信息。</li>
+<li>v3 版本 <strong>会</strong> 调用 <strong>ratings</strong> 服务，并使用 1 到 5 个<strong>红色星形</strong>图标来显示评分信息。</li>
+</ul>
+<p>架构：</p>
+<p>Bookinfo 应用中的几个微服务是由不同的语言编写的。 这些服务对 Istio 并无依赖，但是构成了一个有代表性的服务网格的例子：它由多个服务、多个语言构成，并且 reviews 服务具有多个版本。</p>
+<p><img alt="image-20240411163901157" loading="lazy" src="/k8s/istio/images/image-20240411163901157.png"></p>
+<p>部署：</p>
+<p>进入 Istio 安装目录。为 <code>default</code> 命名空间打上标签<code>istio-injection=enabled</code>，由 Istio 自动为该命名空间的 Pod 注入 Sidecar。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl label namespace default istio-injection<span style="color:#f92672">=</span>enabled
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 安装bookinfo，有的镜像比较大需要等一段时间</span>
+</span></span><span style="display:flex;"><span>kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
+</span></span></code></pre></div><p>如果安装 Istio 时禁用了自动注入 Sidecar 的功能，可以使用 <code>istioctl kube-inject</code>命令手动注入：</p>
+<pre tabindex="0"><code>kubectl apply -f &lt;(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml)
+</code></pre><p>部署完成之后，查看资源</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl get po,svc 
+</span></span><span style="display:flex;"><span>NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span style="display:flex;"><span>pod/details-v1-7f4669bdd9-tcnkw       2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>pod/productpage-v1-5586c4d4ff-rmghs   2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>pod/ratings-v1-6cf6bc7c85-stqxp       2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>pod/reviews-v1-7598cc9867-777th       2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>pod/reviews-v2-6bdd859457-87rkn       2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>pod/reviews-v3-6c98f9d7d7-fg4dl       2/2     Running   <span style="color:#ae81ff">0</span>          47m
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>NAME                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>    AGE
+</span></span><span style="display:flex;"><span>service/details       ClusterIP   10.105.124.133   &lt;none&gt;        9080/TCP   47m
+</span></span><span style="display:flex;"><span>service/kubernetes    ClusterIP   10.96.0.1        &lt;none&gt;        443/TCP    23d
+</span></span><span style="display:flex;"><span>service/productpage   ClusterIP   10.96.211.111    &lt;none&gt;        9080/TCP   47m
+</span></span><span style="display:flex;"><span>service/ratings       ClusterIP   10.107.54.41     &lt;none&gt;        9080/TCP   47m
+</span></span><span style="display:flex;"><span>service/reviews       ClusterIP   10.104.223.154   &lt;none&gt;        9080/TCP   47m
+</span></span></code></pre></div><p>确认 Bookinfo 应用是否运行正常</p>
+<p>在其中一个 Pod 中用 curl 命令对应用发送请求，例如：从 <code>ratings</code>服务向<code>productpage</code>服务发送请求：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ kubectl exec -it <span style="color:#66d9ef">$(</span>kubectl get pod -l app<span style="color:#f92672">=</span>ratings -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#66d9ef">)</span> -c ratings -- curl productpage:9080/productpage | grep -o <span style="color:#e6db74">&#34;&lt;title&gt;.*&lt;/title&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>&lt;title&gt;Simple Bookstore App&lt;/title&gt;
+</span></span></code></pre></div><p>更改名为productpage的svc的模式为nodeport，然后直接访问对应的端口：http://192.168.9.30:30991/productpage</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># kubectl get svc</span>
+</span></span><span style="display:flex;"><span>NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>          AGE
+</span></span><span style="display:flex;"><span>details       ClusterIP   10.105.124.133   &lt;none&gt;        9080/TCP         3h8m
+</span></span><span style="display:flex;"><span>kubernetes    ClusterIP   10.96.0.1        &lt;none&gt;        443/TCP          23d
+</span></span><span style="display:flex;"><span>productpage   NodePort    10.96.211.111    &lt;none&gt;        9080:30991/TCP   3h8m
+</span></span><span style="display:flex;"><span>ratings       ClusterIP   10.107.54.41     &lt;none&gt;        9080/TCP         3h8m
+</span></span><span style="display:flex;"><span>reviews       ClusterIP   10.104.223.154   &lt;none&gt;        9080/TCP         3h8m
+</span></span></code></pre></div><h1 id="流量治理">流量治理<a hidden class="anchor" aria-hidden="true" href="#流量治理">#</a></h1>
+<p>Istio 的流量路由规则可以轻松地控制服务之间的流量和 API 调用。Istio 简化了服务级别属性(如<strong>断路器、超时和重试</strong>)的配置，并使设置重要任务(如 <strong>A/B 测试</strong>、<strong>canary</strong> 部署和基于百分比的<strong>流量分割</strong>的分阶段部署)变得容易。 它还提供了开箱即用的<strong>故障恢复</strong>特性，帮助您的应用程序更健壮地应对依赖服务或网络的故障。</p>
+<h2 id="网关gateway与virtualservice">网关Gateway与VirtualService<a hidden class="anchor" aria-hidden="true" href="#网关gateway与virtualservice">#</a></h2>
+<p>外部流量访问流向</p>
+<!-- raw HTML omitted -->
+<p>内部访问外部流向</p>
+<!-- raw HTML omitted -->
+<p>流量入口出口</p>
+<!-- raw HTML omitted -->
+<p>流量路由</p>
+<!-- raw HTML omitted -->
+<p>以Bookinfo 应用为例，部署到网关中，以便外部可以通过浏览器访问。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 部署网关，文件位置：/samples/bookinfo/networking/</span>
+</span></span><span style="display:flex;"><span>$ kubectl apply -f /opt/istio-1.14.3/samples/bookinfo/networking/bookinfo-gateway.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 确认部署结果，可以看到生成一个gateway与virtualservice</span>
+</span></span><span style="display:flex;"><span>$ kubectl get gw
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@k8s-master1 networking<span style="color:#f92672">]</span><span style="color:#75715e"># kubectl get gw,vs</span>
+</span></span><span style="display:flex;"><span>NAME                                           AGE
+</span></span><span style="display:flex;"><span>gateway.networking.istio.io/bookinfo-gateway   13s
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>NAME                                             GATEWAYS               HOSTS             AGE
+</span></span><span style="display:flex;"><span>virtualservice.networking.istio.io/bookinfo      <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;bookinfo-gateway&#34;</span><span style="color:#f92672">]</span>   <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;*&#34;</span><span style="color:#f92672">]</span>             13s
+</span></span></code></pre></div><p>bookinfo-gateway.yaml文件看详细信息</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ cat /opt/istio-1.14.3/samples/bookinfo/networking/bookinfo-gateway.yaml
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: Gateway   <span style="color:#75715e"># 创建了一个Gateway网关资源</span>
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: bookinfo-gateway
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  selector:
+</span></span><span style="display:flex;"><span>    istio: ingressgateway <span style="color:#75715e"># 使用的istio 默认的 controller</span>
+</span></span><span style="display:flex;"><span>  servers:
+</span></span><span style="display:flex;"><span>  - port:
+</span></span><span style="display:flex;"><span>      number: <span style="color:#ae81ff">80</span>
+</span></span><span style="display:flex;"><span>      name: http
+</span></span><span style="display:flex;"><span>      protocol: HTTP
+</span></span><span style="display:flex;"><span>    hosts:
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#34;*&#34;</span>            <span style="color:#75715e"># 指定的域名或者ip</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: VirtualService   <span style="color:#75715e"># 对应创建了一个VirtualService</span>
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: bookinfo
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  hosts:            <span style="color:#75715e"># 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全)</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;*&#34;</span>
+</span></span><span style="display:flex;"><span>  gateways:
+</span></span><span style="display:flex;"><span>  - bookinfo-gateway      <span style="color:#75715e"># 流量来源于哪个网关，可以是多个</span>
+</span></span><span style="display:flex;"><span>  http:
+</span></span><span style="display:flex;"><span>  - match:         <span style="color:#75715e"># 匹配规则</span>
+</span></span><span style="display:flex;"><span>    - uri:
+</span></span><span style="display:flex;"><span>        exact: /productpage
+</span></span><span style="display:flex;"><span>    - uri:
+</span></span><span style="display:flex;"><span>        prefix: /static
+</span></span><span style="display:flex;"><span>    - uri:
+</span></span><span style="display:flex;"><span>        exact: /login
+</span></span><span style="display:flex;"><span>    - uri:
+</span></span><span style="display:flex;"><span>        exact: /logout
+</span></span><span style="display:flex;"><span>    - uri:
+</span></span><span style="display:flex;"><span>        prefix: /api/v1/products
+</span></span><span style="display:flex;"><span>    route:                      <span style="color:#75715e"># 路由目标</span>
+</span></span><span style="display:flex;"><span>    - destination:
+</span></span><span style="display:flex;"><span>        host: productpage       <span style="color:#75715e"># 对应bookinfo的的svc</span>
+</span></span><span style="display:flex;"><span>        port:
+</span></span><span style="display:flex;"><span>          number: <span style="color:#ae81ff">9080</span>
+</span></span><span style="display:flex;"><span>       	<span style="color:#75715e"># subset: v1            # 配置路由策略将流量转发到不同版本的subet上，应用于灰度发布</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># weight: 80              # 流量路由的权重</span>
+</span></span></code></pre></div><p>获取网关访问URL</p>
+<p>查看istio-system的svc：istio-ingressgateway的状态</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl get svc -n istio-system
+</span></span><span style="display:flex;"><span>NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#f92672">(</span>S<span style="color:#f92672">)</span>                                                                      AGE
+</span></span><span style="display:flex;"><span>istio-egressgateway    ClusterIP      10.99.111.212    &lt;none&gt;        80/TCP,443/TCP                                                               22h
+</span></span><span style="display:flex;"><span>istio-ingressgateway   LoadBalancer   10.105.241.112   &lt;pending&gt;     15021:30629/TCP,80:31330/TCP,443:30085/TCP,31400:32249/TCP,15443:32453/TCP   22h
+</span></span><span style="display:flex;"><span>istiod                 ClusterIP      10.109.222.195   &lt;none&gt;        15010/TCP,15012/TCP,443/TCP,15014/TCP                                        22h
+</span></span></code></pre></div><p>Istio 网关本质是通过 LoadBalancer 类型的 Service 通过一个”公网“IP对外暴露绑定到 Gateway 的服务，istio ingress Service 接收到请求后，根据路由规则，将请求转发到后端的 Pod 服务中。</p>
+<p>如果EXTERNAL-IP字段是pending状态，表示本地没有负载均衡器ip（公有云服务器才有）则：</p>
+<p>官网都有说明：https://istio.io/v1.14/docs/setup/getting-started/</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 获取到流量入口端口，这里就是31330</span>
+</span></span><span style="display:flex;"><span>export INGRESS_PORT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl -n istio-system get service istio-ingressgateway -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.ports[?(@.name==&#34;http2&#34;)].nodePort}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>export SECURE_INGRESS_PORT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl -n istio-system get service istio-ingressgateway -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.ports[?(@.name==&#34;https&#34;)].nodePort}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 获取工作节点ip</span>
+</span></span><span style="display:flex;"><span>export INGRESS_HOST<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl get po -l istio<span style="color:#f92672">=</span>ingressgateway -n istio-system -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.items[0].status.hostIP}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span></code></pre></div><p>如果有EXTERNAL-IP字段，则：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 获取端口</span>
+</span></span><span style="display:flex;"><span>export INGRESS_PORT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl -n istio-system get service istio-ingressgateway -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.ports[?(@.name==&#34;http2&#34;)].port}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>export SECURE_INGRESS_PORT<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl -n istio-system get service istio-ingressgateway -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.spec.ports[?(@.name==&#34;https&#34;)].port}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 获取到worker node的ip</span>
+</span></span><span style="display:flex;"><span>export INGRESS_HOST<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>kubectl -n istio-system get service istio-ingressgateway -o jsonpath<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;{.status.loadBalancer.ingress[0].ip}&#39;</span><span style="color:#66d9ef">)</span>
+</span></span></code></pre></div><p>往下继续，拼接查看访问的地址端口</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>export GATEWAY_URL<span style="color:#f92672">=</span>$INGRESS_HOST:$INGRESS_PORT
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;</span>$GATEWAY_URL<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;http://</span>$GATEWAY_URL<span style="color:#e6db74">/productpage&#34;</span>
+</span></span></code></pre></div><p>然后在浏览器访问即可</p>
+<p>如果刷新几次应用的页面，就会看到 <strong>productpage</strong> 页面中会随机展示 <strong>reviews</strong> 服务的不同版本的效果（<strong>红色</strong>、<strong>黑色</strong>的星形或者<strong>没有</strong>显示）。<strong>reviews</strong> 服务出现这种情况是因为我们还没有使用 Istio 来控制版本的路由。</p>
+<h2 id="destinationrule"><strong>DestinationRule</strong><a hidden class="anchor" aria-hidden="true" href="#destinationrule">#</a></h2>
+<p>DestinationRule 对象是 VirtualService 路由生效后，配置应用与请求的策略集，用来将 VirtualService 中指定的 subset 与对应的 Pod 关联起来。</p>
+<p>可以将VirtualService视为将流量如何路由到给定目标地址， 然后使用目标规则来配置该目标的流量。在评估虚拟服务路由规则之后， 目标规则将应用于流量的“真实”目标地址。</p>
+<p>配置示例解释：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule        </span> <span style="color:#75715e"># 定义DestinationRule 资源</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:           <span style="color:#75715e"># 定义服务的版本，可通过标签键值对匹配服务中的Endpoints</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name: v1         # 对应VirtualService中配置的subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:          <span style="color:#75715e"># 匹配标签</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v3</span>
+</span></span></code></pre></div><h3 id="负载均衡器配置loadbalancer">负载均衡器配置(loadBalancer)<a hidden class="anchor" aria-hidden="true" href="#负载均衡器配置loadbalancer">#</a></h3>
+<p>配置示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule        </span> <span style="color:#75715e"># 定义DestinationRule 资源</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">my_name</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:   <span style="color:#75715e"># 流量策略：负载均衡(loadBalancer)、连接池(connectionPool)、健康检查(outlierDeletion)、TLS策略</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">loadBalancer</span>:  <span style="color:#75715e"># 负载均衡</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">RANDOM  </span> <span style="color:#75715e"># 随机算法</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:           <span style="color:#75715e"># 定义服务的版本，可通过标签键值对匹配服务中的Endpoints</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name: v1         # 对应VirtualService中配置的subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v3</span>
+</span></span></code></pre></div><p>有两类：simple，consistentHash</p>
+<p><strong>simple字段</strong>：提供的负载均衡算法如下</p>
+<ul>
+<li>ROUND_ROBIN：轮询算法，如果未指定，则默认采用这种算法。</li>
+<li>LEAST_CONN：最少连接算法，算法实现是从两个随机选择的服务后端选择一个活动请求数较少 的后端实例。</li>
+<li>RANDOM：从可用的健康实例中随机选择一个。</li>
+<li>PASSTHROUGH：直接转发连接到客户端连接的目标地址，即没有做负载均衡。</li>
+</ul>
+<p><strong>consistentHash字段</strong>：一致性hash，并根据 HTTP 头、cookies 或其他请求属性提供会话亲和性。</p>
+<ul>
+<li>httpHeaderName:：基于Header.</li>
+<li>httpCookie：基于Cookie。</li>
+<li>useSourcelp：基于源IP计算哈希值。</li>
+<li>minimumRingSize：哈希环上虚拟节点数的最小值，节点数越多则负载均衡越精细。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:   <span style="color:#75715e"># 流量策略：负载均衡(loadBalancer)、连接池(connectionPool)、健康检查(outlierDelection)、TLS策略</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">loadBalancer</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">consistentHash</span>:  <span style="color:#75715e"># 负载均衡</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">httpCookie</span>:    <span style="color:#75715e"># 基于cookie做hash</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">name</span>: <span style="color:#ae81ff">location   </span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">ttl</span>: <span style="color:#ae81ff">4s</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><h3 id="连接池配置connectionpool">连接池配置(connectionPool)<a hidden class="anchor" aria-hidden="true" href="#连接池配置connectionpool">#</a></h3>
+<p>可以在 TCP 和 HTTP 层面应用于上游服务的每个主机，我们可以用它们来控制连接量</p>
+<p><strong>TCP连接池配置</strong></p>
+<ul>
+<li>
+<p>maxConnections:上游服务的所有实例建立的最大连接数，默认是 1024，属于 TCP层的配置，对于 HTTP，只用于 HTTP/1.1，因为 HTTP/2对每个主机都使用单个连接。</p>
+</li>
+<li>
+<p>connectTimeout:TCP连接超时，表示主机网络连接超时，可以改善因调用服务变慢导致整个链路E变慢的情况。</p>
+</li>
+<li>
+<p>tcpKeepalive:设置TCP keepalives，是lstio1.1新支持的配置，定期给对端发送一个keepalive的探测包，判断连接是否可用。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">connectTimeout</span>: <span style="color:#ae81ff">50ms</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">tcpKeepalive</span>:   <span style="color:#75715e"># 探针</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">probes</span>: <span style="color:#ae81ff">5s   </span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">time</span>: <span style="color:#ae81ff">3600</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">tnterval</span>: <span style="color:#ae81ff">60s    </span>
+</span></span><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span></code></pre></div></li>
+</ul>
+<p><strong>HTTP连接池配置</strong></p>
+<ul>
+<li>http1MaxPendingRequests：最大等待 HTTP 请求数，默认值是 1024，只适用于HTTP/1.1的服务，因为 HTTP/2 协议的请求在到来时会立即复用连接，不会在连接池等待。</li>
+<li>http2MaxRequests：最大请求数，默认是1024。只适用于HTTP/2服务，因为HTTP/1.1使用最大连接数maxConnections即可，表示上游服务的所有实例处理的最大请求数</li>
+<li>maxRequestsPerConnection：每个连接的最大请求数。HTTP/1.1和HTTP/2连接池都遵循此参数。如果没有设置，则没有限制。设置为1时表示每个连接只处理一个请求，也就是禁用了Keep-alive</li>
+<li>maxRetries：最大重试次数，默认是3，表示服务可以执行的最大重试次数。如果调用端因为偶尔抖动导致请求直接失败，则可能会带来业务损失，一般建议配置重试，若重试成功则可正常返回数据，只不过比原来响应得慢一点，但重试次数太多会影响性能，要谨使用。idleTimeout:空闲超时，定义在多长时间内没有活动请求则关闭连接。</li>
+</ul>
+<p>http可以和tcp配置使用，示例:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">80</span>     <span style="color:#75715e"># 配置最大80个连接</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">connectTimeout</span>: <span style="color:#ae81ff">25ms  </span> <span style="color:#75715e"># 连接超时时间</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http2MaxRequests</span>: <span style="color:#ae81ff">800</span>    <span style="color:#75715e"># 只允许最多有800个并发请求</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxRequestsPerConnection</span>: <span style="color:#ae81ff">10</span>  <span style="color:#75715e"># 每个连接的请求数不超过10个</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><h3 id="异常点检测outlierdelection">异常点检测(outlierDelection)<a hidden class="anchor" aria-hidden="true" href="#异常点检测outlierdelection">#</a></h3>
+<p>异常点检测是一个断路器的实现，它跟踪上游服务中每个主机(Pod)的状态。如果一个主机开始返回5xx HTTP 错误，它就会在预定的时间内被从负载均衡池中弹出。对于 TCP 服务，Envoy 将连接超时或失败计算为错误。</p>
+<p>两种健康检查:</p>
+<ul>
+<li>主动型的健康检查：定期探测目标服务实例，根据应答来判断服务实例的健康状态。如负载均衡器中的健康检查</li>
+<li>被动型的健康检查：通过实际的访问情况来找出不健康的实例，如isito中的异常点检查</li>
+</ul>
+<p>异常实例检查相关的配置:</p>
+<ul>
+<li>consecutiveErrors：实例被驱逐前的连续错误次数，默认是 5。对于 HTTP 服务，返回 502、503 和504 的请求会被认为异常;对于 TCP 服务，连接超时或者连接错误事件会被认为异常。</li>
+<li>interval：驱逐的时间间隔，默认值为10秒，要求大于1毫秒，单位可以是时、分、毫秒。</li>
+<li>baseEjectionTime：最小驱逐时间。一个实例被驱逐的时间等于这个最小驱逐时间乘以驱逐的次数。这样一个因多次异常被驱逐的实例，被驱逐的时间会越来越长。默认值为30秒，要求大于1毫秒，单 位可以是时、分、毫秒。</li>
+<li>maxEjectionPercent：指负载均衡池中可以被驱逐的故障实例的最大比例，默认是10%，设置这个值是为了避免太多的服务实例被驱逐导致服务整体能力下降。</li>
+<li>minHealthPercent:最小健康实例比例，是lstio 1.1新增的配置。当负载均衡池中的健康实例数的 例大于这个比例时，异常点检查机制可用;当可用实例数的比例小于这个比例时，异常点检查功能将被禁用，所有服务实例不管被认定为健康还是不健康，都可以接收请求。参数的默认值为50%</li>
+</ul>
+<p>下面举一个例子：设置了 800 个并发的 HTTP2 请求(http2MaxRequests)的限制，每个连接不超过10个请求(maxRequestsPerConnection) 到该服务。每5分钟扫描一次上游主机(Pod)(interval)，如果其中任何一个主机连续失败10次(contracticalErrors)，Envoy 会将其弹出 10 分钟(baseEjectionTime)。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http2MaxRequests</span>: <span style="color:#ae81ff">800</span>    <span style="color:#75715e"># 只允许最多有800个并发请求</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxRequestsPerConnection</span>: <span style="color:#ae81ff">10</span>   <span style="color:#75715e"># 每个连接的请求数不超过10个</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">outlierDelection</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">consecutiveErrors</span>: <span style="color:#ae81ff">10</span>     <span style="color:#75715e"># 连续失败10次</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">interval</span>: <span style="color:#ae81ff">5m             </span> <span style="color:#75715e"># 每5分钟扫描一次</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">baseEjectionTime</span>: <span style="color:#ae81ff">10m    </span> <span style="color:#75715e"># 将其弹出 10 分钟(baseEjectionTime)</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><h3 id="端口流量策略port">端口流量策略(port)<a hidden class="anchor" aria-hidden="true" href="#端口流量策略port">#</a></h3>
+<p>在端口上配置流量策略，且端口上流量策略会覆盖全局的流量策略。关于配置方法与TrafficPolicy没有大差别，一个关键的差别字段就是 port。</p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">portLevelSettings</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">number</span>: <span style="color:#ae81ff">80</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">loadBalancer</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">LEAST_CONN</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">number</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">loadBalancer</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">simple</span>: <span style="color:#ae81ff">ROUND_ROBIN</span>
+</span></span></code></pre></div><h3 id="服务子集subset">服务子集(Subset)<a hidden class="anchor" aria-hidden="true" href="#服务子集subset">#</a></h3>
+<p>Subset，定义服务的子集。</p>
+<p>属性:</p>
+<ul>
+<li>name：Subset的名字，为必选字段。通过VirtualService引用的就是这个名字</li>
+<li>labels：Subset上的标签，通过一组标签定义了属于这个Subset的服务实例。比如最常用的标识服务版本的Version标签。</li>
+<li>trafficPolicy：应用到这个Subset上的流量策略。</li>
+</ul>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">my_name</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">50</span>       <span style="color:#75715e"># 给一个特定的subset配置的d</span>
+</span></span></code></pre></div><h3 id="tls设置tls">TLS设置(tls)<a hidden class="anchor" aria-hidden="true" href="#tls设置tls">#</a></h3>
+<p>包含任何与上游服务连接的TLS相关设置。下面是一个使用提供的证书配置mTLS的例子：
+mtls: 双向认证，客户机和服务器都通过证书颁发机构彼此验证身份</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">tls</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">mode</span>: <span style="color:#ae81ff">MUTUAL</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">clientCertificate</span>: <span style="color:#ae81ff">/etc/certs/cert.pem</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">privateKey</span>: <span style="color:#ae81ff">/etc/certs/key.pem</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">caCertificate</span>: <span style="color:#ae81ff">/etc/certs/ca.pem</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><p>由同一个 root ca 生成两套证书，即客户端证书和服务端证书。客户端使用 https 访问服务端时，双方会交换证书，并进行认证，认证通过方可通信。</p>
+<p>其他支持的 TLS 模式有 DISABLE(没有 TLS 连接)，SIMPLE(在上游端点发起 TLS 连接)，以及ISTIO MUTUAL(与MUTUAL 类似，使用Istio 的 mTLS 证书)。</p>
+<h2 id="流量限流熔断">流量限流熔断<a hidden class="anchor" aria-hidden="true" href="#流量限流熔断">#</a></h2>
+<p>​	<strong>熔断</strong>是创建弹性微服务应用程序的重要模式，熔断能够使应用程序具备应对来自故障、潜在峰值和其他未知网络因素影响的能力。服务熔断是应对微服务雪崩效应的一种链路保护机制，类似股市、保险丝。微服务之间的数据交互是通过远程调用来完成的，服务 A 调用服务 B，服务 B 调用服务 C，某一时间链路上对服务 C 的调用响应时间过长或者服务 C 不可用，随着时间的增长，对服务 C 的调用也越来越多，然后服务 C 崩溃了，但是链路调用还在，对服务 B 的调用也在持续增多，然后服务 B 崩溃，随之 A 也崩溃，导致<strong>雪崩效应</strong>。</p>
+<p>​	服务熔断是应对雪崩效应的一种微服务链路保护机制。例如在高压电路中，如果某个地方的电压过高，熔断器就会熔断，对电路进行保护。同样，在微服务架构中，熔断机制也是起着类似的作用。当调用链路的某个微服务不可用或者响应时间太长时，会进行服务熔断，不再有该节点微服务的调用，快速返回错误的响应信息。当检测到该节点微服务调用响应正常后，恢复调用链路。</p>
+<p>​	服务熔断的作用类似于我们家用的保险丝，当某服务出现不可用或响应超时的情况时，为了防止整个系统出现雪崩，暂时停止对该服务的调用。在 Spring Cloud 框架里，熔断机制通过 <code>Hystrix</code>实现，<code>Hystrix</code> 会监控微服务间调用的状况，当失败的调用到一定阈值，缺省是 5 秒内 20 次调用失败，就会启动熔断机制。</p>
+<p>​	Istio 也有对熔断的支持，无需对代码进行任何更改就可以为应用增加熔断和限流功能。Istio 中熔断和限流在 <code>DestinationRule</code> 的 CRD 资源的 <code>TrafficPolicy</code> 中设置，一般设置<strong>连接池（<code>ConnectionPool</code>）限流方式</strong>和<strong>异常检测（<code>outlierDetection</code>）熔断</strong>方式。两者各自配置部分参数，其中参数有可能存在对方的功能，并没有很严格的区分出来，如主要进行限流设置的 <code>ConnectionPool</code> 中的 <code>maxPendingRequests</code> 参数，最大等待请求数，如果超过则也会暂时的熔断。</p>
+<p>配置示例：</p>
+<p>设置 TCP 的连接池大小为 100 个连接，有 800 个并发的 HTTP2 请求(http2MaxRequests)的限制，每个连接不超过10个请求(maxRequestsPerConnection) 到该服务。每5分钟扫描一次上游主机(Pod)(interval)，如果其中任何一个主机连续失败10次(contracticalErrors)，Envoy 会将其弹出 10 分钟(baseEjectionTime)。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule        </span> <span style="color:#75715e"># 定义DestinationRule 资源</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">my_name</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">my_svc      </span> <span style="color:#75715e"># 配置的service名称，如是跨空间需写全地址</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">trafficPolicy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">connectionPool</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">tcp</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxConnections</span>: <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">http2MaxRequests</span>: <span style="color:#ae81ff">800</span>    <span style="color:#75715e"># 只允许最多有800个并发请求</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxRequestsPerConnection</span>: <span style="color:#ae81ff">10</span>   <span style="color:#75715e"># 每个连接的请求数不超过10个</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">outlierDelection</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">consecutiveErrors</span>: <span style="color:#ae81ff">10</span>     <span style="color:#75715e"># 连续失败10次</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">interval</span>: <span style="color:#ae81ff">5m             </span> <span style="color:#75715e"># 每5分钟扫描一次</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">baseEjectionTime</span>: <span style="color:#ae81ff">10m    </span> <span style="color:#75715e"># 将其弹出 10 分钟(baseEjectionTime)</span>
+</span></span></code></pre></div><h2 id="流量路由案例">流量路由案例<a hidden class="anchor" aria-hidden="true" href="#流量路由案例">#</a></h2>
+<h3 id="基于版本路由">基于版本路由<a hidden class="anchor" aria-hidden="true" href="#基于版本路由">#</a></h3>
+<p>安装 Bookinfo 应用时，部署了每个应用的所有版本。实现版本路由的功能，可以在 VirtualService 中通过subset指定访问服务的版本，即服务的一个子集。</p>
+<p>基于Bookinfo 应用，将每个服务的流量全部路由到 v1 版本</p>
+<ul>
+<li>先创建DestinationRule资源，指定要路由的目标</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># kubectl apply -f  samples/bookinfo/networking/destination-rule-all.yaml</span>
+</span></span><span style="display:flex;"><span>destinationrule.networking.istio.io/productpage created
+</span></span><span style="display:flex;"><span>destinationrule.networking.istio.io/reviews created
+</span></span><span style="display:flex;"><span>destinationrule.networking.istio.io/ratings created
+</span></span><span style="display:flex;"><span>destinationrule.networking.istio.io/details created
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># kubectl get dr</span>
+</span></span><span style="display:flex;"><span>NAME          HOST          AGE
+</span></span><span style="display:flex;"><span>details       details       48s
+</span></span><span style="display:flex;"><span>productpage   productpage   48s
+</span></span><span style="display:flex;"><span>ratings       ratings       48s
+</span></span><span style="display:flex;"><span>reviews       reviews       48s
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># cat samples/bookinfo/networking/destination-rule-all.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">productpage</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v3</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ratings</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">ratings</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2-mysql</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2-mysql</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2-mysql-vm</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2-mysql-vm</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">DestinationRule</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">details</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">host</span>: <span style="color:#ae81ff">details</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">subsets</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">version</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>---
+</span></span></code></pre></div><ul>
+<li>创建virtual-service</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># yaml文件路径在安装路径的/samples/bookinfo/networking/路径下</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建virtual-service资源</span>
+</span></span><span style="display:flex;"><span>$ kubectl apply -f samples/bookinfo/networking/virtual-service-all-v1.yaml 
+</span></span><span style="display:flex;"><span>virtualservice.networking.istio.io/productpage created
+</span></span><span style="display:flex;"><span>virtualservice.networking.istio.io/reviews created
+</span></span><span style="display:flex;"><span>virtualservice.networking.istio.io/ratings created
+</span></span><span style="display:flex;"><span>virtualservice.networking.istio.io/details created
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat samples/bookinfo/networking/virtual-service-all-v1.yaml 
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: VirtualService
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: productpage
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  hosts:
+</span></span><span style="display:flex;"><span>  - productpage
+</span></span><span style="display:flex;"><span>  http:
+</span></span><span style="display:flex;"><span>  - route:
+</span></span><span style="display:flex;"><span>    - destination:
+</span></span><span style="display:flex;"><span>        host: productpage
+</span></span><span style="display:flex;"><span>        subset: v1
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: VirtualService
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: reviews
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  hosts:
+</span></span><span style="display:flex;"><span>  - reviews
+</span></span><span style="display:flex;"><span>  http:
+</span></span><span style="display:flex;"><span>  - route:
+</span></span><span style="display:flex;"><span>    - destination:
+</span></span><span style="display:flex;"><span>        host: reviews
+</span></span><span style="display:flex;"><span>        subset: v1
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: VirtualService
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: ratings
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  hosts:
+</span></span><span style="display:flex;"><span>  - ratings
+</span></span><span style="display:flex;"><span>  http:
+</span></span><span style="display:flex;"><span>  - route:
+</span></span><span style="display:flex;"><span>    - destination:
+</span></span><span style="display:flex;"><span>        host: ratings
+</span></span><span style="display:flex;"><span>        subset: v1
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>apiVersion: networking.istio.io/v1alpha3
+</span></span><span style="display:flex;"><span>kind: VirtualService
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  name: details
+</span></span><span style="display:flex;"><span>spec:
+</span></span><span style="display:flex;"><span>  hosts:
+</span></span><span style="display:flex;"><span>  - details
+</span></span><span style="display:flex;"><span>  http:
+</span></span><span style="display:flex;"><span>  - route:
+</span></span><span style="display:flex;"><span>    - destination:
+</span></span><span style="display:flex;"><span>        host: details
+</span></span><span style="display:flex;"><span>        subset: v1
+</span></span></code></pre></div><p>此时刷新/productpage页面，将一直都是v1版本</p>
+<h3 id="基于权重路由">基于权重路由<a hidden class="anchor" aria-hidden="true" href="#基于权重路由">#</a></h3>
+<p>添加virtualservice</p>
+<p>规则定义了 80% 的对 Reviews 的流量会落入 v1 这个 subset，就是没有 Ratings 的这个服务，20% 会落入 v2 带黑色 Ratings 的这个服务</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># cat samples/bookinfo/networking/virtual-service-reviews-80-20.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews  </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">80</span>      <span style="color:#75715e"># 权重配置</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">20</span>      <span style="color:#75715e"># 权重配置</span>
+</span></span></code></pre></div><h3 id="基于身份路由">基于身份路由<a hidden class="anchor" aria-hidden="true" href="#基于身份路由">#</a></h3>
+<p>将特定用户的所有流量路由到服务的特定版本。例如，将来自名为<code>jason</code>用户的所有流量路由到 <code>reivews</code>服务的 <code>v2</code> 版本。</p>
+<p>Istio 对用户身份没有任何特殊的内置机制。在 Bookinfo 应用中，<code>productpage</code>服务在所有到<code>reviews</code>服务的 HTTP 请求中都增了一个自定义的<code>end-user</code>请求头，在路由规则中根据该 HTTP 请求头将流量路由到 reviews 服务的 v2 版本。</p>
+<p>基于Bookinfo应用示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">cat samplesbookinfo/networking/virtual-service-reviews-test-v2.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">match</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">headers</span>:           <span style="color:#75715e"># 添加请求头</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">end-user</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">exact</span>: <span style="color:#ae81ff">jason</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:               <span style="color:#75715e"># 路由至V2版本</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 使用match属性配置匹配请求头中的参数，如果HTTP 请求中包含end-user头，且值为jason，则将流量路由到 route定义的reviews 服务的subset: v2中，即 v2 版本。</span>
+</span></span></code></pre></div><h3 id="http重写-重定向-重试">HTTP重写-重定向-重试<a hidden class="anchor" aria-hidden="true" href="#http重写-重定向-重试">#</a></h3>
+<p>重写：通过HTTP重写可以将请求转发给目标服务器前修改HTTP请求中指定部分的内容，用户不可见</p>
+<p>重定向：从一个URL重定向到另外一个URL，例如：在线网站网址变了，可以通过重定向，在用户输入老地址时跳转到新地址</p>
+<p>示例配置：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService  </span> <span style="color:#75715e"># 对应创建了一个VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">any</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:            <span style="color:#75715e"># 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全)</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;any&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">match</span>:         <span style="color:#75715e"># 匹配规则</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/api/v1/products</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">rewrite</span>:                    <span style="color:#75715e"># 重写url</span>
+</span></span><span style="display:flex;"><span>    	<span style="color:#f92672">uri</span>: <span style="color:#ae81ff">/products</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">redirect</span>:                   <span style="color:#75715e"># 重定向</span>
+</span></span><span style="display:flex;"><span>    	<span style="color:#f92672">uri</span>: <span style="color:#ae81ff">/example</span>
+</span></span><span style="display:flex;"><span>    	<span style="color:#f92672">authority</span>: <span style="color:#ae81ff">new-example</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:                      <span style="color:#75715e"># 路由目标</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage      </span> <span style="color:#75715e"># 对应bookinfo的的svc</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">9080</span>
+</span></span></code></pre></div><p>重试：定义请求失败时的重试策略(重试次数、超时、重试条件等)</p>
+<ul>
+<li>attempts：必选字段，定义重试的次数</li>
+<li>perTryTimeout： 每次重试超时时间，单位可以是ms、s、h</li>
+<li>RetryOn：重试条件，可以多个，以逗号分隔
+<ul>
+<li>5xx:  在上游服务返回5xx应答码，或者在没有返回时重试</li>
+<li>gateway-eIror:  类似于5xx异常，只对502、503和504应答码进行重试。</li>
+<li>connect-failure:  在链接上游服务失败时重试</li>
+<li>retriable-4xx:  在上游服务返回可重试的4xx应答码时执行重试</li>
+<li>refused-stream:  在上游服务使用REFUSED STREAM错误码重置时执行重试</li>
+<li>cancelled:  qRPC应答的Header中状态码是canceled时执行重试</li>
+<li>deadline-exceeded:  在gRPC应答的Header中状态码是deadline-exceeded时执行重试</li>
+<li>internal:  在gRPC应答的Header中状态码是internal时执行重试0。</li>
+<li>resource-exhausted:  在qRPC应答的Header中状态码是resource-exhausted时执行重试</li>
+<li>unavailable:  在qRPC应答的Header中状态码是unavailable时执行重试。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService  </span> <span style="color:#75715e"># 对应创建了一个VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">any</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:            <span style="color:#75715e"># 定义路由规则关联的一组hosts，可以是带有通配符的DNS或IP，也可以是service(跨命名空间要写全)</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;any&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">match</span>:         <span style="color:#75715e"># 匹配规则</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">uri</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">prefix</span>: <span style="color:#ae81ff">/api/v1/products </span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">retries</span>:       <span style="color:#75715e"># 重试配置</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">attempts</span>: <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">perTryTimeout</span>: <span style="color:#ae81ff">3s</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">RetryOn</span>: <span style="color:#ae81ff">5xx,connect-failure</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:                      <span style="color:#75715e"># 路由目标</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage      </span> <span style="color:#75715e"># 对应bookinfo的的svc</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">port</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">number</span>: <span style="color:#ae81ff">9080</span>
+</span></span></code></pre></div><h3 id="http流量镜像mirror">HTTP流量镜像(mirror)<a hidden class="anchor" aria-hidden="true" href="#http流量镜像mirror">#</a></h3>
+<p>流量镜像，也称为影子流量，是一个以尽可能低的风险为生产带来变化的强大的功能。镜像会将实时流量的副本发送到镜像服务。镜像流量发生在主服务的关键请求路径之外。</p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">networking.istio.io/v1alpha3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">VirtualService</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">hosts</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">weight</span>: <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">mirror</span>:            <span style="color:#75715e"># 镜像路由目标配置</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v2</span>
+</span></span></code></pre></div><h3 id="http故障注入">HTTP故障注入<a hidden class="anchor" aria-hidden="true" href="#http故障注入">#</a></h3>
+<p>HTTPFaultlnjection通过delay和abort两个字段设置延时和中止两种故障，分别表示：<strong>Proxy延迟转发HTTP请求</strong>和<strong>中止HTTP请求</strong>。</p>
+<p><strong>1、Proxy延迟转发HTTP请求</strong></p>
+<p>延迟故障注入HTTPFaultlnjection中的延迟故障使用HTTPFaultInjection.Delay 类型描述延时故障，表示在发送请求前进行一段延时，模拟网络、远端服务负载均衡等各种原因导致的失败，主要是如下两个字段:</p>
+<ul>
+<li>fixedDelay：一个必选字段，表示延迟时间，单位可以是毫秒、秒、分钟和小时，要求至少大于1毫秒</li>
+<li>percentage：配置的延迟故障作用在多少的比例的请求上，通过这种方式可以只让部分请求发生故障。</li>
+</ul>
+<p>示例：在productpage服务v1版本上的1.5%的请求产生10秒的延时</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:                      <span style="color:#75715e"># 路由目标</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage       </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">fault</span>:                 <span style="color:#75715e"># 故障注入配置</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">delay</span>:               <span style="color:#75715e"># 延迟转发</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">percentage</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">value</span>: <span style="color:#ae81ff">1.5</span>       <span style="color:#75715e"># 流量百分比：1.5%</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">fixedDelay</span>: <span style="color:#ae81ff">10s   </span> <span style="color:#75715e"># 延迟时间，单位s</span>
+</span></span></code></pre></div><p><strong>2、中止HTTP请求</strong></p>
+<p>请求中止故障注入HTTPFaultInjection 使用HTTPFaultInjection.Abort 描述中止故障，模拟服务端异常，给调用的客户端返回预先定义的错误状态码，主要有以下两个字段:</p>
+<ul>
+<li>httpStatus：是一个必选字段，表示中止的HTTP状态码</li>
+<li>percentage：配置中止故障作用在多少比例的请求上，通过这种方式可以只让部分请求发生故障，用法通延迟故障</li>
+</ul>
+<p>示例：让productpage服务v1版本上1.5%的请求返回“500”代码</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">route</span>:                      <span style="color:#75715e"># 路由目标</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">productpage       </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">subset</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">fault</span>:                      <span style="color:#75715e"># 故障注入配置</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">abort</span>:                    <span style="color:#75715e"># 终止</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">percentage</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">value</span>: <span style="color:#ae81ff">1.5</span>            <span style="color:#75715e"># 流量百分比：1.5%</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">httpStatus</span>: <span style="color:#ae81ff">10s        </span> <span style="color:#75715e"># 中止的HTTP状态码</span>
+</span></span></code></pre></div><h3 id="http跨域资源共享corspolicy">HTTP跨域资源共享(CorsPolicy)<a hidden class="anchor" aria-hidden="true" href="#http跨域资源共享corspolicy">#</a></h3>
+<p>当一个资源向该资源所在服务器的不同的域发起请求时，就会产生一个跨域的HTTP请求。出于安全考虑浏览器会限制从脚本发起的跨域HTTP请求。通过跨域资源共享CORS(Cross Origin Resource Sharing)机制可允许web应用服务器进行跨域访问控制，使跨域数据传递安全进行。在实现上是在HTTP Header中追加一些额外的信息来通知浏览器准许以上访问。</p>
+<p>在 VirtualService 中可以对满足条件的请求配置跨域资源共享。有allowOrigin、allowMethods.allowHeader、exposeHeader、maxAge、allowCredentials，其实都是被转化为 Access-Control-* 的Header。</p>
+<p>如下所示，允许源自news.com的GET方法的请求的访问:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>...<span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">http</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">route</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">destination</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">host</span>: <span style="color:#ae81ff">reviews</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">corsPolicy</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">allowOrigin</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">news.com     </span> <span style="color:#75715e"># 允许的源url</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">allowMethods</span>:   <span style="color:#75715e"># 允许的请求方法</span>
+</span></span><span style="display:flex;"><span>        - <span style="color:#ae81ff">Get</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">maxAge</span>: <span style="color:#e6db74">&#34;2d&#34;</span>    <span style="color:#75715e"># </span>
+</span></span></code></pre></div><h1 id="可观察性">可观察性<a hidden class="anchor" aria-hidden="true" href="#可观察性">#</a></h1>
+<h2 id="网格可视化kiali">网格可视化Kiali<a hidden class="anchor" aria-hidden="true" href="#网格可视化kiali">#</a></h2>
+<p><a href="https://kiali.io/">Kiali</a> 是具有服务网格配置和验证功能的 Istio 可观察性的控制台。通过监视流量来推断拓扑和错误报告，它可以帮助您了解服务网格的结构和运行状态。Kiali 提供了详细的的指标并与 Grafana 进行基础集成，可以用于高级查询。通过与 <a href="https://istio.io/latest/zh/docs/ops/integrations/jaeger">Jaeger</a> 来提供分布式链路追踪功能。</p>
+<ul>
+<li>yaml安装，在istio安装目录下的/samples/addons/</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f <span style="color:#e6db74">${</span>ISTIO_HOME<span style="color:#e6db74">}</span>/samples/addons/kiali.yaml
+</span></span></code></pre></div><ul>
+<li>使用 Helm Chart 安装</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ helm install <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --namespace istio-system <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --set auth.strategy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;anonymous&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --repo https://kiali.org/helm-charts <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  kiali-server <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  kiali-server
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ istioctl dashboard kiali --address 0.0.0.0
+</span></span><span style="display:flex;"><span>http://0.0.0.0:20001/kiali
+</span></span><span style="display:flex;"><span>Failed to open browser; open http://0.0.0.0:20001/kiali in your browser.
+</span></span></code></pre></div><p>通过浏览请求<code>http://&lt;node ip&gt;:20001/kiali</code>访问 kiali Web UI。</p>
+<p><img alt="image-20240417202742533" loading="lazy" src="/k8s/istio/images/image-20240417202742533.png"></p>
+<h2 id="分布式追踪">分布式追踪<a hidden class="anchor" aria-hidden="true" href="#分布式追踪">#</a></h2>
+<h3 id="zipkin">zipkin<a hidden class="anchor" aria-hidden="true" href="#zipkin">#</a></h3>
+<p>官方文档：https://preliminary.istio.io/latest/zh/docs/tasks/observability/distributed-tracing/zipkin/</p>
+<p>默认链路数据会发送到zipkin</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># yaml文件在安装目录下的：samples/addons/extras</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 没有安装的可直接安装</span>
+</span></span><span style="display:flex;"><span>kubectl apply -f samples/addons/extras/zipkin.yaml
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 测试或者临时访问</span>
+</span></span><span style="display:flex;"><span>istioctl dashboard zipkin
+</span></span></code></pre></div><p>在web页面的搜索面板中，点击 <code>+</code> 号，从第一个下拉列表中选择 <code>serviceName</code>， 从第二个下拉列表中选择 <code>productpage.default</code>，再点击搜索图标：</p>
+<h3 id="skywalking">SkyWalking<a hidden class="anchor" aria-hidden="true" href="#skywalking">#</a></h3>
+<p>istio官方文档：https://istio.io/v1.17/zh/docs/tasks/observability/distributed-tracing/skywalking/</p>
+<p>skywalking官方文档：https://skywalking.apache.org/zh/how-to-use-skywalking-for-distributed-tracing-in-istio/</p>
+<p>Istio 基于 Envoy 的分布式追踪功能记录了服务之间调用链路信息（traceid 和 spanid等），可以很方便的和 SkyWalking、zipkin、jaeger等三方追踪服务集成。核心原理是通过代理将服务间调用的追踪 Span 发送到分布式追踪服务，由这些追踪服务实现调用链路存储、聚合和查询的功能。</p>
+<p>SkyWalking是一个专门设计用于微服务、 云原生和容器等架构的应用性能监控 (APM) 系统。SkyWalking 是可观测性的一站式解决方案， 不仅具有像 Jaeger 和 Zipkin 的分布式追踪能力，像 Prometheus 和 Grafana 的指标能力，像 Kiali 的日志记录能力，还能将可观测性扩展到许多其他场景， 例如将日志与链路关联，收集系统事件并将事件与指标关联，基于 eBPF 的服务性能分析等。</p>
+<p><strong>传递追踪上下文</strong></p>
+<p>应用程序需要将 Span 通过 HTTP 请求头，将 Span 传递给上游服务（调用目标），才能把一个调用链中的 Trace 中的多个 Span 加入到链中。不同的追踪后端服务，需要提供的追踪请求头元信息不同，下面是一个汇总：</p>
+<ol>
+<li>
+<p>全局 - 所有应用程序必须转发的请求头</p>
+<ul>
+<li>x-request-id：这是 Envoy 专用的请求头，用于对日志和追踪进行一致的采样。</li>
+</ul>
+</li>
+<li>
+<p>Zipkin、Jaeger、Stackdriver 和 OpenCensus Agent</p>
+<ul>
+<li>
+<p>x-b3-traceid</p>
+</li>
+<li>
+<p>x-b3-spanid</p>
+</li>
+<li>
+<p>x-b3-parentspanid</p>
+</li>
+<li>
+<p>x-b3-sampled</p>
+</li>
+<li>
+<p>x-b3-flags</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Datadog：对于许多语言和框架而言，这些转发由 Datadog 客户端库自动处理。</p>
+<ul>
+<li>
+<p>x-datadog-trace-id</p>
+</li>
+<li>
+<p>x-datadog-parent-id</p>
+</li>
+<li>
+<p>x-datadog-sampling-priority</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Lightstep</p>
+<ul>
+<li>x-ot-span-context</li>
+</ul>
+</li>
+<li>
+<p>Stackdriver 和 OpenCensus Agent</p>
+<ul>
+<li>
+<p>grpc-trace-bin：标准的 grpc 追踪头。</p>
+</li>
+<li>
+<p>traceparent：追踪所用的 W3C 追踪上下文标准。受所有 OpenCensus、OpenTelemetry 和日益增加的 Jaeger 客户端库所支持。</p>
+</li>
+<li>
+<p>x-cloud-trace-context：由 Google Cloud 产品 API 使用。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>配置追踪后端 - SkyWalking</strong></p>
+<ul>
+<li>安装SkyWalking服务</li>
+</ul>
+<p>官网：https://istio.io/latest/zh/docs/ops/integrations/skywalking/#installation</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 在istio安装目录下的/samples/addons/ （好像是1.17版本后才配有skywalking的yaml文件）</span>
+</span></span><span style="display:flex;"><span>kubectl apply -f samples/addons/extras/skywalking.yaml
+</span></span></code></pre></div><p>将追踪后端服务作为扩展程序配置到 Istio。</p>
+<ul>
+<li>
+<p>如果是使用了 <code>IstioOperator</code> CR 来安装 Istio，需要将追踪后端服务作为扩展程序配置到 Istio。</p>
+<p>默认链路数据不会发送到 SkyWalking</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 展示配置档的信息</span>
+</span></span><span style="display:flex;"><span>istioctl profile dump demo
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 找到IstioOperator资源的yaml文件并进行修改</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># kubectl get IstioOperator -n istio-system </span>
+</span></span><span style="display:flex;"><span>NAME              REVISION   STATUS   AGE
+</span></span><span style="display:flex;"><span>installed-state                       14h
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># kubectl edit io installed-state -n istio-system</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 找到meshConfig配置段并添加一下配置内容</span>
+</span></span><span style="display:flex;"><span>    defaultProviders:
+</span></span><span style="display:flex;"><span>      tracing:
+</span></span><span style="display:flex;"><span>      - <span style="color:#e6db74">&#34;skywalking&#34;</span>
+</span></span><span style="display:flex;"><span>    enableTracing: true
+</span></span><span style="display:flex;"><span>    extensionProviders:
+</span></span><span style="display:flex;"><span>    - name: <span style="color:#e6db74">&#34;skywalking&#34;</span>
+</span></span><span style="display:flex;"><span>      skywalking:
+</span></span><span style="display:flex;"><span>        service: tracing.istio-system.svc.cluster.local
+</span></span><span style="display:flex;"><span>        port: <span style="color:#ae81ff">11800</span>
+</span></span></code></pre></div><p>或者是在初步安装的时候配置：</p>
+<p>采用此配置来安装 Istio 时，将使用 SkyWalking Agent 作为默认的追踪器， 链路数据会被发送到 SkyWalking 后端</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat &gt; ./my-config.yaml <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: install.istio.io/v1alpha1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: IstioOperator
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">spec:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  meshConfig:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    defaultProviders:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      tracing:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      - &#34;skywalking&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    enableTracing: true
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    extensionProviders:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    - name: &#34;skywalking&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      skywalking:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        service: tracing.istio-system.svc.cluster.local
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        port: 11800
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ istioctl install -f my-config.yaml
+</span></span></code></pre></div><p>所有追踪后端部署后，默认会在 istio-system 命名空间部署一个<code>tracing</code>服务，指向追踪后端的 Pod 。</p>
+<ul>
+<li>修改追踪默认采样率。()</li>
+</ul>
+<p>在默认的配置文件中，采样率为 1%， 使用 <a href="https://istio.io/latest/zh/docs/tasks/observability/telemetry/">Telemetry API</a> 将其提高到 100%：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -f - <span style="color:#e6db74">&lt;&lt;EOF
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">apiVersion: telemetry.istio.io/v1alpha1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">kind: Telemetry
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">metadata:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  name: mesh-default
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  namespace: istio-system
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">spec:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  tracing:
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  - randomSamplingPercentage: 100.00
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">EOF</span>
+</span></span></code></pre></div><ul>
+<li>访问 SkyWalking Dashboard。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>istioctl dashboard skywalking
+</span></span></code></pre></div><ul>
+<li>在web进入管理端ui可以看到链路</li>
+</ul>
+<p><img alt="image-20240419095620954" loading="lazy" src="/k8s/istio/images/image-20240419095620954.png"></p>
+<p><img alt="image-20240419095714018" loading="lazy" src="/k8s/istio/images/image-20240419095714018.png"></p>
+<h1 id="运维实战">运维实战<a hidden class="anchor" aria-hidden="true" href="#运维实战">#</a></h1>
+<p>参考文档：https://www.zhaohuabing.com/istio-guide/docs/</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="/log/graylog/">
+    <span class="title">« Prev</span>
+    <span>graylog</span>
+  </a>
+  <a class="next" href="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
+    <span class="title">Next »</span>
+    <span>k8s安装-kubeadm（非高可用&#43;高可用）</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

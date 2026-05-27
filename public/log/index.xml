@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>日志系统 on 探无止境</title>
+    <link>/log/</link>
+    <description>Recent content in 日志系统 on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="/log/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>es</title>
+      <link>/log/es/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/log/es/</guid>
+      <description>&lt;p&gt;文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947&lt;/p&gt;
+&lt;h1 id=&#34;es简介&#34;&gt;ES简介&lt;/h1&gt;
+&lt;p&gt;ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。&lt;/p&gt;
+&lt;h2 id=&#34;特点和优势&#34;&gt;特点和优势&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;分布式实时文件存储，可将每一个字段存入索引，使其可以被检索到。&lt;/li&gt;
+&lt;li&gt;近乎实时分析的分布式搜索引擎。&lt;/li&gt;
+&lt;li&gt;分布式：索引分拆成多个分片，每个分片可有零个或多个副本。集群中的每个数据节点都可承载一个或多个分片，并且协调和处理各种操作；&lt;/li&gt;
+&lt;li&gt;负载再平衡和路由在大多数情况下自动完成。&lt;/li&gt;
+&lt;li&gt;可以扩展到上百台服务器，处理PB级别的结构化或非结构化数据。也可以运行在单台PC上。&lt;/li&gt;
+&lt;li&gt;支持插件机制，分词插件、同步插件、Hadoop插件、可视化插件等。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;基本概念&#34;&gt;基本概念&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;集群（cluster）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	ES可以作为一个独立的单个搜索服务器。不过，一般为了处理大型数据集，实现容错和高可用性，ES可以运行在许多互相合作的服务器上。这些服务器的集合称为集群。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;节点（Node）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	运行了&lt;strong&gt;单个实例的ES主机称为节点&lt;/strong&gt;，它是集群的一个成员，可以存储数据、参与集群索引及搜索操作。节点通过为其配置的ES集群名称确定其所要加入的集群。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;分片（Shard）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	ES的“分片(shard)”机制可将一个索引内部的数据分布地存储于多个节点，它通过&lt;strong&gt;将一个索引切分为多个&lt;/strong&gt;底层物理的Lucene索引完成&lt;strong&gt;索引数据的分割存储&lt;/strong&gt;功能，这每一个物理的Lucene索引称为一个分片(shard)。
+这样的好处是可以&lt;strong&gt;把一个大的索引拆分成多个，分布到不同的节点上&lt;/strong&gt;。降低单服务器的压力，构成分布式搜索，**提高整体检索的效率（分片数的最优值与硬件参数和数据量大小有关）。*&lt;em&gt;分片的数量*&lt;em&gt;只能在索引创建前指定，并且索引创建后不能更改。&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;副本（Replica）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	副本是一个分片的&lt;strong&gt;精确复制&lt;/strong&gt;，每个分片可以有零个或多个副本。副本的作用一是&lt;strong&gt;提高系统的容错性&lt;/strong&gt;，当某个节点某个分片损坏或丢失时可以从副本中恢复。二是&lt;strong&gt;提高es的查询效率&lt;/strong&gt;，es会自动对搜索请求进行负载均衡。&lt;/p&gt;
+&lt;h2 id=&#34;数据架构&#34;&gt;数据架构&lt;/h2&gt;
+&lt;h3 id=&#34;索引index&#34;&gt;索引（index）&lt;/h3&gt;
+&lt;p&gt;​	ES将数据存储于一个或多个索引中，索引是具有类似特性的文档的集合。类比传统的关系型数据库领域来说，**索引相当于SQL中的一个数据库。**Elasticsearch可以把索引存放在一台机器或者分散在多台服务器上，每个索引有一或多个分片（shard），每个分片可以有多个副本（replica）。&lt;/p&gt;
+&lt;h3 id=&#34;文档document&#34;&gt;文档（Document）&lt;/h3&gt;
+&lt;p&gt;​	存储在Elasticsearch中的主要实体叫文档（document）。用关系型数据库来类比的话，一个文档相当于数据库表中的一行记录。
+Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Elasticsearch的文档中，相同字段必须有相同类型。
+文档由多个字段组成，每个字段可能多次出现在一个文档里，这样的字段叫多值字段（multivalued）。
+​	每个字段的类型，可以是文本、数值、日期等。字段类型也可以是复杂类型，一个字段包含其他子文档或者数组。
+在Elasticsearch中，文档以JSON格式进行存储，可以是嵌套的复杂的结构。&lt;/p&gt;
+&lt;p&gt;一个文档不只有数据。它还包含了元数据(metadata)——关于文档的信息。三个必须的元数据节点是：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;节点&lt;/th&gt;
+          &lt;th&gt;说明&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;_index&lt;/td&gt;
+          &lt;td&gt;文档存储的地方&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;_type&lt;/td&gt;
+          &lt;td&gt;文档代表的对象的类&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;_id&lt;/td&gt;
+          &lt;td&gt;文档的唯一标识&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;写入原理&#34;&gt;写入原理&lt;/h2&gt;
+&lt;h3 id=&#34;正排索引&#34;&gt;正排索引&lt;/h3&gt;
+&lt;p&gt;​	正排索引就是最普通的索引排序方式。正排索引也是采取key-value pair的方式对数据进行保存，key是doc-id，value则可以存储多种内容，如doc的分词词表、doc所在网页的属性信息等。由此可见，正排索引可以随意添加数据，但如果你要查询某个单词在哪些文档中出现，那么你就不得不将全部文档都遍历一遍，效率极低。如：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;文档ID&lt;/th&gt;
+          &lt;th&gt;文档内容&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;1&lt;/td&gt;
+          &lt;td&gt;elasticsearch是最流行的搜索引擎&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;php是世界上最好的语言&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;3&lt;/td&gt;
+          &lt;td&gt;搜索引擎是如何诞生的&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;倒排索引&#34;&gt;倒排索引&lt;/h3&gt;
+&lt;p&gt;倒排索引类似将正排索引反过来，以全部文档中出现的所有words建立一个词典（term dictionary ），然后对于term dictionary 中的每个词，它后面都会跟随一个链表，该链表就是倒排表 ，倒排表内存储着如下信息：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;该词出现的doc-id&lt;/li&gt;
+&lt;li&gt;该词在某doc中的出现次数和出现位置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>filebeat</title>
+      <link>/log/filebeat/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/log/filebeat/</guid>
+      <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
+&lt;p&gt;官方文档：https://www.elastic.co/guide/en/beats/filebeat/7.13/index.html&lt;/p&gt;
+&lt;p&gt;​	Filebeat是一种轻量型日志采集器，内置有多种模块（auditd、Apache、NGINX、System、MySQL 等等），可针对常见格式的日志大大简化收集、解析和可视化过程，只需一条命令即可。之所以能实现这一点，是因为它将自动默认路径（因操作系统而异）与 Elasticsearch 采集节点管道的定义和 Kibana 仪表板组合在一起。不仅如此，数个 Filebeat 模块还包括预配置的 Machine Learning 任务。另一点需要声明的是：根据采集的数据形式不同，形成了由多个模块组成的Beats。Beats是开源数据传输程序集，可以将其作为代理安装在服务器上，将操作数据发送给Elasticsearch，或者通过Logstash，在Kibana中可视化数据之前，在Logstash中进一步处理和增强数据。&lt;/p&gt;
+&lt;h2 id=&#34;特点&#34;&gt;特点&lt;/h2&gt;
+&lt;p&gt;（1）轻量型日志采集器，占用资源更少，对机器配置要求极低。&lt;/p&gt;
+&lt;p&gt;（2）操作简便，可将采集到的日志信息直接发送到ES集群、Logstash、Kafka集群等消息队列中。&lt;/p&gt;
+&lt;p&gt;（3）异常中断重启后会继续上次停止的位置。（通过${filebeat_home}\data\registry文件来记录日志的偏移量）。&lt;/p&gt;
+&lt;p&gt;（4）使用压力敏感协议（backpressure-sensitive）来传输数据，在 logstash 忙的时候，Filebeat 会减慢读取-传输速度，一旦 logstash 恢复，则 Filebeat 恢复原来的速度。&lt;/p&gt;
+&lt;p&gt;（5）Filebeat带有内部模块（auditd，Apache，Nginx，System和MySQL），可通过一个指定命令来简化通用日志格式的收集，解析和可视化。&lt;/p&gt;
+&lt;h2 id=&#34;filebeat与logstash对比&#34;&gt;Filebeat与Logstash对比&lt;/h2&gt;
+&lt;p&gt;（1）Filebeat是轻量级数据托运者，您可以在服务器上将其作为代理安装，以将特定类型的操作数据发送到Elasticsearch。与Logstash相比，其占用空间小，使用的系统资源更少。&lt;/p&gt;
+&lt;p&gt;（2）Logstash具有更大的占用空间，但提供了大量的输入，过滤和输出插件，用于收集，丰富和转换来自各种来源的数据。&lt;/p&gt;
+&lt;p&gt;（3）Logstash是使用Java编写，插件是使用jruby编写，对机器的资源要求会比较高。在采集日志方面，对CPU、内存上都要比Filebeat高很多。&lt;/p&gt;
+&lt;h2 id=&#34;工作机制&#34;&gt;工作机制&lt;/h2&gt;
+&lt;p&gt;filebeat结构：由两个组件构成，分别是inputs（输入）和harvesters（收集器），这些组件一起工作来跟踪文件并将事件数据发送到您指定的输出，harvester负责读取单个文件的内容。harvester逐行读取每个文件，并将内容发送到输出。为每个文件启动一harvester，负责打开和关闭文件，这意味着文件描述符在harvester运行时保持打开状态。如果在收集文件时删除或重命名文件，Filebeat将继续读取该文件。这样做的副作用是，磁盘上的空间一直保留到harvester关闭。默认情况下，Filebeat保持文件打开，直到达到close_inactive&lt;/p&gt;
+&lt;p&gt;关闭harvester可以会产生的结果：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;文件处理程序关闭，如果harvester仍在读取文件时被删除，则释放底层资源。&lt;/li&gt;
+&lt;li&gt;只有在scan_frequency结束之后，才会再次启动文件的收集。&lt;/li&gt;
+&lt;li&gt;如果该文件在harvester关闭时被移动或删除，该文件的收集将不会继续&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;　　一个input负责管理harvesters和寻找所有来源读取。如果input类型是log，则input将查找驱动器上与定义的路径匹配的所有文件，并为每个文件启动一个harvester。每个input在它自己的Go进程中运行，Filebeat当前支持多种输入类型。每个输入类型可以定义多次。日志输入检查每个文件，以查看是否需要启动harvester、是否已经在运行harvester或是否可以忽略该文件&lt;/p&gt;
+&lt;h1 id=&#34;模块&#34;&gt;模块&lt;/h1&gt;
+&lt;h2 id=&#34;input&#34;&gt;input&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;Filebeat 从 7.x&lt;/code&gt; 版本开始引入了新的配置方式 &lt;code&gt;filebeat.inputs&lt;/code&gt;，以提供更灵活的输入配置选项，同时保留了向后兼容性。以下是 &lt;code&gt;filebeat.inputs&lt;/code&gt; 和 &lt;code&gt;filebeat.prospectors&lt;/code&gt; 之间的主要区别：&lt;/p&gt;
+&lt;p&gt;log（常用）：用于监视和收集文本日志文件，例如应用程序日志。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;log&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;paths&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#ae81ff&#34;&gt;/var/log/*.log&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;stdin：用于从标准输入（stdin）收集数据。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;stdin&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;syslog：用于收集系统日志数据，通常是通过UDP或TCP协议从远程或本地 syslog 服务器接收。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;syslog&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;port&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;514&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;protocol.udp&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;filestream：用于收集 Windows 上的文件日志数据。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;- &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;filestream&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;enabled&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;httpjson：用于通过 HTTP 请求从 JSON API 收集数据。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>graylog</title>
+      <link>/log/graylog/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/log/graylog/</guid>
+      <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
+&lt;p&gt;Graylog - 日志监控系统，官文：https://docs.graylog.org/docs&lt;/p&gt;
+&lt;p&gt;Graylog 是一个开源的日志聚合、分析、审计、展现和预警工具。在功能上来说，和 ELK 类似，但又比 ELK 要简单很多。依靠着更加简洁，高效，部署使用简单的优势很快受到许多人的青睐。当然，在扩展性上面确实没有比 ELK 好，但是其有商业版本可以选择。&lt;/p&gt;
+&lt;p&gt;部署 graylog 最简单的架构就是单机部署，复杂的也是部署集群模式，架构图示如下所示。可以看到其中包含了三个组件，分别是 Elasticsearch、MongoDb 和 Graylog。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Elasticsearch 用来持久化存储和检索日志文件数据(IO 密集)&lt;/li&gt;
+&lt;li&gt;MongoDb 用来存储关于 Graylog 的相关配置&lt;/li&gt;
+&lt;li&gt;Graylog 来提供 Web 界面和对外接口的(CPU 密集)。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240522160447783&#34; loading=&#34;lazy&#34; src=&#34;/log/graylog/images/image-20240522160447783.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;生产环境架构：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240521210940478&#34; loading=&#34;lazy&#34; src=&#34;/log/graylog/images/image-20240521210940478.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Graylog 组件功能&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;编号&lt;/th&gt;
+          &lt;th&gt;组件名称&lt;/th&gt;
+          &lt;th&gt;功能介绍&lt;/th&gt;
+          &lt;th&gt;主要特点&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;1&lt;/td&gt;
+          &lt;td&gt;Dashboards&lt;/td&gt;
+          &lt;td&gt;数据面板固定展示&lt;/td&gt;
+          &lt;td&gt;主要是用来保存特定搜索条件的数据面板&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;2&lt;/td&gt;
+          &lt;td&gt;Searching&lt;/td&gt;
+          &lt;td&gt;日志信息条件搜索&lt;/td&gt;
+          &lt;td&gt;关键字搜索、时间搜索、搜索保存、创建面板、分组查询、结果导出、查询高亮显示、自定义时间&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;3&lt;/td&gt;
+          &lt;td&gt;Alert&lt;/td&gt;
+          &lt;td&gt;设置告警提示方式&lt;/td&gt;
+          &lt;td&gt;支持邮件告警、HTTP 回调和自定义脚本触发&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;4&lt;/td&gt;
+          &lt;td&gt;Inputs&lt;/td&gt;
+          &lt;td&gt;日志数据抓取接收&lt;/td&gt;
+          &lt;td&gt;部署 Sidercar 主动抓取或使用其他服务被动上报&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;5&lt;/td&gt;
+          &lt;td&gt;Extractors&lt;/td&gt;
+          &lt;td&gt;日志数据格式转换&lt;/td&gt;
+          &lt;td&gt;json 解析、kv 解析、时间戳解析、正则解析&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;6&lt;/td&gt;
+          &lt;td&gt;Streams&lt;/td&gt;
+          &lt;td&gt;日志信息分类分组&lt;/td&gt;
+          &lt;td&gt;设置日志分类条件并发送到不同的索引文件中去&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;7&lt;/td&gt;
+          &lt;td&gt;Indices&lt;/td&gt;
+          &lt;td&gt;持久化数据存储&lt;/td&gt;
+          &lt;td&gt;设置数据存储性能&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;8&lt;/td&gt;
+          &lt;td&gt;Outputs&lt;/td&gt;
+          &lt;td&gt;日志数据的转发&lt;/td&gt;
+          &lt;td&gt;解析的 Stream 发送到其他 Graylog 集群或服务&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;9&lt;/td&gt;
+          &lt;td&gt;Pipelines&lt;/td&gt;
+          &lt;td&gt;日志数据的过滤&lt;/td&gt;
+          &lt;td&gt;建立数据清洗的过滤规则、字段添加删除、条件过滤、自定义函数等&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;10&lt;/td&gt;
+          &lt;td&gt;Sidecar&lt;/td&gt;
+          &lt;td&gt;轻量级的日志采集器&lt;/td&gt;
+          &lt;td&gt;相当于 C/S 模式；大规模时使用&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;11&lt;/td&gt;
+          &lt;td&gt;Lookup Tables&lt;/td&gt;
+          &lt;td&gt;服务解析&lt;/td&gt;
+          &lt;td&gt;基于 IP 的 Whois 查询和基于来源 IP 的情报监控&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;12&lt;/td&gt;
+          &lt;td&gt;Geolocation&lt;/td&gt;
+          &lt;td&gt;可视化地理位置&lt;/td&gt;
+          &lt;td&gt;实现基于来源 IP 的情报监控&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;Graylog 通过 Input 搜集日志，每个 Input 单独配置 Extractors 用来做字段转换。Graylog 中日志搜索的基本单位是 Stream，每个 Stream 可以有自己单独的 Elastic Index Set，也可以共享一个 Index Set。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Loki</title>
+      <link>/log/loki/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/log/loki/</guid>
+      <description>&lt;h1 id=&#34;简介&#34;&gt;简介&lt;/h1&gt;
+&lt;p&gt;Loki的第一个稳定版本于2019年11月19日发布，是 Grafana Labs 团队最新的开源项目，是一个水平可扩展，高可用性，多租户的日志聚合系统。Loki 是专门用于聚集日志数据，重点是高可用性和可伸缩性。与竞争对手不同的是，它确实易于安装且资源效率极高。&lt;/p&gt;
+&lt;p&gt;github地址：&lt;a href=&#34;https://github.com/grafana/loki/&#34;&gt;&lt;strong&gt;https://github.com/grafana/loki/&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Loki 的架构非常简单，使用了和 Prometheus 一样的标签来作为索引，也就是说，你通过这些标签既可以查询日志的内容也可以查询到监控的数据，不但减少了两种查询之间的切换成本，也极大地降低了日志索引的存储。Loki 将使用与 Prometheus 相同的服务发现和标签重新标记库，编写了 pormtail，在 Kubernetes 中 promtail 以 DaemonSet 方式运行在每个节点中，通过 Kubernetes API 等到日志的正确元数据，并将它们发送到 Loki。&lt;/p&gt;
+&lt;h2 id=&#34;架构&#34;&gt;架构&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;promtail：首选代理，负责收集日志并将其发送给 loki （也还支持Fluentbit，Fluentd，Vector，Logstash和Grafana Agent）&lt;/li&gt;
+&lt;li&gt;loki：主服务器，负责存储日志和处理查询。&lt;/li&gt;
+&lt;li&gt;Grafana：于 UI 展示。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h2 id=&#34;存储架构&#34;&gt;存储架构&lt;/h2&gt;
+&lt;p&gt;日志的存储架构：&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;h2 id=&#34;写日志&#34;&gt;写日志&lt;/h2&gt;
+&lt;p&gt;loki 进程包含 四种角色&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;querier 查询器&lt;/li&gt;
+&lt;li&gt;ingester 日志存储器&lt;/li&gt;
+&lt;li&gt;query-frontend 前置查询器&lt;/li&gt;
+&lt;li&gt;distributor 写入分发器&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;日志数据的写主要依托的是Distributor和Ingester两个组件，整体的流程如下：&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;p&gt;&lt;strong&gt;Distributor&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;一旦promtail收集日志并将其发送给loki，Distributor就是第一个接收日志的组件。由于日志的写入量可能很大，所以不能在它们传入时将它们写入数据库。这会毁掉数据库。需要批处理和压缩数据。&lt;/p&gt;
+&lt;p&gt;Loki通过构建压缩数据块来实现这一点，在日志进入时对其进行gzip操作，组件ingester是一个有状态的组件，负责构建和刷新chunck，当chunk达到一定的数量或者时间后，刷新到存储中去。每个流的日志对应一个ingester，当日志到达Distributor后，根据元数据和hash算法计算出应该到哪个ingester上面。此外，为了冗余和弹性，将其复制n（默认情况下为3）次。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20240521192724744&#34; loading=&#34;lazy&#34; src=&#34;/log/loki/images/image-20240521192724744.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ingester&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Ingester接收到日志并开始构建chunk：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

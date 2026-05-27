@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>大数据 on 探无止境</title>
+    <link>/bigdata/</link>
+    <description>Recent content in 大数据 on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="/bigdata/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hadooop</title>
+      <link>/bigdata/hadooop/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/bigdata/hadooop/</guid>
+      <description>&lt;h1 id=&#34;大数据技术栈&#34;&gt;大数据技术栈&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20231222160535013&#34; loading=&#34;lazy&#34; src=&#34;/bigdata/hadooop/images/image-20231222160535013.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;**1）Sqoop：**Sqoop 是一款开源的工具，主要用于在 Hadoop、Hive 与传统的数据库(MySql)间进行数据的传递，可以将一个关系型数据库（例如 ：MySQL，Oracle 等）中的数据导进到Hadoop 的 HDFS 中，也可以将 HDFS 的数据导进到关系型数据库中。&lt;/p&gt;
+&lt;p&gt;**2）Flume：**Flume 是 Cloudera 提供的一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统，Flume 支持在日志系统中定制各类数据发送方，用于收集数据；同时，Flume提供对数据进行简单处理，并写到各种数据接受方（可定制）的能力。&lt;/p&gt;
+&lt;p&gt;**3）Kafka：**Kafka 是一种高吞吐量的分布式发布订阅消息系统，有如下特性：&lt;/p&gt;
+&lt;p&gt;​	（1）通过 O(1)的磁盘数据结构提供消息的持久化，这种结构对于即使数以 TB 的消息存储也能够保持长时间的稳定性能。&lt;/p&gt;
+&lt;p&gt;​	（2）高吞吐量：即使是非常普通的硬件 Kafka 也可以支持每秒数百万的消息。&lt;/p&gt;
+&lt;p&gt;​	（3）支持通过 Kafka 服务器和消费机集群来分区消息。&lt;/p&gt;
+&lt;p&gt;​	（4）支持 Hadoop 并行数据加载。&lt;/p&gt;
+&lt;p&gt;**4）Storm：**Storm 用于“连续计算”，对数据流做连续查询，在计算时就将结果以流的形式输出给用户。&lt;/p&gt;
+&lt;p&gt;**5）Spark：**Spark 是当前最流行的开源大数据内存计算框架。可以基于 Hadoop 上存储的大数据进行计算。&lt;/p&gt;
+&lt;p&gt;**6）Oozie：**Oozie 是一个管理 Hdoop 作业（job）的工作流程调度管理系统。&lt;/p&gt;
+&lt;p&gt;**7）Hbase：**HBase 是一个分布式的、面向列的开源数据库。HBase 不同于一般的关系数据库，它是一个适合于非结构化数据存储的数据库。&lt;/p&gt;
+&lt;p&gt;**8）Hive：**Hive 是基于 Hadoop 的一个数据仓库工具，可以将结构化的数据文件映射为一张数据库表，并提供简单的 SQL 查询功能，可以将 SQL 语句转换为 MapReduce 任务进行运行。 其优点是学习成本低，可以通过类 SQL 语句快速实现简单的 MapReduce 统计，不必&lt;/p&gt;
+&lt;p&gt;开发专门的 MapReduce 应用，十分适合数据仓库的统计分析。&lt;/p&gt;
+&lt;p&gt;**10）R 语言：**R 是用于统计分析、绘图的语言和操作环境。R 是属于 GNU 系统的一个自由、免费、源代码开放的软件，它是一个用于统计计算和统计制图的优秀工具。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>java-kafka</title>
+      <link>/bigdata/java-kafka/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/bigdata/java-kafka/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>kafka</title>
+      <link>/bigdata/kafka/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>/bigdata/kafka/</guid>
+      <description>&lt;h1 id=&#34;消息队列介绍&#34;&gt;消息队列介绍&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20231220110430071&#34; loading=&#34;lazy&#34; src=&#34;/bigdata/kafka/images/image-20231220110430071.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;（1）点对点模式（一对一，消费者主动拉取数据， 消息收到后消息清除）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	点对点模型通常是一个基于拉取或者轮询的消息传送模型，这种模型从队列中请求信息， 而不是将消息推送到客户端。这个模型的特点是发送到队列的消息被一个且只有一个接收者&lt;/p&gt;
+&lt;p&gt;接收处理， 即使有多个消息监听者也是如此。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;（2）发布/订阅模式（一对多， 数据生产后， 推送给所有订阅者）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	发布订阅模型则是一个基于推送的消息传送模型。发布订阅模型可以有多种不同的订阅 者， 临时订阅者只在主动监听主题时才接收消息， 而持久订阅者则监听主题的所有消息，即&lt;/p&gt;
+&lt;p&gt;使当前订阅者不可用，处于离线状态。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;消息队列作用：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1）解耦：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	允许你独立的扩展或修改两边的处理过程，只要确保它们遵守同样的接口约束。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2）冗余：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	消息队列把数据进行持久化直到它们已经被完全处理，通过这一方式规避了数据丢失风 险。许多消息队列所采用的&amp;quot;插入-获取-删除&amp;quot;范式中，在把一个消息从队列中删除之前，需 要你的处理系统明确的指出该消息已经被处理完毕，从而确保你的数据被安全的保存直到你使用完毕。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3）扩展性：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	因为消息队列解耦了你的处理过程，所以增大消息入队和处理的频率是很容易的， 只要另外增加处理过程即可。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4）灵活性 &amp;amp; 峰值处理能力：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	在访问量剧增的情况下， 应用仍然需要继续发挥作用，但是这样的突发流量并不常见。 如果为以能处理这类峰值访问为标准来投入资源随时待命无疑是巨大的浪费。使用消息队列能够使关键组件顶住突发的访问压力，而不会因为突发的超负荷的请求而完全崩溃。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;5）可恢复性：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	系统的一部分组件失效时，不会影响到整个系统。消息队列降低了进程间的耦合度，所以即使一个处理消息的进程挂掉，加入队列中的消息仍然可以在系统恢复后被处理。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;6）顺序保证：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	在大多使用场景下， 数据处理的顺序都很重要。大部分消息队列本来就是排序的，并且能保证数据会按照特定的顺序来处理。（Kafka 保证一个 Partition 内的消息的有序性）&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;7）缓冲：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	有助于控制和优化数据流经过系统的速度，解决生产消息和消费消息的处理速度不一致的情况。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;8）异步通信：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;​	很多时候，用户不想也不需要立即处理消息。消息队列提供了异步处理机制，允许用户 把一个消息放入队列，但并不立即处理它。想向队列中放入多少消息就放多少， 然后在需要的时候再去处理它们。&lt;/p&gt;
+&lt;h1 id=&#34;kafka&#34;&gt;kafka&lt;/h1&gt;
+&lt;h2 id=&#34;介绍架构&#34;&gt;介绍&amp;amp;架构&lt;/h2&gt;
+&lt;p&gt;​	Apache  Kafka 是一个开源消息系统， 由 Scala 写成。是由 Apache 软件基金会开发的一个开源消息系统项目。Kafka 最初是由 LinkedIn  公司开发，并于 2011 年初开源。2012 年 10  月从 Apache Incubator 毕业。该项目的目标是为处理实时数据提供一个统一、高通量、低等待的平台。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
