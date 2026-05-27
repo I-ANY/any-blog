@@ -20,34 +20,46 @@ theme = 'PaperMod'
     url = '/'
     weight = 1
   [[menu.main]]
+    identifier = 'blog'
+    name = '博客'
+    weight = 10
+  [[menu.main]]
+    parent = 'blog'
     name = 'Kubernetes'
     url = '/k8s/'
     weight = 10
   [[menu.main]]
+    parent = 'blog'
     name = 'Docker'
     url = '/docker/'
     weight = 20
   [[menu.main]]
+    parent = 'blog'
     name = 'Go'
     url = '/go/'
     weight = 30
   [[menu.main]]
+    parent = 'blog'
     name = 'Linux'
     url = '/linux/'
     weight = 40
   [[menu.main]]
+    parent = 'blog'
     name = 'Python'
     url = '/python/'
     weight = 50
   [[menu.main]]
+    parent = 'blog'
     name = 'CI/CD'
     url = '/cicd/'
     weight = 60
   [[menu.main]]
+    parent = 'blog'
     name = '日志'
     url = '/log/'
     weight = 70
   [[menu.main]]
+    parent = 'blog'
     name = '中间件'
     url = '/middleware/'
     weight = 80

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head>
+	<meta name="generator" content="Hugo 0.161.1"><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ANY的个人博客</title>
+
+<meta name="description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+<meta name="author" content="any">
+<link rel="canonical" href="/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css" integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="/">
+  <meta property="og:site_name" content="ANY的个人博客">
+  <meta property="og:title" content="ANY的个人博客">
+  <meta property="og:description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ANY的个人博客">
+  <meta name="twitter:description" content="按 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等模块整理的工程学习笔记。">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ANY的个人博客",
+  "url": "/",
+  "description": "Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等工程学习笔记。",
+  "logo": "/favicon.ico",
+  "sameAs": [
+      
+  ]
+}
+</script>
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="/" accesskey="h" title="ANY的个人博客 (Alt + H)">ANY的个人博客</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="/" title="首页">
+                    <span class="active">首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/k8s/" title="Kubernetes">
+                    <span>Kubernetes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/docker/" title="Docker">
+                    <span>Docker</span>
+                </a>
+            </li>
+            <li>
+                <a href="/go/" title="Go">
+                    <span>Go</span>
+                </a>
+            </li>
+            <li>
+                <a href="/linux/" title="Linux">
+                    <span>Linux</span>
+                </a>
+            </li>
+            <li>
+                <a href="/python/" title="Python">
+                    <span>Python</span>
+                </a>
+            </li>
+            <li>
+                <a href="/cicd/" title="CI/CD">
+                    <span>CI/CD</span>
+                </a>
+            </li>
+            <li>
+                <a href="/log/" title="日志">
+                    <span>日志</span>
+                </a>
+            </li>
+            <li>
+                <a href="/middleware/" title="中间件">
+                    <span>中间件</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">nacos
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>k8s部署nacos 官网：https://nacos.io/zh-cn/docs/v2/quickstart/quick-start-kubernetes.html
+一、NFS持久化模式安装，如果不用NFS可忽略
+# 安装客户端 nfs yum install nfs-utils -y # 启动 nfs systemctl start nfs-server systemctl enable nfs-server # 查看 nfs 版本 cat /proc/fs/nfsd/versions # 创建共享目录 mkdir -p /data/nfs cd /data/nfs mkdir rw mkdir ro # server上设置共享目录 export vim /etc/exports /data/nfs/rw 192.168.113.0/24(rw,sync,no_subtree_check,no_root_squash) /data/nfs/ro 192.168.113.0/24(ro,sync,no_subtree_check,no_root_squash) # 重新加载 exportfs -f systemctl reload nfs-server # 到其他测试节点安装 nfs-utils 并加载测试 showmount -e 192.168.113.121 mkdir -p /mnt/nfs/rw mount -t nfs 192.168.113.121:/data/nfs/rw /mnt/nfs/rw 二、官网clone安装文件
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to nacos" href="/middleware/nacos/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">promethues
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>前提说明 本文环境基于：kubadm安装的k8s集群（1.23），kube-prometheus安装的prometheus
+并不适用与所有环境，需根据自己环境进行调整，但配置都一样，只是配置的路径位置以及配置生效等实现不一样…
+prometheus 架构 组件：
+Prometheus Server：主服务器，负责收集和存储时间序列数据
+client libraies：应用程序代码插桩，将监控指标嵌入到被监控应用程序中
+Pushgateway：推送网关，为支持 short-lived 作业提供一个推送网关
+exporter：专门为一些应用开发的数据摄取组件—exporter，例如：HAProxy、StatsD、Graphite 等等。
+Alertmanager：专门用于处理 alert 的组件
+采集层：
+采集层分为两类，一类是生命周期较短的作业，还有一类是生命周期较长的作业。
+短作业：直接通过 API，在退出时间指标推送给 Pushgateway。
+长作业：Retrieval 组件直接从 Job 或者 Exporter 拉取数据。
+应用层
+应用层主要分为两种：
+AlertManager：对接 Pagerduty，是一套付费的监控报警系统。可实现短信报警、5 分钟无人 ack 打电话通知、仍然无人 ack，通知值班人员 Manager，发送邮件等
+数据可视化：Prometheus build-in WebUI，Grafana
+PromQL 介绍 ​	PromQL 是 Prometheus 内置的数据查询语言，其提供对时间序列数据丰富的查询，聚合以及逻辑运算能力的支持。并且被广泛应用在 Prometheus的日常应用当中，包括对数据查询、可视化、告警处理当中。
+​	通过指标名称（metrics name）以及对应的一组标签（labelset）唯一定义一条时间序列。指标名称反映了监控样本的基本标识，而 label 则在这个基本特征上为采集到的数据提供了多种特征维度。用户可以基于这些特征维度过滤，聚合，统计从而产生新的计算后的一条时间序列
+优秀学习博文：https://yunlzheng.gitbook.io/prometheus-book
+安装 kube-prometheus kube-prometheus项目地址：https://github.com/prometheus-operator/kube-prometheus
+​	Operator是由 CoreOS 公司开发的，用来扩展 Kubernetes API，特定的应用程序控制器。它被用来创建、配置和管理复杂的有状态应用，如数据库、缓存和监控系统。Operator 是基于 Kubernetes 的资源和控制器概念之上构建，但同时又包含了应用程序特定的一些专业知识：比如创建一个数据库的Operator，则必须对创建的数据库的各种运维方式非常了解，创建Operator的关键是CRD（自定义资源）的设计。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>25 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to promethues" href="/k8s/promethues/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">rsync
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>安装使用 yum -y install rsync 两种传输方式：
+1.pull 拉-&gt; 下载 客户端将服务器上的数据下载到本地服务器 问题：如果客户端过多，会对服务端造成压力过大
+2.push 推-&gt; 上传 客户端将本地数据上传到服务器 问题：如果客户端过多，上传速度会受到带宽影响，很慢
+语法 本地模式语法 命令 选项 源数据 目标地址 rsync [OPTION]... SRC [SRC]... DEST 常用选项：rsync支持一百多个选项，所以此处只介绍几个常用选项 -a --archive ：归档模式，表示递归传输并保持文件属性。等同于&#34;-rtopgDl&#34;。 -v：显示rsync过程中详细信息。可以使用&#34;-vvvv&#34;获取更详细信息。 -z：传输时进行压缩提高效率。 -R：使用相对路径。 其他选项： -n ：如果不确定 rsync 执行后会产生什么结果，可以先用`-n`或`--dry-run`参数模拟执行的结果。 rsync -anv source/ destination --delete :如果要使得目标目录成为源目录的镜像副本，将删除只存在于目标目录、不存在于源目录的文件，也就是&#34;多则删之，少则补之&#34;。 rsync -az --delete /aaa/ /bbb/ --exclude:排除文件或者目录，不进行拷贝（注意，rsync 会同步以&#34;点&#34;开头的隐藏文件，如果要排除隐藏文件，可以这样写--exclude=&#34;.*&#34;。） rsync -av --exclude=&#39;*.txt&#39; source/ destination --include：必须同步的文件，通常来配合--exclude使用 rsync -av --include=&#34;[0-9].txt&#34; --exclude=&#39;*&#39; source/ destination 类似于cp命令，又不同于cp
+（1）、cp命令只是本地复制，每次cp都会用源文件内容覆盖新文件,所以cp命令会修改文件时间属性；
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>2 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to rsync" href="/linux/rsync/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">se_huaweiCloud
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>from selenium.webdriver import Chrome from selenium.webdriver.common.keys import Keys from selenium.webdriver import ActionChains from selenium.webdriver.chrome.options import Options from selenium.webdriver.support import select from selenium.webdriver.common.by import By # 匹配标签使用 from selenium.webdriver.chrome.service import Service import time class se_huaweicCloud(object): def __init__(self): self.url = &#39;https://auth.huaweicloud.com/authui/login.html?service=https://console.huaweicloud.com/marketplace/tenant/#/login&#39; self.phone = &#39;17377042972&#39; self.passwd = &#39;weizhen@huawei&#39; #实例化浏览器并规避检测selenium self.opt = Options() self.opt.add_argument(&#39;--disable-blink-features=AutomationControlled&#39;) self.opt.add_experimental_option(&#34;excludeSwitches&#34;, [&#39;enable-automation&#39;, &#39;enable-logging&#39;]) #self.brower = Chrome(options=self.opt) self.service = Service(&#34;D:/Software/python3.7/chromedriver.exe&#34;) self.brower = Chrome(service=self.service) self.brower.implicitly_wait(10) #鼠标点击操作 def Click(self,line): action = ActionChains(self.brower) action.click_and_hold(line) #点击不松开 action.move_by_offset(300,0) #移动 action.perform() #执行动作 action.release() #释放鼠标 #进入到网页 def Broswer(self): #找到账号和密码框输入账号和密码 self.brower.maximize_window() # Selenium在打开任何页面之前，先运行这个Js文件。 with open(&#39;E:/学习资料/我的资料整理/python/spider/hide.js&#39;) as f: self.brower.execute_cdp_cmd(&#34;Page.addScriptToEvaluateOnNewDocument&#34;, {&#34;source&#34;: f.read()}) self.brower.get(self.url) self.brower.find_element(By.XPATH, &#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[2]/div[2]/div/div/div[1]/input&#39;).send_keys(self.phone) self.brower.find_element(By.XPATH, &#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[3]/div/div/div/input&#39;).send_keys(self.passwd) self.brower.find_element(By.XPATH,&#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/div[2]/div/div/div&#39;).click() self.brower.find_element(By.XPATH,&#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[3]/div[2]/div[2]/div/div[2]&#39;).click() self.brower.find_element(By.XPATH, &#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/form/div[4]/div/div/div/input&#39;).send_keys(self.passwd) self.brower.find_element(By.XPATH,&#39;//*[@id=&#34;hwidsdk_mudule_container&#34;]/div[2]/div/div[2]/div/div/div[1]/div[2]/div[2]/div/div/div&#39;).click() # 获取数据 tag_list = self.brower.find_elements(By.XPATH, &#39;//*[@id=&#34;ti_auto_id_3&#34;]/div/table/tbody/tr[2]&#39;) for tag in tag_list: print(tag.find_element(By.XPATH, &#39;div/div[2]/div&#39;).text) # pro_name = self.brower.find_element(By.XPATH, &#39;//*[@id=&#34;contentName00&#34;]/div/div[2]/div&#39;).text #print(pro_name) time.sleep(3) if __name__ == &#34;__main__&#34;: selenuim = se_huaweicCloud() selenuim.Broswer() </p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to se_huaweiCloud" href="/python/spider/se_huaweicloud/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">sentinel
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>k8s部署sentinel 官网dockerfile：https://github.com/alibaba/Sentinel/blob/master/sentinel-dashboard/Dockerfile
+构建镜像
+FROM amd64/buildpack-deps:buster-curl as installer ARG SENTINEL_VERSION=1.8.6 RUN set -x \ &amp;&amp; curl -SL --output /home/sentinel-dashboard.jar https://github.com/alibaba/Sentinel/releases/download/${SENTINEL_VERSION}/sentinel-dashboard-${SENTINEL_VERSION}.jar FROM openjdk:8-jre-slim # copy sentinel jar COPY --from=installer [&#34;/home/sentinel-dashboard.jar&#34;, &#34;/home/sentinel-dashboard.jar&#34;] ENV JAVA_OPTS &#39;-Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080&#39; RUN chmod -R &#43;x /home/sentinel-dashboard.jar EXPOSE 8080 CMD java ${JAVA_OPTS} -jar /home/sentinel-dashboard.jar # 如果下载的慢，可以直接先下载jar然后，再构建镜像：https://github.com/alibaba/Sentinel/releases/download/1.8.6/sentinel-dashboard-1.8.6.jar # 构建好镜像之后就推送到habor或者公有云的仓库里面，方便下载 创建StatefulSet资源
+apiVersion: v1 kind: ConfigMap metadata: name: sentinel-cm namespace: psw002-test data: sentinel.server.host: &#34;sentinel&#34; sentinel.server.port: &#34;8858&#34; sentinel.dashboard.auth.username: &#34;sentinel&#34; sentinel.dashboard.auth.password: &#34;sentinel&#34; --- apiVersion: apps/v1 kind: StatefulSet metadata: name: sentinel namespace: psw002-test labels: app: sentinel spec: serviceName: sentinel-svc replicas: 1 selector: matchLabels: app: sentinel template: metadata: labels: app: sentinel spec: containers: - name: sentinel image: swr.cn-south-1.myhuaweicloud.com/psw002-test/sentinel:v1.8.6 # 基于根据上面dockefile打包的已经推送到云的镜像 imagePullPolicy: IfNotPresent resources: limits: cpu: 450m memory: 1024Mi requests: cpu: 400m memory: 1024Mi env: - name: TZ value: Asia/Shanghai - name: JAVA_OPT_EXT value: -Dserver.servlet.session.timeout=7200 - name: SERVER_HOST valueFrom: configMapKeyRef: name: sentinel-cm key: sentinel.server.host - name: SERVER_PORT valueFrom: configMapKeyRef: name: sentinel-cm key: sentinel.server.port - name: USERNAME valueFrom: configMapKeyRef: name: sentinel-cm key: sentinel.dashboard.auth.username - name: PASSWORD valueFrom: configMapKeyRef: name: sentinel-cm key: sentinel.dashboard.auth.password ports: - containerPort: 8080 #Dashboard服务的端口 客户端向控制台发送心跳包的控制台地址，指定控制台后客户端会自动向该地址发送心跳包 - containerPort: 8719 #客户端的端口 提供给Dashboard访问 imagePullSecrets: - name: harbor-secret --- apiVersion: v1 kind: Service metadata: namespace: psw002-test name: sentinel labels: app: sentinel spec: type: NodePort ports: - port: 8080 nodePort: 31080 targetPort: 8080 name: web - port: 8719 targetPort: 8719 name: api selector: app: sentinel </p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>2 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to sentinel" href="/middleware/sentinel/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">shell学习
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>一、变量 普通变量与临时环境变量
+普通变量定义：VAR=value
+临时环境变量定义：export VAR=value
+变量引用：$VAR
+Shell 进程的环境变量作用域是 Shell 进程，当 export 导入到系统变量时，则作用域是 Shell 进程及其 Shell 子进程
+常用的系统变量 $SHELL ：默认 Shell
+$HOME ：当前用户家目录
+$IFS ：内部字段分隔符
+$LANG ：默认语言
+$PATH ：默认可执行程序路径
+$PWD ：当前目录
+$UID ：当前用户 ID
+$USER ：当前用户
+$HISTSIZE ：历史命令大小，可通过 HISTTIMEFORMAT 变量设置命令执行时间
+$RANDOM ：随机生成一个 0 至 32767 的整数
+$HOSTNAME ：主机名
+位置变量 位置变量指的是函数或脚本后跟的第 n 个参数。
+$1-$n，需要注意的是从第 10 个开始要用花括号调用，例如${10}
+特殊变量 变量 解释 $0 脚本自身文件名 $? 返回上一条命令执行是否成功，成功返回0，非0则失败 $# 位置参数的总数 #@ 每个位置参数被看做独立的字符 $$ 当前的进程 $! 上一条运行后台进程的PID $* 所有位置参数被看做一个字符串 变量引用 VAR=123 echo $VAR echo ${VAR} # 将{}视为一整个字符串，在有特殊字符情况下使用 将命令的记过作为变量值：
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to shell学习" href="/shell/shell%E5%AD%A6%E4%B9%A0/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">skywalking
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>简介 官网地址：https://skywalking.apache.org/
+Skywalking是分布式系统的应用程序性能监视工具，专为微服务，云原生架构和基于容器（Docker，K8S,Mesos）架构而设计，它是一款优秀的APM（Application Performance Management）工具，包括了分布式追踪，性能指标分析和服务依赖分析等。
+SkyWalking 的核心是数据分析和度量结果的存储平台，通过 HTTP 或 gRPC 方式向 SkyWalking Collecter 提交分析和度量数据，SkyWalking Collecter 对数据进行分析和聚合，存储到 Elasticsearch、MySQL、TiDB 等其一即可，最后我们可以通过 SkyWalking UI 的可视化界面对最终的结果进行查看。
+Skywalking 支持从多个来源和多种格式收集数据：多种语言的 Skywalking Agent 、Zipkin v1/v2 、Istio 勘测、Envoy 度量等数据格式。
+特性
+多种监控手段，语言探针和service mesh 多语言自动探针，Java，.NET Core和Node.JS 轻量高效，不需要大数据 模块化，UI、存储、集群管理多种机制可选 支持告警 优秀的可视化方案 基于dapper或类似的跟踪系统，可以跟随客户的完整请求流程，从前端服务接受客户请求开始到全部后端服务处理完成并经过前端给客户端返回数据，将完整请求链路经过的每一个服务信息的耗时都进行收集并进行统一存储和展示、方便运维人员快速定位问题。
+skywalking 功能:
+实现从请求跟踪、指标收集和日志记录的完整信息记录。
+多语言自动探针，支持Java、GO、Python、PHP、NodeJS、LUA、Rust等客户端。
+内置服务网格可观察性，支持从Istio&#43;Envoy Service Mesh收集和分析数据。
+模块化架构，存储、集群管理、使用插件集合都可以进行自由选择。
+支持告警。
+优秀的可视化效果
+数据采集方法 黑盒法(black-box): ​	黑盒法无需任何侵入性代码，它的优势在于无需修改代码，缺点在于记录不是很准确，且需要大量数据才能够推导出服务间的关系。
+标记法(annotation-based): ​	标记法需要为每个请求打标记，并通过一个全局标识符将请求途径的所有服务信息串联，复盘整个链路。标记法记录准确，但它的缺点也很明显，需要将标记代码注入到每个服务中。
+跟踪树和span: ​	Span 代表系统中具有开始时间和执行时长的请求跨度，Span之间通过嵌套或者顺序排列建立逻辑因果关系。在Dapper跟踪树结构中，树节点是整个架构的基本单元，是请求从前端到后端不同应用之间层级机构，而每一个节点又是对span的引用，节点之间的连线表示的span和它的父span之间的关系。
+​	在图中说明了span在一个大的跟踪过程中是什么样的，Dapper记录了span名称，以及每个span的ID和父ID，以重建在一次追踪过程中不同span之间的关系，如果一个span没有父ID被称为root span，所有span都挂在一个特定的跟踪上，也共用一个跟踪id（traceId在 图中未示出），所有这些ID用全局唯一的64位整数标示，在一个典型的Dapper跟踪中，我们希望为每一个RPC对应到一个单一的span上，而且每一个额外的组件层都对应一个跟踪树型结构的层级。
+​	任何一个span可以包含来自不同的主机信息，这些也要记录下来，事实上每一个RPC span可以包含客户端和服务器两个过程的注释，使得链接两个主机的span会成为图中所说的span，由于客户端和服务器上的时间戳来自不同的主机，还必须考虑到时间偏差，在分析工具就利用了时间偏差，即RPC客户端发送一个请求之后，服务器端才能接收到，对于响应也是一样的（服务器先响应，然后客户端才能接收到这个响应），这样一来，服务器端的RPC就有一个时间戳的一个开始和结束，然后就可以计算出时间损耗。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to skywalking" href="/middleware/skywalking/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Spider集合
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>网站分析 1、先找到对应的网站的数据信息，看Headers找到对应的url、请求方式以及请求头相关信息以及响应数据等
+2、查看payload请求参数是什么格式
+json
+data
+数据解析 xpath 原理： 1、实例化一个etree对象，且需要被解析的页面源码数据加载到该对象当中； 2、调用etree对象中的xpath方法结合着xpath表达式实现标签的定义以及内容的捕获； 依赖包安装：
+pip3 install lxml 实例化一个etree对象： 1、将本地的html源码数据加载到rtree对象中：
+​	etree.parse(filepath) ​	2、将从互联网上捕获的源码数据加载到etree对象中： ​	etree.HTML(‘page_text’) xpath(‘xpath表达式’) ​	/：表示从根节点开始定位；表示的是一个层级 ​	//：表示多个层级，也表示从任意位置开始定位 ​	定位： ​	属性定位：//tag[@attrName=“attrValue”] ​	索引定位：//tag[@attrName=“attrValue”]/attrName[n] n从1开始 ​	取文本： ​	/text()：标签中直系标签的文本内容
+# 取出div标签的文本数据 /div/text() ​	//text()：标签中所有标签的文本内容 ​	取属性：/@attrName —img/src 注意：对于相同的标签，一定要区分开，取到自己想要的标签值
+from lxml import etree text = resp.text html = etree.HTML(text) #使用text构造一个XPath解析对象,etree模块可以自动修正HTML文本 html = etree.parse(&#39;./ex.html&#39;,etree.HTMLParser()) #直接读取文本进行解析 result = html.xpath(&#39;//*&#39;) #选取所有节点 result = html.xpath(&#39;//li&#39;) #获取所有li节点 result = html.xpath(&#39;//li/a&#39;) #获取所有li节点的直接a子节点 result = html.xpath(&#39;//li//a&#39;) #获取所有li节点的所有a子孙节点 result = html.xpath(&#39;//a[@href=&#34;link.html&#34;]/../@class&#39;) #获取所有href属性为link.html的a节点的父节点的class属性 result = html.xpath(&#39;//li[@class=&#34;ni&#34;]&#39;) #获取所有class属性为ni的li节点 result = html.xpath(&#39;//li/text()&#39;) #获取所有li节点的文本 result = html.xpath(&#39;//li/a/@href&#39;) #获取所有li节点的a节点的href属性 result = html.xpath(&#39;//li[contains(@class,&#34;li&#34;)]/a/text()) #当li的class属性有多个值时，需用contains函数完成匹配 result = html.xpath(&#39;//li[contains(@class,&#34;li&#34;) and @name=&#34;item&#34;]/a/text()&#39;) #多属性匹配 #按序选择，中括号内为XPath提供的函数 result = html.xpath(&#39;//li[1]/a/text()&#39;) result = html.xpath(&#39;//li[last()]/a/text()&#39;) result = html.xpath(&#39;//li[position()&lt;3]/a/text()&#39;) result = html.xpath(&#39;//li[last()-2]/a/text()&#39;) result = html.xpath(&#39;//li[1]/ancestor::*&#39;) #获取祖先节点 #获取属性值 result = html.xpath(&#39;//li[1]/ancestor::div&#39;) result = html.xpath(&#39;//li[1]/attribute::*&#39;) result = html.xpath(&#39;//li[1]/child::a[@href=&#34;link1.html&#34;]&#39;) #获取直接子节点 result = html.xpath(&#39;//li[1]/descendant::span&#39;) #获取所有子孙节点 result = html.xpath(&#39;//li[1]/following::*[2]&#39;) #获取当前节点之后的所有节点的第二个 result = html.xpath(&#39;//li[1]/following-sibling::*&#39;) #获取后续所有同级节点 正则表达式：
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>17 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to Spider集合" href="/python/spider/spider%E9%9B%86%E5%90%88/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">supervisor
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>介绍 Supervisor (http://supervisord.org) 是一个用 [Python] 写的进程管理工具，可以很方便的用来启动、重启、关闭进程(不仅仅是 Python 进程)。除了对单个进程的控制，还可以同时启动、关闭多个进程，比如很不幸的服务器出问题导致所有应用程序都被杀死，此时可以用 supervisor 同时启动所有应用程序而不是一个一个地敲命令启动
+安装 在线安装 # 可以通过apt-get、yum安装，既然Supervisor是基于python编写的，那我们就用pip安装好了 # 一、在线安装 # 1 yum安装，配置好yum源后，可以直接安装 yum install supervisor # Debian/Ubuntu可通过apt安装 apt-get install supervisor # 2 pip安装 yum install python-setuptools-devel pip install supervisor # 3 easy_install安装 yum install python-setuptools-devel easy_install supervisor 离线安装 1、setuptools安装
+安装包地址：https://pypi.org/project/setuptools/#files
+tar -zxvf setuptools-0.6c11.tar.gz cd setuptools-0.6c11 python setup.py install 2、meld3安装
+安装包地址：https://pypi.org/project/meld3/#files
+tar -zxvf meld3-1.0.2.tar.gz cd meld3-1.0.2 python setup.py install 3、supervisor安装
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to supervisor" href="/linux/supervisor/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">traefik
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>参考博客：https://www.cuiliangblog.cn/detail/section/94663774
+简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。
+组件 Providers：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。 Entrypoints：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP) Routers：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。 Middlewares：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。 Service：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。 Nginx-Ingress和traefik区别 traefik组件与nginx类比
+组件名 功能 nginx相同概念 Providers 监听路由信息变化，更新路由 修改nginx配置，并reload。 Entrypoints 网络入口，监听传入的流量 配置文件listen指定监听端口 Routers 分析传入的请求，匹配规则 配置文件server_name &#43; location Middlewares 中间件，修改请求或响应 location配置段中添加的缓存、压缩、请求头等配置 Service 请求转发 http配置段中的upstream ​	k8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>18 min</span>&nbsp;·&nbsp;<span>any</span></footer>
+  <a class="entry-link" aria-label="post link to traefik" href="/k8s/traefik/"></a>
+</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="prev" href="/page/2/">
+      «&nbsp;Prev&nbsp;
+    </a>
+    <a class="next" href="/page/4/">Next&nbsp;&nbsp;»
+    </a>
+  </nav>
+</footer>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="/">ANY的个人博客</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

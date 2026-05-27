@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>docker运行各种服务 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="docker运行mysql
@@ -44,16 +44,16 @@ docker pull redis
 docker images | grep redis
 2、启动一个redis容器">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/">
 <noscript>
     <style>
         #theme-toggle,
@@ -99,160 +99,91 @@ docker images | grep redis
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="docker运行各种服务">
-  <meta property="og:description" content="docker运行mysql 1、获取mysql镜像
-docker search mysql # 最新版的MySQL docker pull mysql:last # 指定版的MySQL docker pull mysql:5.6.x docker pull mysql:5.7.x 2、创建本地目录
-需要将MySQL的数据持久化到宿主机，也就是建立映射，包括配置文件、数据文件和log日志目录
-# 把上述三个目录创建好 mkdir -p /docker_data/mysql_data/data /docker_data/mysql_data/logs /docker_data/mysql_data/conf # 创建一个cnf文件 touch /docker_data/mysql_data/conf/my.cnf 3、启动mysql容器
-docker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data/conf:/etc/mysql/conf.d -v /docker_data/mysql_data/logs:/logs -v /docker_data/mysql_data/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1234 -d mysql:5.7.29 # 参数 -p 3306:3306：将mysql的3306映射到宿主机的3306端口。 --name mysql：为容器起个名称。 -v：建立容器与宿主机的目录映射。 -e：添加环境变量，这里是为root用户设置密码。 -d：后台运行容器 mysql:5.7.29：这个mysql容器基于mysql:5.7.29镜像。 docker运行redis 1、拉取redis镜像
-# 查询可用镜像 docker search redis # 拉取镜像, 下面命令是最新版 docker pull redis # 查看拉取的镜像文件 docker images | grep redis 2、启动一个redis容器">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="docker">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="docker运行各种服务">
-  <meta name="twitter:description" content="docker运行mysql 1、获取mysql镜像
-docker search mysql # 最新版的MySQL docker pull mysql:last # 指定版的MySQL docker pull mysql:5.6.x docker pull mysql:5.7.x 2、创建本地目录
-需要将MySQL的数据持久化到宿主机，也就是建立映射，包括配置文件、数据文件和log日志目录
-# 把上述三个目录创建好 mkdir -p /docker_data/mysql_data/data /docker_data/mysql_data/logs /docker_data/mysql_data/conf # 创建一个cnf文件 touch /docker_data/mysql_data/conf/my.cnf 3、启动mysql容器
-docker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data/conf:/etc/mysql/conf.d -v /docker_data/mysql_data/logs:/logs -v /docker_data/mysql_data/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1234 -d mysql:5.7.29 # 参数 -p 3306:3306：将mysql的3306映射到宿主机的3306端口。 --name mysql：为容器起个名称。 -v：建立容器与宿主机的目录映射。 -e：添加环境变量，这里是为root用户设置密码。 -d：后台运行容器 mysql:5.7.29：这个mysql容器基于mysql:5.7.29镜像。 docker运行redis 1、拉取redis镜像
-# 查询可用镜像 docker search redis # 拉取镜像, 下面命令是最新版 docker pull redis # 查看拉取的镜像文件 docker images | grep redis 2、启动一个redis容器">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Docker",
-      "item": "/docker/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "docker运行各种服务",
-      "item": "/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "docker运行各种服务",
-  "name": "docker运行各种服务",
-  "description": "docker运行mysql 1、获取mysql镜像\ndocker search mysql # 最新版的MySQL docker pull mysql:last # 指定版的MySQL docker pull mysql:5.6.x docker pull mysql:5.7.x 2、创建本地目录\n需要将MySQL的数据持久化到宿主机，也就是建立映射，包括配置文件、数据文件和log日志目录\n# 把上述三个目录创建好 mkdir -p /docker_data/mysql_data/data /docker_data/mysql_data/logs /docker_data/mysql_data/conf # 创建一个cnf文件 touch /docker_data/mysql_data/conf/my.cnf 3、启动mysql容器\ndocker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data/conf:/etc/mysql/conf.d -v /docker_data/mysql_data/logs:/logs -v /docker_data/mysql_data/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1234 -d mysql:5.7.29 # 参数 -p 3306:3306：将mysql的3306映射到宿主机的3306端口。 --name mysql：为容器起个名称。 -v：建立容器与宿主机的目录映射。 -e：添加环境变量，这里是为root用户设置密码。 -d：后台运行容器 mysql:5.7.29：这个mysql容器基于mysql:5.7.29镜像。 docker运行redis 1、拉取redis镜像\n# 查询可用镜像 docker search redis # 拉取镜像, 下面命令是最新版 docker pull redis # 查看拉取的镜像文件 docker images | grep redis 2、启动一个redis容器\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "docker运行mysql 1、获取mysql镜像\ndocker search mysql # 最新版的MySQL docker pull mysql:last # 指定版的MySQL docker pull mysql:5.6.x docker pull mysql:5.7.x 2、创建本地目录\n需要将MySQL的数据持久化到宿主机，也就是建立映射，包括配置文件、数据文件和log日志目录\n# 把上述三个目录创建好 mkdir -p /docker_data/mysql_data/data /docker_data/mysql_data/logs /docker_data/mysql_data/conf # 创建一个cnf文件 touch /docker_data/mysql_data/conf/my.cnf 3、启动mysql容器\ndocker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data/conf:/etc/mysql/conf.d -v /docker_data/mysql_data/logs:/logs -v /docker_data/mysql_data/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=1234 -d mysql:5.7.29 # 参数 -p 3306:3306：将mysql的3306映射到宿主机的3306端口。 --name mysql：为容器起个名称。 -v：建立容器与宿主机的目录映射。 -e：添加环境变量，这里是为root用户设置密码。 -d：后台运行容器 mysql:5.7.29：这个mysql容器基于mysql:5.7.29镜像。 docker运行redis 1、拉取redis镜像\n# 查询可用镜像 docker search redis # 拉取镜像, 下面命令是最新版 docker pull redis # 查看拉取的镜像文件 docker images | grep redis 2、启动一个redis容器\n# 创建本地持久化目录 [root@r ~]# mkdir -p /docker_data/redis_data/ # 启动 docker run --name myredis -p 6379:6379 --restart=always -v /docker_data/redis_data/data:/data -d redis redis-server --appendonly yes [root@r ~]# docker run --name myredis -p 6379:6379 --restart=always -v /docker_data/redis_data:/data -d redis redis-server --appendonly yes 7c322e3633d2dfa41e0cf79a5b3aa748ccc7f18ef44c82caec6e92a46e55f8d9 [root@r ~]# docker ps CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 7c322e3633d2 redis \"docker-entrypoint.s…\" 3 seconds ago Up 3 seconds 0.0.0.0:6379-\u003e6379/tcp myredis 参数说明\n参数说明：\n--name myredis，指定该容器名称，查看和进行操作都比较方便 -p 6379:6379，将redis的6379端口(冒号右边)映射到宿主机的6379端口(冒号左边) -v /docker_data/redis_data:/data,文件挂载 -d redis redis-server，后台启动 --appendonly yes，开启redis 持久化 测试\ndocker exec -it 容器ID bash [root@r ~]# docker exec -it 7c322e3633d2 bash root@7c322e3633d2:/data# redis-cli 127.0.0.1:6379\u003e set name a OK 127.0.0.1:6379\u003e get name \"a\" 127.0.0.1:6379\u003e exit root@7c322e3633d2:/data# exit docker运行tomcat部署java项目 1、拉取tomcat镜像\n# 查找镜像 docker search tomcat #结果会有很多的Tomcat镜像，通常情况下，我们都知道官方的东西基本上代表安全无公害，因为可以看到右边有official标识为OK的就是官方的镜像，因此我们拉取第一个Tomcat就可以。 # 拉取镜像 docker pull tomcat docker pull tomcat:TAG 2、添加java的web应用 首先，将本地的java war包，先上传到服务器的指定目录。\n然后将该目录挂载到Tomcat的webapps目录内，并且启动\n[root@r zhangkai]# docker run -d --restart=always -v /home/java_web/pinter.war:/usr/local/tomcat/webapps/pinter.war -p 6002:8080 docker.io/tomcat # 将/home/java_web/目录中的pinter.war包挂在到tomcat/usr/local/tomcat/webapps/目录中，并命名为pinter.war，然后宿主机的端口是6002与Tomcat镜像监听的8080端口，docker.io/tomcat是Tomcat的镜像名。 3、浏览器访问主机的6002端口即可\n",
-  "wordCount" : "219",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
-            <li>
-                <a href="/k8s/" title="Kubernetes">
-                    <span>Kubernetes</span>
-                </a>
-            </li>
-            <li>
-                <a href="/docker/" title="Docker">
-                    <span>Docker</span>
-                </a>
-            </li>
-            <li>
-                <a href="/go/" title="Go">
-                    <span>Go</span>
-                </a>
-            </li>
-            <li>
-                <a href="/linux/" title="Linux">
-                    <span>Linux</span>
-                </a>
-            </li>
-            <li>
-                <a href="/python/" title="Python">
-                    <span>Python</span>
-                </a>
-            </li>
-            <li>
-                <a href="/cicd/" title="CI/CD">
-                    <span>CI/CD</span>
-                </a>
-            </li>
-            <li>
-                <a href="/log/" title="日志">
-                    <span>日志</span>
-                </a>
-            </li>
-            <li>
-                <a href="/middleware/" title="中间件">
-                    <span>中间件</span>
-                </a>
+            <li class="has-dropdown">
+                <button class="menu-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>博客</span>
+                    <span class="menu-caret" aria-hidden="true">⌄</span>
+                </button>
+                <ul class="menu-dropdown" aria-label="博客 分类">
+                    <li>
+                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                            <span>Kubernetes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/docker/" title="Docker">
+                            <span>Docker</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/go/" title="Go">
+                            <span>Go</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/linux/" title="Linux">
+                            <span>Linux</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/python/" title="Python">
+                            <span>Python</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                            <span>CI/CD</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/log/" title="日志">
+                            <span>日志</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/middleware/" title="中间件">
+                            <span>中间件</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
+        <div class="logo-switches">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
     </nav>
 </header>
 <main class="main">
@@ -387,11 +318,11 @@ docker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="/k8s/docker%E4%B8%8Econtainerd/">
+  <a class="prev" href="//localhost:1313/k8s/docker%E4%B8%8Econtainerd/">
     <span class="title">« Prev</span>
     <span>docker与containerd</span>
   </a>
-  <a class="next" href="/middleware/dubbo/">
+  <a class="next" href="//localhost:1313/middleware/dubbo/">
     <span class="title">Next »</span>
     <span>dubbo</span>
   </a>
@@ -402,7 +333,7 @@ docker run -p 3307:3306 --name mysql --restart=always -v /docker_data/mysql_data
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

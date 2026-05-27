@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>基于jenkins&#43;ArgoCD实现Devops | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="Jenkins上安装插件
@@ -91,16 +91,16 @@ def SendEmail(status,emailUser){
 sonarAPI.groovy
 sonarAPI.groovy">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
 <noscript>
     <style>
         #theme-toggle,
@@ -146,170 +146,91 @@ sonarAPI.groovy">
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="基于jenkins&#43;ArgoCD实现Devops">
-  <meta property="og:description" content="Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–&gt;系统配置–&gt;cloud
-配置邮箱地址 系统设置–&gt;系统配置–&gt;Email
-（1）设置管理员邮箱
-配置SMTP服务
-创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：
-包含有src/org/devops目录
-然后在该目录下创建一下groovy文件
-内容分别如下：
-build.groovy build.groovy
-package org.devops // docker容器直接build def DockerBuild(buildShell){ sh &#34;&#34;&#34; ${buildShell} &#34;&#34;&#34; } sendEmail.groovy sendEmail.groovy
-package org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: &#34;&#34;&#34; &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;meta charset=&#34;UTF-8&#34;&gt; &lt;/head&gt; &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt; &lt;tr&gt; 本邮件由系统自动发出，无需回复！&lt;br/&gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt; &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;&lt;br /&gt; &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;ul&gt; &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt; &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; &lt;li&gt;构建状态: ${status} &lt;/li&gt; &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt; &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;/table&gt; &lt;/body&gt; &lt;/html&gt; &#34;&#34;&#34;, subject: &#34;Jenkins-${JOB_NAME}项目构建信息 &#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="cicd">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="基于jenkins&#43;ArgoCD实现Devops">
-  <meta name="twitter:description" content="Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–&gt;系统配置–&gt;cloud
-配置邮箱地址 系统设置–&gt;系统配置–&gt;Email
-（1）设置管理员邮箱
-配置SMTP服务
-创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：
-包含有src/org/devops目录
-然后在该目录下创建一下groovy文件
-内容分别如下：
-build.groovy build.groovy
-package org.devops // docker容器直接build def DockerBuild(buildShell){ sh &#34;&#34;&#34; ${buildShell} &#34;&#34;&#34; } sendEmail.groovy sendEmail.groovy
-package org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: &#34;&#34;&#34; &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;meta charset=&#34;UTF-8&#34;&gt; &lt;/head&gt; &lt;body leftmargin=&#34;8&#34; marginwidth=&#34;0&#34; topmargin=&#34;8&#34; marginheight=&#34;4&#34; offset=&#34;0&#34;&gt; &lt;table width=&#34;95%&#34; cellpadding=&#34;0&#34; cellspacing=&#34;0&#34; style=&#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif&#34;&gt; &lt;tr&gt; 本邮件由系统自动发出，无需回复！&lt;br/&gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息&lt;/br&gt; &lt;td&gt;&lt;font color=&#34;#CC0000&#34;&gt;构建结果 - ${status}&lt;/font&gt;&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;&lt;br /&gt; &lt;b&gt;&lt;font color=&#34;#0B610B&#34;&gt;构建信息&lt;/font&gt;&lt;/b&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt; &lt;ul&gt; &lt;li&gt;项目名称：${JOB_NAME}&lt;/li&gt; &lt;li&gt;构建编号：${BUILD_ID}&lt;/li&gt; &lt;li&gt;构建状态: ${status} &lt;/li&gt; &lt;li&gt;项目地址：&lt;a href=&#34;${BUILD_URL}&#34;&gt;${BUILD_URL}&lt;/a&gt;&lt;/li&gt; &lt;li&gt;构建日志：&lt;a href=&#34;${BUILD_URL}console&#34;&gt;${BUILD_URL}console&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/td&gt; &lt;/tr&gt; &lt;tr&gt; &lt;/table&gt; &lt;/body&gt; &lt;/html&gt; &#34;&#34;&#34;, subject: &#34;Jenkins-${JOB_NAME}项目构建信息 &#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "CI/CD",
-      "item": "/cicd/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "基于jenkins+ArgoCD实现Devops",
-      "item": "/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "基于jenkins+ArgoCD实现Devops",
-  "name": "基于jenkins\u002bArgoCD实现Devops",
-  "description": "Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理\u0026ndash;\u0026gt;系统配置\u0026ndash;\u0026gt;cloud\n配置邮箱地址 系统设置\u0026ndash;\u0026gt;系统配置\u0026ndash;\u0026gt;Email\n（1）设置管理员邮箱\n配置SMTP服务\n创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：\n包含有src/org/devops目录\n然后在该目录下创建一下groovy文件\n内容分别如下：\nbuild.groovy build.groovy\npackage org.devops // docker容器直接build def DockerBuild(buildShell){ sh \u0026#34;\u0026#34;\u0026#34; ${buildShell} \u0026#34;\u0026#34;\u0026#34; } sendEmail.groovy sendEmail.groovy\npackage org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: \u0026#34;\u0026#34;\u0026#34; \u0026lt;!DOCTYPE html\u0026gt; \u0026lt;html\u0026gt; \u0026lt;head\u0026gt; \u0026lt;meta charset=\u0026#34;UTF-8\u0026#34;\u0026gt; \u0026lt;/head\u0026gt; \u0026lt;body leftmargin=\u0026#34;8\u0026#34; marginwidth=\u0026#34;0\u0026#34; topmargin=\u0026#34;8\u0026#34; marginheight=\u0026#34;4\u0026#34; offset=\u0026#34;0\u0026#34;\u0026gt; \u0026lt;table width=\u0026#34;95%\u0026#34; cellpadding=\u0026#34;0\u0026#34; cellspacing=\u0026#34;0\u0026#34; style=\u0026#34;font-size: 11pt; font-family: Tahoma, Arial, Helvetica, sans-serif\u0026#34;\u0026gt; \u0026lt;tr\u0026gt; 本邮件由系统自动发出，无需回复！\u0026lt;br/\u0026gt; 各位同事，大家好，以下为${JOB_NAME}项目构建信息\u0026lt;/br\u0026gt; \u0026lt;td\u0026gt;\u0026lt;font color=\u0026#34;#CC0000\u0026#34;\u0026gt;构建结果 - ${status}\u0026lt;/font\u0026gt;\u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;td\u0026gt;\u0026lt;br /\u0026gt; \u0026lt;b\u0026gt;\u0026lt;font color=\u0026#34;#0B610B\u0026#34;\u0026gt;构建信息\u0026lt;/font\u0026gt;\u0026lt;/b\u0026gt; \u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;td\u0026gt; \u0026lt;ul\u0026gt; \u0026lt;li\u0026gt;项目名称：${JOB_NAME}\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建编号：${BUILD_ID}\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建状态: ${status} \u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;项目地址：\u0026lt;a href=\u0026#34;${BUILD_URL}\u0026#34;\u0026gt;${BUILD_URL}\u0026lt;/a\u0026gt;\u0026lt;/li\u0026gt; \u0026lt;li\u0026gt;构建日志：\u0026lt;a href=\u0026#34;${BUILD_URL}console\u0026#34;\u0026gt;${BUILD_URL}console\u0026lt;/a\u0026gt;\u0026lt;/li\u0026gt; \u0026lt;/ul\u0026gt; \u0026lt;/td\u0026gt; \u0026lt;/tr\u0026gt; \u0026lt;tr\u0026gt; \u0026lt;/table\u0026gt; \u0026lt;/body\u0026gt; \u0026lt;/html\u0026gt; \u0026#34;\u0026#34;\u0026#34;, subject: \u0026#34;Jenkins-${JOB_NAME}项目构建信息 \u0026#34;, to: emailUser } sonarAPI.groovy sonarAPI.groovy\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "Jenkins上安装插件 kubernetes AnsiColor HTTP Request SonarQube Scanner Utility Steps Email Extension Template Gitlab Hook Gitlab 配置Kubernetes集群信息 在系统管理–\u003e系统配置–\u003ecloud\n配置邮箱地址 系统设置–\u003e系统配置–\u003eEmail\n（1）设置管理员邮箱\n配置SMTP服务\n创建一个共享库 首先在gitlab上创建一个共享库，这里取名叫shareLibrary，如下：\n包含有src/org/devops目录\n然后在该目录下创建一下groovy文件\n内容分别如下：\nbuild.groovy build.groovy\npackage org.devops // docker容器直接build def DockerBuild(buildShell){ sh \"\"\" ${buildShell} \"\"\" } sendEmail.groovy sendEmail.groovy\npackage org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailext body: \"\"\" \u003c!DOCTYPE html\u003e 本邮件由系统自动发出，无需回复！ 各位同事，大家好，以下为${JOB_NAME}项目构建信息 构建结果 - ${status} 构建信息 项目名称：${JOB_NAME} 构建编号：${BUILD_ID} 构建状态: ${status} 项目地址：${BUILD_URL} 构建日志：${BUILD_URL}console \"\"\", subject: \"Jenkins-${JOB_NAME}项目构建信息 \", to: emailUser } sonarAPI.groovy sonarAPI.groovy\npackage ore.devops // 封装HTTP请求 def HttpReq(requestType,requestUrl,requestBody){ // 定义sonar api接口 def sonarServer = \"http://sonar.devops.svc.cluster.local:9000/api\" result = httpRequest authentication: 'sonar-admin-user', // 管理sonarqube的用户名和密码凭证 httpMode: requestType, contentType: \"APPLICATION_JSON\", consoleLogResponseBody: true, ignoreSslErrors: true, requestBody: requestBody, url: \"${sonarServer}/${requestUrl}\" return result } // 获取soanr项目的状态 def GetSonarStatus(projectName){ def apiUrl = \"project_branches/list?project=${projectName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取状态值 result = response[\"branches\"][0][\"status\"][\"qualityGateStatus\"] return result } // 获取sonar项目，判断项目是否存在 def SearchProject(projectName){ def apiUrl = \"projects/search?projects=${projectName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") println \"搜索的结果：${response}\" // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在 result = response[\"paging\"][\"total\"] // 对result进行判断 if (result.toString() == \"0\"){ return \"false\" }else{ return \"true\" } } // 创建sonar项目 def CreateProject(projectName){ def apiUrl = \"projects/create?name=${projectName}\u0026project=${projectName}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } // 配置项目质量规则 def ConfigQualityProfiles(projectName,lang,qpname){ def apiUrl = \"qualityprofiles/add_project?language=${lang}\u0026project=${projectName}\u0026qualityProfile=${qpname}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } // 获取质量阈ID def GetQualityGateId(gateName){ def apiUrl = \"qualitygates/show?name=${gateName}\" // 发请求 response = HttpReq(\"GET\",apiUrl,\"\") // 对返回的文本做JSON解析 response = readJSON text: \"\"\"${response.content}\"\"\" // 获取total字段，该字段如果是0则表示项目不存在,否则表示项目存在 result = response[\"id\"] return result } // 更新质量阈规则 def ConfigQualityGate(projectKey,gateName){ // 获取质量阈id gateId = GetQualityGateId(gateName) apiUrl = \"qualitygates/select?projectKey=${projectKey}\u0026gateId=${gateId}\" // 发请求 response = HttpReq(\"POST\",apiUrl,\"\") println(response) } //获取Sonar质量阈状态 def GetProjectStatus(projectName){ apiUrl = \"project_branches/list?project=${projectName}\" response = HttpReq(\"GET\",apiUrl,'') response = readJSON text: \"\"\"${response.content}\"\"\" result = response[\"branches\"][0][\"status\"][\"qualityGateStatus\"] //println(response) return result } sonarqube.groovy sonarqube.groovy\npackage ore.devops def SonarScan(projectName,projectDesc,projectPath){ // sonarScanner安装地址 def sonarHome = \"/opt/sonar-scanner\" // sonarqube服务端地址 def sonarServer = \"http://sonar.devops.svc.cluster.local:9000/\" // 以时间戳为版本 def scanTime = sh returnStdout: true, script: 'date +%Y%m%d%H%m%S' scanTime = scanTime - \"\\n\" sh \"\"\" ${sonarHome}/bin/sonar-scanner -Dsonar.host.url=${sonarServer} \\ -Dsonar.projectKey=${projectName} \\ -Dsonar.projectName=${projectName} \\ -Dsonar.projectVersion=${scanTime} \\ -Dsonar.login=admin \\ -Dsonar.password=admin \\ -Dsonar.ws.timeout=30 \\ -Dsonar.projectDescription=\"${projectDesc}\" \\ -Dsonar.links.homepage=http://www.baidu.com \\ -Dsonar.sources=${projectPath} \\ -Dsonar.sourceEncoding=UTF-8 \\ -Dsonar.java.binaries=target/classes \\ -Dsonar.java.test.binaries=target/test-classes \\ -Dsonar.java.surefire.report=target/surefire-reports -X echo \"${projectName} scan success!\" \"\"\" } tools.groovy\npackage org.devops //格式化输出 def PrintMes(value,color){ colors = ['red' : \"\\033[40;31m \u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c \\033[0m\", 'blue' : \"\\033[47;34m ${value} \\033[0m\", 'green' : \"\u001b[1;32m\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u001b[m\", 'green1' : \"\\033[40;32m \u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e\u003e${value}\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c \\033[0m\" ] ansiColor('xterm') { println(colors[color]) } } // 获取镜像版本 def createVersion() { // 定义一个版本号作为当次构建的版本，输出结果 20191210175842_69 return new Date().format('yyyyMMddHHmmss') + \"_${env.BUILD_ID}\" } // 获取时间 def getTime() { // 定义一个版本号作为当次构建的版本，输出结果 20191210175842 return new Date().format('yyyyMMddHHmmss') } Jenkins上配置共享库 （1）需要在Jenkins上添加凭证\nGitlab创建YAML管理仓库 创建一个叫devops-cd的共享仓库，用来管理应用的yaml资源文件，然后以应用名创建一个目录，并在目录下创建以下几个文件。如下：\n这些是创建应用的k8s应用的资源文件，并包含有kustomization.yaml，使用kustomize工具来对资源文件进行管理\n内容分别如下：\ndeployment.yaml apiVersion: apps/v1 kind: Deployment metadata: name: the-deployment namespace: default spec: replicas: 3 selector: matchLabels: deployment: hello template: metadata: labels: deployment: hello spec: containers: - args: - -jar - /opt/myapp.jar - --server.port=8080 command: - java env: - name: HOST_IP valueFrom: fieldRef: apiVersion: v1 fieldPath: status.hostIP image: registry.cn-hangzhou.aliyuncs.com/rookieops/myapp:latest imagePullPolicy: IfNotPresent lifecycle: preStop: exec: command: - /bin/sh - -c - /bin/sleep 30 livenessProbe: failureThreshold: 3 httpGet: path: /hello port: 8080 scheme: HTTP initialDelaySeconds: 60 periodSeconds: 15 successThreshold: 1 timeoutSeconds: 1 name: myapp ports: - containerPort: 8080 name: http protocol: TCP readinessProbe: failureThreshold: 3 httpGet: path: /hello port: 8080 scheme: HTTP periodSeconds: 15 successThreshold: 1 timeoutSeconds: 1 resources: limits: cpu: \"1\" memory: 2Gi requests: cpu: 100m memory: 1Gi terminationMessagePath: /dev/termination-log terminationMessagePolicy: File dnsPolicy: ClusterFirstWithHostNet imagePullSecrets: - name: gitlab-registry service.yaml kind: Service apiVersion: v1 metadata: name: the-service namespace: default spec: selector: deployment: hello type: NodePort ports: - protocol: TCP port: 8080 targetPort: 8080 ingress.ymal apiVersion: extensions/v1beta1 kind: Ingress metadata: name: the-ingress namespace: default spec: rules: - host: test.coolops.cn http: paths: - backend: serviceName: the-service servicePort: 8080 path: / kustomization.yaml # Example configuration for the webserver # at https://github.com/monopole/hello apiVersion: kustomize.config.k8s.io/v1beta1 kind: Kustomization resources: - deployment.yaml - service.yaml - ingress.yaml commonLabels: app: myapp\t# 添加标签 images:\t# 更改镜像 - name: registry.cn-hangzhou.aliyuncs.com/rookieops/myapp\tnewTag: \"20201127150733_70\" namespace: dev 编写Jenkinsfile 共享仓库的根目录下创建一个java.Jenkinsfile文件，整个java的Jenkinsfile如下：\ndockerhub是登录镜像仓库的用户名和密码。\nci-devops是管理YAML仓库的用户名和密码。\nsonar-admin-user是管理sonarqube的用户名和密码。\ndef labels = \"slave-${UUID.randomUUID().toString()}\" // 引用共享库 @Library(\"jenkins_shareLibrary\") // 应用共享库中的方法 def tools = new org.devops.tools() def sonarapi = new org.devops.sonarAPI() def sendEmail = new org.devops.sendEmail() def build = new org.devops.build() def sonar = new org.devops.sonarqube() // 前端传来的变量，在创建jenkins流水线项目的时候传入变量 def gitBranch = env.branch def gitUrl = env.git_url def buildShell = env.build_shell def image = env.image def dockerRegistryUrl = env.dockerRegistryUrl def devops_cd_git = env.devops_cd_git def toEmailUser = env.toEmailUser pipeline { agent { kubernetes { // 使用k8s启一个jenkins的pod进行执行任务 label labels yaml \"\"\" apiVersion: v1 kind: Pod metadata: labels: some-label: some-label-value spec: volumes: - name: docker-sock hostPath: path: /var/run/docker.sock type: '' - name: maven-cache persistentVolumeClaim: claimName: maven-cache-pvc containers: - name: jnlp image: registry.cn-hangzhou.aliyuncs.com/rookieops/inbound-agent:4.3-4 - name: maven image: registry.cn-hangzhou.aliyuncs.com/rookieops/maven:3.5.0-alpine command: - cat tty: true volumeMounts: - name: maven-cache mountPath: /root/.m2 - name: docker image: registry.cn-hangzhou.aliyuncs.com/rookieops/docker:19.03.11 command: - cat tty: true volumeMounts: - name: docker-sock mountPath: /var/run/docker.sock - name: sonar-scanner image: registry.cn-hangzhou.aliyuncs.com/rookieops/sonar-scanner:latest command: - cat tty: true - name: kustomize image: registry.cn-hangzhou.aliyuncs.com/rookieops/kustomize:v3.8.1 command: - cat tty: true \"\"\" } } environment{ auth = 'joker' } options { timestamps()\t// 日志会有时间 skipDefaultCheckout()\t// 删除隐式checkout scm语句 disableConcurrentBuilds()\t//禁止并行 timeout(time:1,unit:'HOURS') //设置流水线超时时间 } stages { // 拉取代码 stage('GetCode') { steps { checkout([$class: 'GitSCM', branches: [[name: \"${gitBranch}\"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '83d2e934-75c9-48fe-9703-b48e2feff4d8', url: \"${gitUrl}\"]]]) } } // 单元测试和编译打包 stage('Build\u0026Test') { steps { container('maven') { script{ tools.PrintMes(\"编译打包\",\"blue\") build.DockerBuild(\"${buildShell}\") } } } } // 代码扫描 stage('CodeScanner') { steps { container('sonar-scanner') { script { tools.PrintMes(\"代码扫描\",\"green\") tools.PrintMes(\"搜索项目\",\"green\") result = sonarapi.SearchProject(\"${JOB_NAME}\") println(result) if (result == \"false\"){ println(\"${JOB_NAME}---项目不存在,准备创建项目---\u003e ${JOB_NAME}！\") sonarapi.CreateProject(\"${JOB_NAME}\") } else { println(\"${JOB_NAME}---项目已存在！\") } tools.PrintMes(\"代码扫描\",\"green\") sonar.SonarScan(\"${JOB_NAME}\",\"${JOB_NAME}\",\"src\") sleep 10 tools.PrintMes(\"获取扫描结果\",\"green\") result = sonarapi.GetProjectStatus(\"${JOB_NAME}\") println(result) if (result.toString() == \"ERROR\"){ toemail.Email(\"代码质量阈错误！请及时修复！\",userEmail) error \" 代码质量阈错误！请及时修复！\" } else { println(result) } } } } } // 构建镜像 stage('BuildImage') { steps { withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', // dockerhub的凭证（用户名/密码） usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD']]) { container('docker') { script{ tools.PrintMes(\"构建镜像\",\"green\") imageTag = tools.createVersion() sh \"\"\" docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD} docker build -t ${image}:${imageTag} . docker push ${image}:${imageTag} docker rmi ${image}:${imageTag} \"\"\" } } } } } // 部署，先更改yaml资源文件配置然后提交至yaml仓库目录 stage('Deploy') { steps { withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'ci-devops',\t// 管理YAML仓库的凭证（用户名/密码） usernameVariable: 'DEVOPS_USER', passwordVariable: 'DEVOPS_PASSWORD']]){ container('kustomize') { script{ APP_DIR=\"${JOB_NAME}\".split(\"_\")[0] sh \"\"\" git remote set-url origin http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git} git config --global user.name \"Administrator\" git config --global user.email \"coolops@163.com\" git clone http://${DEVOPS_USER}:${DEVOPS_PASSWORD}@${devops_cd_git} /opt/devops-cd cd /opt/devops-cd git pull cd /opt/devops-cd/${APP_DIR} kustomize edit set image ${image}:${imageTag}\t// 更改yaml文件的镜像 git commit -am 'image update' git push origin master \"\"\" } } } } } // 接口测试 stage('InterfaceTest') { steps{ sh 'echo \"接口测试\"' } } } // 构建后的操作 post { success { script{ println(\"success:只有构建成功才会执行\") currentBuild.description += \"\\n构建成功！\" // deploy.AnsibleDeploy(\"${deployHosts}\",\"-m ping\") sendEmail.SendEmail(\"构建成功\",toEmailUser) // dingmes.SendDingTalk(\"构建成功 ✅\") } } failure { script{ println(\"failure:只有构建失败才会执行\") currentBuild.description += \"\\n构建失败!\" sendEmail.SendEmail(\"构建失败\",toEmailUser) // dingmes.SendDingTalk(\"构建失败 ❌\") } } aborted { script{ println(\"aborted:只有取消构建才会执行\") currentBuild.description += \"\\n构建取消!\" sendEmail.SendEmail(\"取消构建\",toEmailUser) // dingmes.SendDingTalk(\"构建失败 ❌\",\"暂停或中断\") } } } } 在Jenkins上配置项目 在Jenkins上新建一个流水线项目\n然后添加以下参数化构建，对应jenkinsfile文件中的变量。\ngit_url\t# 代码仓库地址 branch # 代码分支 build_shell\t# 镜像构建命令 image\t# 镜像 dockerRegistryUrl\t# 镜像仓库地址 devops_cd_git\t# yaml资源的仓库地址 toEmailUser\t# 目标邮箱 然后在流水线处配置Pipeline from SCM\n在Argocd上配置CD流程 在argocd上添加代码仓库，如下：\n创建应用\n点击创建后，就点击SYNC触发同步，进行部署了\n",
-  "wordCount" : "1151",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/cicd/%E5%9F%BA%E4%BA%8Ejenkins+argocd%E5%AE%9E%E7%8E%B0devops/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
-            <li>
-                <a href="/k8s/" title="Kubernetes">
-                    <span>Kubernetes</span>
-                </a>
-            </li>
-            <li>
-                <a href="/docker/" title="Docker">
-                    <span>Docker</span>
-                </a>
-            </li>
-            <li>
-                <a href="/go/" title="Go">
-                    <span>Go</span>
-                </a>
-            </li>
-            <li>
-                <a href="/linux/" title="Linux">
-                    <span>Linux</span>
-                </a>
-            </li>
-            <li>
-                <a href="/python/" title="Python">
-                    <span>Python</span>
-                </a>
-            </li>
-            <li>
-                <a href="/cicd/" title="CI/CD">
-                    <span>CI/CD</span>
-                </a>
-            </li>
-            <li>
-                <a href="/log/" title="日志">
-                    <span>日志</span>
-                </a>
-            </li>
-            <li>
-                <a href="/middleware/" title="中间件">
-                    <span>中间件</span>
-                </a>
+            <li class="has-dropdown">
+                <button class="menu-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>博客</span>
+                    <span class="menu-caret" aria-hidden="true">⌄</span>
+                </button>
+                <ul class="menu-dropdown" aria-label="博客 分类">
+                    <li>
+                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                            <span>Kubernetes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/docker/" title="Docker">
+                            <span>Docker</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/go/" title="Go">
+                            <span>Go</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/linux/" title="Linux">
+                            <span>Linux</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/python/" title="Python">
+                            <span>Python</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                            <span>CI/CD</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/log/" title="日志">
+                            <span>日志</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/middleware/" title="中间件">
+                            <span>中间件</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
+        <div class="logo-switches">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
     </nav>
 </header>
 <main class="main">
@@ -1025,7 +946,7 @@ package org.devops //定义邮件内容 def SendEmail(status,emailUser){ emailex
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

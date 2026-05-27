@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Shell on 探无止境</title>
+    <link>//localhost:1313/shell/</link>
+    <description>Recent content in Shell on 探无止境</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
+    <atom:link href="//localhost:1313/shell/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>shell学习</title>
+      <link>//localhost:1313/shell/shell%E5%AD%A6%E4%B9%A0/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>//localhost:1313/shell/shell%E5%AD%A6%E4%B9%A0/</guid>
+      <description>&lt;h1 id=&#34;一变量&#34;&gt;一、变量&lt;/h1&gt;
+&lt;p&gt;普通变量与临时环境变量&lt;/p&gt;
+&lt;p&gt;普通变量定义：VAR=value&lt;/p&gt;
+&lt;p&gt;临时环境变量定义：export VAR=value&lt;/p&gt;
+&lt;p&gt;变量引用：$VAR&lt;/p&gt;
+&lt;p&gt;Shell 进程的环境变量作用域是 Shell 进程，当 export 导入到系统变量时，则作用域是 Shell 进程及其 Shell 子进程&lt;/p&gt;
+&lt;h2 id=&#34;常用的系统变量&#34;&gt;&lt;strong&gt;常用的系统变量&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;$SHELL ：默认 Shell&lt;/p&gt;
+&lt;p&gt;$HOME ：当前用户家目录&lt;/p&gt;
+&lt;p&gt;$IFS ：内部字段分隔符&lt;/p&gt;
+&lt;p&gt;$LANG ：默认语言&lt;/p&gt;
+&lt;p&gt;$PATH ：默认可执行程序路径&lt;/p&gt;
+&lt;p&gt;$PWD ：当前目录&lt;/p&gt;
+&lt;p&gt;$UID ：当前用户 ID&lt;/p&gt;
+&lt;p&gt;$USER ：当前用户&lt;/p&gt;
+&lt;p&gt;$HISTSIZE ：历史命令大小，可通过 HISTTIMEFORMAT 变量设置命令执行时间&lt;/p&gt;
+&lt;p&gt;$RANDOM ：随机生成一个 0 至 32767 的整数&lt;/p&gt;
+&lt;p&gt;$HOSTNAME ：主机名&lt;/p&gt;
+&lt;h2 id=&#34;位置变量&#34;&gt;&lt;strong&gt;位置变量&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;位置变量指的是函数或脚本后跟的第 n 个参数。&lt;/p&gt;
+&lt;p&gt;$1-$n，需要注意的是从第 10 个开始要用花括号调用，例如${10}&lt;/p&gt;
+&lt;h2 id=&#34;特殊变量&#34;&gt;&lt;strong&gt;特殊变量&lt;/strong&gt;&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;变量&lt;/th&gt;
+          &lt;th&gt;解释&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$0&lt;/td&gt;
+          &lt;td&gt;脚本自身文件名&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$?&lt;/td&gt;
+          &lt;td&gt;返回上一条命令执行是否成功，成功返回0，非0则失败&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$#&lt;/td&gt;
+          &lt;td&gt;位置参数的总数&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;#@&lt;/td&gt;
+          &lt;td&gt;每个位置参数被看做独立的字符&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$$&lt;/td&gt;
+          &lt;td&gt;当前的进程&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$!&lt;/td&gt;
+          &lt;td&gt;上一条运行后台进程的PID&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;$*&lt;/td&gt;
+          &lt;td&gt;所有位置参数被看做一个字符串&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;变量引用&#34;&gt;变量引用&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;VAR&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;123&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo $VAR
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;echo &lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;VAR&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;# 将{}视为一整个字符串，在有特殊字符情况下使用&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;将命令的记过作为变量值：&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

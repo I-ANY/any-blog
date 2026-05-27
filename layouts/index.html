@@ -1,0 +1,77 @@
+{{- define "main" }}
+{{- $moduleMeta := dict
+  "k8s" (dict "title" "Kubernetes" "desc" "集群安装、网络、监控、排障、备份与迁移" "icon" "K8s")
+  "docker" (dict "title" "Docker" "desc" "容器运行、镜像、服务部署与运行环境" "icon" "DK")
+  "go" (dict "title" "Go" "desc" "Go 语言基础与后端工程实践" "icon" "Go")
+  "linux" (dict "title" "Linux" "desc" "基础操作、自动化、同步与进程管理" "icon" "Ln")
+  "python" (dict "title" "Python" "desc" "Django、Celery、爬虫与常用模块" "icon" "Py")
+  "CICD" (dict "title" "CI/CD" "desc" "Jenkins、GitLab、GitOps、Harbor 与交付流水线" "icon" "CI")
+  "log" (dict "title" "日志系统" "desc" "Loki、Elasticsearch、Filebeat、Graylog" "icon" "Log")
+  "middleware" (dict "title" "中间件" "desc" "Nacos、Dubbo、Sentinel、SkyWalking" "icon" "Mid")
+  "shell" (dict "title" "Shell" "desc" "Shell 脚本与命令行效率工具" "icon" "Sh")
+  "bigData" (dict "title" "大数据" "desc" "Hadoop、Kafka 与数据基础设施" "icon" "BD")
+  "前端" (dict "title" "前端" "desc" "Vue 与前端工程基础" "icon" "FE")
+}}
+{{- $moduleOrder := slice "k8s" "docker" "go" "linux" "python" "CICD" "log" "middleware" "shell" "bigData" "前端" }}
+
+<section class="kb-hero" aria-labelledby="kb-hero-title">
+  <div class="kb-hero-content">
+    <p class="kb-eyebrow">Engineering Knowledge Base</p>
+    <h1 id="kb-hero-title">ANY的个人博客</h1>
+    <p class="kb-hero-copy">按模块沉淀 Kubernetes、Docker、Go、Linux、CI/CD、中间件、日志系统等工程学习笔记，让排障、部署和复盘都有清晰入口。</p>
+    <div class="kb-hero-actions">
+      <a class="kb-button kb-button-primary" href="#modules">开始阅读</a>
+      <a class="kb-button kb-button-secondary" href="#recent">最近更新</a>
+    </div>
+  </div>
+  <div class="kb-hero-panel" aria-label="知识库统计">
+    <span class="kb-panel-label">当前收录</span>
+    <strong>{{ len site.RegularPages }}</strong>
+    <span>篇工程笔记</span>
+  </div>
+</section>
+
+<section class="kb-section" id="modules" aria-labelledby="modules-title">
+  <div class="kb-section-heading">
+    <p class="kb-eyebrow">Modules</p>
+    <h2 id="modules-title">按模块浏览</h2>
+    <p>每个模块对应一个独立知识板块，文章按主题聚合，方便快速定位。</p>
+  </div>
+  <div class="kb-module-grid">
+    {{- range $moduleOrder }}
+      {{- $section := site.GetPage "section" . }}
+      {{- if $section }}
+        {{- $meta := index $moduleMeta . }}
+        {{- $count := len $section.RegularPagesRecursive }}
+        <a class="kb-module-card" href="{{ $section.RelPermalink }}">
+          <span class="kb-module-icon">{{ index $meta "icon" }}</span>
+          <span class="kb-module-body">
+            <strong>{{ index $meta "title" }}</strong>
+            <span>{{ index $meta "desc" }}</span>
+          </span>
+          <span class="kb-module-count">{{ $count }} 篇</span>
+        </a>
+      {{- end }}
+    {{- end }}
+  </div>
+</section>
+
+<section class="kb-section" id="recent" aria-labelledby="recent-title">
+  <div class="kb-section-heading">
+    <p class="kb-eyebrow">Recently Updated</p>
+    <h2 id="recent-title">最近文章</h2>
+    <p>从最近整理的内容开始阅读，也可以回到上方按模块查找。</p>
+  </div>
+  <div class="kb-recent-list">
+    {{- range first 10 site.RegularPages.ByDate.Reverse }}
+      <article class="kb-article-card">
+        <a href="{{ .RelPermalink }}">
+          <h3>{{ .Title }}</h3>
+          <p>{{ .Summary | plainify | htmlUnescape | truncate 120 }}</p>
+          <span>{{ .Date.Format "2006-01-02" }}</span>
+        </a>
+      </article>
+    {{- end }}
+  </div>
+</section>
+{{- end }}

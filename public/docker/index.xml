@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Docker on 探无止境</title>
-    <link>/docker/</link>
+    <link>//localhost:1313/docker/</link>
     <description>Recent content in Docker on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/docker/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/docker/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>docker运行各种服务</title>
-      <link>/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</link>
+      <link>//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</guid>
+      <guid>//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</guid>
       <description>&lt;h1 id=&#34;docker运行mysql&#34;&gt;docker运行mysql&lt;/h1&gt;
 &lt;p&gt;1、获取mysql镜像&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker search mysql
@@ -52,9 +52,9 @@
     </item>
     <item>
       <title>安装使用</title>
-      <link>/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</link>
+      <link>//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</guid>
+      <guid>//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</guid>
       <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
 &lt;h2 id=&#34;docker的世界&#34;&gt;Docker的世界&lt;/h2&gt;
 &lt;p&gt;介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。&lt;/p&gt;

@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>基础 | 探无止境</title>
+<meta name="keywords" content="">
+<meta name="description" content="编码
+decode：解码
+encode：编码
+utf-8是unicode的扩展字符集，utf-8可以显示unicode字符集
+
+python2中使用的默认编码是ASCII
+使用默认的ASCII编码解码为unicode然后编码为utf-8:
+str.decode().encode(&ldquo;utf-8&rdquo;)
+UTF-8转GBK：编码为utf-8的字符先解码为Unicode，然后再编码为gbk
+str.decode(&ldquo;utf-8&rdquo;).encode(&ldquo;gbk&rdquo;)
+GBK转UTF-8:
+str.decode(&ldquo;gbk&rdquo;).encode(&ldquo;utf-8&rdquo;)
+python3中使用的默认编码是Unicode
+在文件头声明的编码是文件的编码，代码中实际的编码还是Unicode
+可以直接进行编码：
+str.encode()
+字符串(str)
+
+  
+      
+          方法    
+          含义
+      
+  
+  
+      
+          format(*args, **kwargs)
+          返回一个格式化的新字符串；使用位置参数（args）和关键字参数（kwargs）进行替换位置参数：占位符 {} 会按照它们在字符串中出现的顺序来填充值。&raquo;&gt; &ldquo;Hello, {}!&quot;.format(&ldquo;ANY&rdquo;)&lsquo;Hello, ANY!&rsquo;   关键字参数：使用关键字参数，你可以通过指定参数的名称来填充值&raquo;&gt; &ldquo;Hello, {name}!&quot;.format(name=&ldquo;ANY&rdquo;)&lsquo;Hello, ANY!&rsquo;**索引和多个参数：**可以使用索引来指定参数的位置，或者一次性传递多个参数。&raquo;&gt; &ldquo;{0}{2}{1}&quot;.format(&ldquo;a&rdquo;,&ldquo;b&rdquo;,&ldquo;c&rdquo;)&lsquo;acb&rsquo;高级用法&rsquo;:&rsquo;   号后面带填充的字符，只能是一个字符，不指定则默认是用空格填充。 &lsquo;&lt;&rsquo;    强制字符串在可用空间内左对齐（默认） &lsquo;&gt;&rsquo;    强制字符串在可用空间内右对齐 &rsquo;=&rsquo;    强制将填充放置在符号（如果有）之后但在数字之前的位置（这适用于以 “&#43;000000120” 的      形式打印字符串） &rsquo;^&rsquo;    强制字符串在可用空间内居中**格式化数字：**格式化数字&raquo;&gt; &ldquo;保留两位小数：{:.2f}&quot;.format(3.14159)&lsquo;保留两位小数：3.14&rsquo;&raquo;&gt; &ldquo;带符号保留两位小数：{:&#43;.2f}&quot;.format(3.14159)&lsquo;保留两位小数：&#43;3.14&rsquo;&raquo;&gt; &ldquo;显示百分比: {:.2%}&quot;.format(0.99)&lsquo;显示百分比: 99.00%&rsquo;&raquo;&gt; &ldquo;指数记法: {:.2e}&quot;.format(1000000)&lsquo;指数记法: 1.00e&#43;06&rsquo;&raquo;&gt; &ldquo;逗号分隔: {:,}&quot;.format(1000000)&lsquo;逗号分隔: 1,000,000&rsquo;对齐文本：指定文本的对齐方式&raquo;&gt; &ldquo;数字前补零 (填充左边, 宽度为2): {:0&gt;2d}&quot;.format(9)&lsquo;数字前补零 (填充左边, 宽度为2): 09&rsquo;
+      
+      
+          capitalize()
+          返回一个首字母大写版本的新字符串（新字符串的首字母变为大写，其它字母变为小写）
+      
+      
+          casefold()
+          返回一个小写版本的新字符串（新字符串的所有字母变为小写）
+      
+      
+          center(width,  fillchar=&rsquo; &lsquo;)
+          返回一个字符居中的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符居中，左右使用 fillchar 参数指定的字符填充）
+      
+      
+          count(sub[,  start[, end]])
+          返回 sub 在字符串中不重叠的出现次数，可选参数 start 和 end 用于指定起始和结束位置
+      
+      
+          encode(encoding=&lsquo;utf-8&rsquo;,  errors=&lsquo;strict&rsquo;)
+          以 encoding 参数指定的编码格式对字符串进行编码。errors 参数指定编码出现错误时的解决方案：默认的 &lsquo;strict&rsquo; 表示如果出错，将抛出一个 UnicodeEncodeError 的异常。其它可用的参数值是 &lsquo;ignore&rsquo;，&lsquo;replace&rsquo; 和 &lsquo;xmlcharrefreplace&rsquo;
+      
+      
+          endswith(suffix[,  start[, end]])
+          如果字符串是以 suffix 指定的子字符串为结尾，那么返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；suffix 参数允许以元组的形式提供多个子字符串
+      
+      
+          expandtabs([tabsize=8])
+          返回一个使用空格替换制表符的新字符串，如果没有指定 tabsize 参数，那么默认 1 个制表符 = 8 个空格
+      
+      
+          find(sub[,  start[, end]])
+          在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1
+      
+      
+          index(sub[,  start[, end]])
+          在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常
+      
+      
+          split(sep, maxsplit=-1)
+          将字符串进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制
+      
+      
+          splitlines(keepends=False)    
+          将字符串按行分割，并将结果以列表的形式返回；keepends 参数指定是否包含换行符，True 是包含，False 是不包含
+      
+      
+          startswith(prefix[,  start[, end]])
+          如果存在 prefix 参数指定的前缀子字符串，则返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；prefix 参数允许以元组的形式提供多个子字符串
+      
+      
+          strip(chars=None)
+          返回一个去除左右两侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串
+      
+      
+          swapcase()
+          返回一个大小写字母翻转的新字符串
+      
+      
+          title()
+          返回标题化（所有的单词都是以大写开始，其余字母均小写）的字符串。
+      
+      
+          translate(table)
+          返回一个根据 table 参数转换后的新字符串；table 参数应该提供一个转换规则（可以由 str.maketrans(&lsquo;a&rsquo;, &lsquo;b&rsquo;) 进行定制，例如 &ldquo;FishC&rdquo;.translate(str.maketrans(&ldquo;FC&rdquo;,  &ldquo;15&rdquo;)) -&gt; &lsquo;1ish5&rsquo;）
+      
+      
+          upper()
+          返回一个所有英文字母都转换成大写后的新字符串
+      
+      
+          zfill(width)
+          返回一个左侧用 0 填充的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符右对齐，左侧使用 0 进行填充）
+      
+      
+          isalnum()
+          如果字符串中至少有一个字符并且所有字符都是字母或数字则返回 True，否则返回 False
+      
+      
+          isalpha()
+          如果字符串中至少有一个字符并且所有字符都是字母（注1）则返回 True，否则返回 False
+      
+      
+          isascii()
+          如果字符串中所有字符都是 ASCII 则返回 True，否则返回 False；ASCII 字符编码范围是 U&#43;0000 ~ U&#43;007F，空字符串也是 ASCII
+      
+      
+          isdecimal()
+          如果字符串中至少有一个字符并且所有字符都是十进制数字则返回 True，否则返回 False
+      
+      
+          isdigit()
+          如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False
+      
+      
+          isidentifier()
+          如果字符串是一个合法的 Python 标识符则返回 True，否则返回 False；调用 keyword.iskeyword(s) 可以检测字符串是否一个保留标识符（比如 &ldquo;if&rdquo; 或  &ldquo;for&rdquo;）
+      
+      
+          islower()
+          如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是小写，则返回 True，否则返回 False
+      
+      
+          isnumeric()
+          如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False
+      
+      
+          isprintable()
+          如果字符串是可以打印的内容则返回 True，否则返回 False
+      
+      
+          isspace()
+          如果字符串中至少有一个字符并且所有字符都是空格，则返回 True，否则返回 False
+      
+      
+          istitle()
+          如果字符串是标题化字符串（所有的单词都是以大写开始，其余字母均小写）则返回 True，否则返回 False
+      
+      
+          isupper()
+          如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是大写，则返回 True，否则返回 False
+      
+      
+          join(iterable)
+          连接多个字符串并返回一个新字符串；以调用该方法的字符串作为分隔符，插入到 iterable 参数指定的每个字符串的中间；  例如：&rsquo;^&rsquo;.join([&ldquo;F&rdquo;, &ldquo;i&rdquo;,  &ldquo;sh&rdquo;, &ldquo;C&rdquo;]) -&gt; &lsquo;F^i^sh^C&rsquo;
+      
+      
+          ljust(width,  fillchar=&rsquo; &lsquo;)
+          返回一个字符左对齐的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符左对齐，右侧使用 fillchar 参数指定的字符填充）
+      
+      
+          lower()
+          返回一个所有英文字母都转换成小写后的新字符串
+      
+      
+          lstrip(chars=None)
+          返回一个去除左侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串
+      
+      
+          partition(sep)
+          在字符串中搜索 sep 参数指定的分隔符，如果找到，返回一个 3 元组 (&lsquo;在sep前面的部分&rsquo;, &lsquo;sep&rsquo;, &lsquo;在sep后面的部分&rsquo;)；如果未找到，则返回 (&lsquo;原字符串&rsquo;, &lsquo;&rsquo;, &lsquo;&rsquo;)
+      
+      
+          removeprefix(prefix)
+          如果存在 prefix 参数指定的前缀子字符串，则返回一个将该前缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝
+      
+      
+          removesuffix(suffix)
+          如果存在 suffix 参数指定的后缀子字符串，则返回一个将该后缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝
+      
+      
+          replace(old,  new, count=-1)
+          返回一个将所有 old 参数指定的子字符串替换为 new 的新字符串；  ount  参数指定替换的次数，默认是 -1，表示替换全部
+      
+      
+          rfind(sub[,  start[, end]])
+          在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1
+      
+      
+          rindex(sub[,  start[, end]])
+          在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常
+      
+      
+          rjust(width,  fillchar=&rsquo; &lsquo;)
+          返回一个字符右对齐的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符右对齐，左侧使用 fillchar 参数指定的字符填充）
+      
+      
+          rpartition(sep)
+          在字符串中自右向左搜索sep参数指定的分隔符，如果找到，返回一个 3 元组 (&lsquo;在sep前面的部分&rsquo;, &lsquo;sep&rsquo;, &lsquo;在sep后面的部分&rsquo;)；如果未找到，则返回 (&rsquo;&rsquo;, &lsquo;&rsquo;, &lsquo;原字符串&rsquo;)
+      
+      
+          rsplit(sep=None,  maxsplit=-1)
+          将字符串自右向左进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制
+      
+      
+          rstrip(chars=None)
+          返回一个去除右侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串
+      
+  
+
+列表(list)
+
+  
+      
+          功能 （list为具体列表）
+          解释
+      
+  
+  
+      
+          list.index(&ldquo;xxx&rdquo;)
+          指定开始和结束位置：index(x,start,end)
+      
+      
+          list.append()
+          增：在列表末尾添加新值
+      
+      
+          list.remove()
+          删：删除某个值（第一次匹配）
+      
+      
+          list[n]=xxx
+          改：修改某个值：list[n]=xxx  范围修改:list[n:]=x,y,z…
+      
+      
+          list[n]
+          查：查找某个值 ：list[n]  0-第n个：list[0:n]  第n个往后：list[n:]
+      
+      
+          list.insert(n,x)
+          插：某个位置插入某个值
+      
+      
+          list.sort()
+          小到大排序（改变源列表顺序，而使用sorted()函数只是对结果进行排序）
+      
+      
+          list.sorted(x, reverse=True)
+          大到小排序
+      
+      
+          list.reverse()
+          反向排序（改变源列表顺序，而使用reversed()函数只是对结果进行排序）
+      
+      
+          list.count()
+          统计某个值的次数
+      
+      
+          list.copy()
+          正常使用（浅拷贝）导入copy模块: import copy  浅拷贝：copy.copy(list)——存在嵌套时，引用子列表深拷贝：copy.deepcopy(list)——存在嵌套时，实现全部拷贝复制
+      
+      
+          enumerate(list)
+          获取index下标以及对应的值 ，返回的是一个对象，可使用list、dict、tuple进行转换 &raquo;&gt; any = [&ldquo;a&rdquo;,&ldquo;b&rdquo;,&ldquo;c&rdquo;]&raquo;&gt; enumerate(any)&lt;enumerate object at 0x000001C68FFD8C18&gt;&raquo;&gt; list(enumerate(any))[(0, &lsquo;a&rsquo;), (1, &lsquo;b&rsquo;), (2, &lsquo;c&rsquo;)]&raquo;&gt; dict(enumerate(any)){0: &lsquo;a&rsquo;, 1: &lsquo;b&rsquo;, 2: &lsquo;c&rsquo;}&raquo;&gt; tuple(enumerate(any))((0, &lsquo;a&rsquo;), (1, &lsquo;b&rsquo;), (2, &lsquo;c&rsquo;))
+      
+      
+          all(list)
+          判断迭代对象中所有值是否都为真，真返回True，否返回False&raquo;&gt; b=[1,2,5,4,3]&raquo;&gt; all(b)True&raquo;&gt; a=[0,1,2,5,4,3]&raquo;&gt; all(a)False
+      
+      
+          any(list)
+          判断迭代对象中所有值是否有一个为真，真返回True，否返回False&raquo;&gt; a = [0,0,0]&raquo;&gt; any(a)False&raquo;&gt; b = [0,1]&raquo;&gt; any(b)True
+      
+      
+          zip(list1, list2, &hellip;)
+          创建一个聚合多个可迭代对象的迭代器，它会将作为参数传入的每一个可迭代对象的每一个元素依次组成元组，即第i个元组包含来自每个参数的第i个元素，不过这个取最短列表的长度，其他list多余的会丢弃，不想丢弃，需要依赖itertools模块&raquo;&gt; x=[1,2,3]&raquo;&gt; y=[2,4,6]&raquo;&gt; zip(x,y)&lt;zip object at 0x000001C68FFE7548&gt;&raquo;&gt; list(zip(x,y))[(2, 2), (4, 4), (6, 6)]&raquo;&gt; dict(zip(x,y)){2: 2, 4: 4, 6: 6}&raquo;&gt; tuple(zip(x,y))((2, 2), (4, 4), (6, 6))&raquo;&gt; x=[1,2,3]&raquo;&gt; y=[2,4,6,7]&raquo;&gt; list(zip(x,y))[(2, 2), (4, 4), (6, 6)]不丢弃任何字符&raquo;&gt; x=[1,2,3]&raquo;&gt; y=[2,4,6,7]&raquo;&gt; import itertools&raquo;&gt; list(itertools.zip_longest(x,y))[(2, 2), (4, 4), (6, 6), (None, 7)]
+      
+      
+          map(func, list1,&hellip;)
+          根据提供的函数对指定的迭代器对象的每个元素进行运算，并将返回运算结果的迭代器&raquo;&gt; a=[1,2,3]&raquo;&gt; b=[4,5,6]&raquo;&gt; c=[7,8,9]&raquo;&gt; list(map(max, a,b,c))[7, 8, 9]
+      
+      
+          filter()
+          根据提供的函数对指定的可迭代对象的每个元素进行运算，并将运算结果为真的元素，以迭代器的形式返回&raquo;&gt; list(filter(str.islower, &ldquo;Any&rdquo;))[&rsquo;n&rsquo;, &lsquo;y&rsquo;]
+      
+      
+          reduce()
+          列表内函数进行运算已经不是内置方法，需要进行导入：from functools import reduce&raquo;&gt; from functools import reduce&raquo;&gt; l = [1,2,3,4,5,6,7,8,9]&raquo;&gt; print(reduce(lambda x,y : x&#43;y, l))45                   #此时res的值为列表内所有元素相加，也可以在后面加上一个基数参数，表示在此加上
+      
+  
+
+列表推导式">
+<meta name="author" content="ANY">
+<link rel="canonical" href="//localhost:1313/python/%E5%9F%BA%E7%A1%80/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="//localhost:1313/python/%E5%9F%BA%E7%A1%80/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="//localhost:1313/" title="首页">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li class="has-dropdown">
+                <button class="menu-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>博客</span>
+                    <span class="menu-caret" aria-hidden="true">⌄</span>
+                </button>
+                <ul class="menu-dropdown" aria-label="博客 分类">
+                    <li>
+                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                            <span>Kubernetes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/docker/" title="Docker">
+                            <span>Docker</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/go/" title="Go">
+                            <span>Go</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/linux/" title="Linux">
+                            <span>Linux</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/python/" title="Python">
+                            <span>Python</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                            <span>CI/CD</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/log/" title="日志">
+                            <span>日志</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/middleware/" title="中间件">
+                            <span>中间件</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="logo-switches">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/python/">Python</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      基础
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-28 00:01:08 +0800 CST'>May 28, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>ANY</span>
+
+</div>
+  </header> <details class="toc"  open>
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e7%bc%96%e7%a0%81" aria-label="编码">编码</a></li>
+            <li>
+                <a href="#%e5%ad%97%e7%ac%a6%e4%b8%b2str" aria-label="字符串(str)">字符串(str)</a></li>
+            <li>
+                <a href="#%e5%88%97%e8%a1%a8list" aria-label="列表(list)">列表(list)</a></li>
+            <li>
+                <a href="#%e5%85%83%e7%bb%84tuple" aria-label="元组(tuple)">元组(tuple)</a></li>
+            <li>
+                <a href="#%e5%ad%97%e5%85%b8dict" aria-label="字典(dict)">字典(dict)</a></li>
+            <li>
+                <a href="#%e9%9b%86%e5%90%88set" aria-label="集合(set)">集合(set)</a></li>
+            <li>
+                <a href="#%e5%8f%98%e9%87%8f" aria-label="变量">变量</a></li>
+            <li>
+                <a href="#%e5%87%bd%e6%95%b0" aria-label="函数">函数</a></li>
+            <li>
+                <a href="#%e8%a3%85%e9%a5%b0%e5%99%a8%e9%97%ad%e5%8c%85" aria-label="装饰器&amp;闭包">装饰器&amp;闭包</a></li>
+            <li>
+                <a href="#%e8%bf%ad%e4%bb%a3%e5%99%a8" aria-label="迭代器">迭代器</a></li>
+            <li>
+                <a href="#%e7%94%9f%e6%88%90%e5%99%a8" aria-label="生成器">生成器</a></li>
+            <li>
+                <a href="#%e6%b7%b1%e6%b5%85copy" aria-label="深浅copy">深浅copy</a></li>
+            <li>
+                <a href="#%e7%b1%bb%e5%af%b9%e8%b1%a1" aria-label="类对象">类对象</a><ul>
+                    
+            <li>
+                <a href="#%e5%85%83%e7%b1%bbmetaclass" aria-label="元类(Metaclass)">元类(Metaclass)</a>
+            </li>
+        </ul>
+        </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><h1 id="编码">编码<a hidden class="anchor" aria-hidden="true" href="#编码">#</a></h1>
+<p>decode：解码</p>
+<p>encode：编码</p>
+<p>utf-8是unicode的扩展字符集，utf-8可以显示unicode字符集</p>
+<!-- raw HTML omitted -->
+<p><strong>python2中使用的默认编码是ASCII</strong></p>
+<p>使用默认的ASCII编码解码为unicode然后编码为utf-8:</p>
+<p>str.decode().encode(&ldquo;utf-8&rdquo;)</p>
+<p>UTF-8转GBK：编码为utf-8的字符先解码为Unicode，然后再编码为gbk</p>
+<p>str.decode(&ldquo;utf-8&rdquo;).encode(&ldquo;gbk&rdquo;)</p>
+<p>GBK转UTF-8:</p>
+<p>str.decode(&ldquo;gbk&rdquo;).encode(&ldquo;utf-8&rdquo;)</p>
+<p><strong>python3中使用的默认编码是Unicode</strong></p>
+<p>在文件头声明的编码是文件的编码，代码中实际的编码还是Unicode</p>
+<p>可以直接进行编码：</p>
+<p>str.encode()</p>
+<h1 id="字符串str">字符串(str)<a hidden class="anchor" aria-hidden="true" href="#字符串str">#</a></h1>
+<table>
+  <thead>
+      <tr>
+          <th><code>方法    </code></th>
+          <th><code>含义</code></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>format(*args, **kwargs)</td>
+          <td>返回一个格式化的新字符串；使用位置参数（args）和关键字参数（kwargs）进行替换<!-- raw HTML omitted --><strong>位置参数</strong>：占位符 <code>{}</code> 会按照它们在字符串中出现的顺序来填充值。<!-- raw HTML omitted -->&raquo;&gt; &ldquo;Hello, {}!&quot;.format(&ldquo;ANY&rdquo;)<!-- raw HTML omitted -->&lsquo;Hello, ANY!&rsquo;   <!-- raw HTML omitted --><strong>关键字参数</strong>：使用关键字参数，你可以通过指定参数的名称来填充值<!-- raw HTML omitted -->&raquo;&gt; &ldquo;Hello, {name}!&quot;.format(name=&ldquo;ANY&rdquo;)<!-- raw HTML omitted -->&lsquo;Hello, ANY!&rsquo;<!-- raw HTML omitted -->**索引和多个参数：**可以使用索引来指定参数的位置，或者一次性传递多个参数。<!-- raw HTML omitted -->&raquo;&gt; &ldquo;{0}{2}{1}&quot;.format(&ldquo;a&rdquo;,&ldquo;b&rdquo;,&ldquo;c&rdquo;)<!-- raw HTML omitted -->&lsquo;acb&rsquo;<!-- raw HTML omitted --><!-- raw HTML omitted --><strong>高级用法</strong><!-- raw HTML omitted -->&rsquo;:&rsquo;   号后面带填充的字符，只能是一个字符，不指定则默认是用空格填充。<!-- raw HTML omitted --> &lsquo;&lt;&rsquo;    强制字符串在可用空间内左对齐（默认）<!-- raw HTML omitted --> &lsquo;&gt;&rsquo;    强制字符串在可用空间内右对齐 <!-- raw HTML omitted -->&rsquo;=&rsquo;    强制将填充放置在符号（如果有）之后但在数字之前的位置（这适用于以 “+000000120” 的      形式打印字符串） <!-- raw HTML omitted -->&rsquo;^&rsquo;    强制字符串在可用空间内居中<!-- raw HTML omitted -->**格式化数字：**格式化数字<!-- raw HTML omitted -->&raquo;&gt; &ldquo;保留两位小数：{:.2f}&quot;.format(3.14159)<!-- raw HTML omitted -->&lsquo;保留两位小数：3.14&rsquo;<!-- raw HTML omitted -->&raquo;&gt; &ldquo;带符号保留两位小数：{:+.2f}&quot;.format(3.14159)<!-- raw HTML omitted -->&lsquo;保留两位小数：+3.14&rsquo;<!-- raw HTML omitted -->&raquo;&gt; &ldquo;显示百分比: {:.2%}&quot;.format(0.99)<!-- raw HTML omitted -->&lsquo;显示百分比: 99.00%&rsquo;<!-- raw HTML omitted -->&raquo;&gt; &ldquo;指数记法: {:.2e}&quot;.format(1000000)<!-- raw HTML omitted -->&lsquo;指数记法: 1.00e+06&rsquo;<!-- raw HTML omitted -->&raquo;&gt; &ldquo;逗号分隔: {:,}&quot;.format(1000000)<!-- raw HTML omitted -->&lsquo;逗号分隔: 1,000,000&rsquo;<!-- raw HTML omitted -->对齐文本：指定文本的对齐方式<!-- raw HTML omitted -->&raquo;&gt; &ldquo;数字前补零 (填充左边, 宽度为2): {:0&gt;2d}&quot;.format(9)<!-- raw HTML omitted -->&lsquo;数字前补零 (填充左边, 宽度为2): 09&rsquo;</td>
+      </tr>
+      <tr>
+          <td>capitalize()</td>
+          <td>返回一个首字母大写版本的新字符串（新字符串的首字母变为大写，其它字母变为小写）</td>
+      </tr>
+      <tr>
+          <td>casefold()</td>
+          <td>返回一个小写版本的新字符串（新字符串的所有字母变为小写）</td>
+      </tr>
+      <tr>
+          <td>center(width,  fillchar=&rsquo; &lsquo;)</td>
+          <td>返回一个字符居中的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符居中，左右使用 fillchar 参数指定的字符填充）</td>
+      </tr>
+      <tr>
+          <td>count(sub[,  start[, end]])</td>
+          <td>返回 sub 在字符串中不重叠的出现次数，可选参数 start 和 end 用于指定起始和结束位置</td>
+      </tr>
+      <tr>
+          <td>encode(encoding=&lsquo;utf-8&rsquo;,  errors=&lsquo;strict&rsquo;)</td>
+          <td>以 encoding 参数指定的编码格式对字符串进行编码。errors 参数指定编码出现错误时的解决方案：默认的 &lsquo;strict&rsquo; 表示如果出错，将抛出一个 UnicodeEncodeError 的异常。其它可用的参数值是 &lsquo;ignore&rsquo;，&lsquo;replace&rsquo; 和 &lsquo;xmlcharrefreplace&rsquo;</td>
+      </tr>
+      <tr>
+          <td>endswith(suffix[,  start[, end]])</td>
+          <td>如果字符串是以 suffix 指定的子字符串为结尾，那么返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；suffix 参数允许以元组的形式提供多个子字符串</td>
+      </tr>
+      <tr>
+          <td>expandtabs([tabsize=8])</td>
+          <td>返回一个使用空格替换制表符的新字符串，如果没有指定 tabsize 参数，那么默认 1 个制表符 = 8 个空格</td>
+      </tr>
+      <tr>
+          <td>find(sub[,  start[, end]])</td>
+          <td>在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1</td>
+      </tr>
+      <tr>
+          <td>index(sub[,  start[, end]])</td>
+          <td>在字符串中查找 sub 子字符串，返回匹配的最低索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常</td>
+      </tr>
+      <tr>
+          <td>split(sep, maxsplit=-1)</td>
+          <td>将字符串进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制</td>
+      </tr>
+      <tr>
+          <td><code>splitlines(keepends=False)    </code></td>
+          <td><code>将字符串按行分割，并将结果以列表的形式返回；keepends 参数指定是否包含换行符，True 是包含，False 是不包含</code></td>
+      </tr>
+      <tr>
+          <td>startswith(prefix[,  start[, end]])</td>
+          <td>如果存在 prefix 参数指定的前缀子字符串，则返回 True，否则返回 False；可选参数 start 和 end 用于指定起始和结束位置；prefix 参数允许以元组的形式提供多个子字符串</td>
+      </tr>
+      <tr>
+          <td>strip(chars=None)</td>
+          <td>返回一个去除左右两侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串</td>
+      </tr>
+      <tr>
+          <td>swapcase()</td>
+          <td>返回一个大小写字母翻转的新字符串</td>
+      </tr>
+      <tr>
+          <td>title()</td>
+          <td>返回标题化（所有的单词都是以大写开始，其余字母均小写）的字符串。</td>
+      </tr>
+      <tr>
+          <td>translate(table)</td>
+          <td>返回一个根据 table 参数转换后的新字符串；table 参数应该提供一个转换规则（可以由 str.maketrans(&lsquo;a&rsquo;, &lsquo;b&rsquo;) 进行定制，例如 &ldquo;FishC&rdquo;.translate(str.maketrans(&ldquo;FC&rdquo;,  &ldquo;15&rdquo;)) -&gt; &lsquo;1ish5&rsquo;）</td>
+      </tr>
+      <tr>
+          <td>upper()</td>
+          <td>返回一个所有英文字母都转换成大写后的新字符串</td>
+      </tr>
+      <tr>
+          <td>zfill(width)</td>
+          <td>返回一个左侧用 0 填充的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符右对齐，左侧使用 0 进行填充）</td>
+      </tr>
+      <tr>
+          <td>isalnum()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是字母或数字则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isalpha()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是字母（注1）则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isascii()</td>
+          <td>如果字符串中所有字符都是 ASCII 则返回 True，否则返回 False；ASCII 字符编码范围是 U+0000 ~ U+007F，空字符串也是 ASCII</td>
+      </tr>
+      <tr>
+          <td>isdecimal()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是十进制数字则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isdigit()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isidentifier()</td>
+          <td>如果字符串是一个合法的 Python 标识符则返回 True，否则返回 False；调用 keyword.iskeyword(s) 可以检测字符串是否一个保留标识符（比如 &ldquo;if&rdquo; 或  &ldquo;for&rdquo;）</td>
+      </tr>
+      <tr>
+          <td>islower()</td>
+          <td>如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是小写，则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isnumeric()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是数字则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isprintable()</td>
+          <td>如果字符串是可以打印的内容则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isspace()</td>
+          <td>如果字符串中至少有一个字符并且所有字符都是空格，则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>istitle()</td>
+          <td>如果字符串是标题化字符串（所有的单词都是以大写开始，其余字母均小写）则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>isupper()</td>
+          <td>如果字符串中至少包含一个区分大小写的英文字母，并且这些字母都是大写，则返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>join(iterable)</td>
+          <td>连接多个字符串并返回一个新字符串；以调用该方法的字符串作为分隔符，插入到 iterable 参数指定的每个字符串的中间；  例如：&rsquo;^&rsquo;.join([&ldquo;F&rdquo;, &ldquo;i&rdquo;,  &ldquo;sh&rdquo;, &ldquo;C&rdquo;]) -&gt; &lsquo;F^i^sh^C&rsquo;</td>
+      </tr>
+      <tr>
+          <td>ljust(width,  fillchar=&rsquo; &lsquo;)</td>
+          <td>返回一个字符左对齐的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符左对齐，右侧使用 fillchar 参数指定的字符填充）</td>
+      </tr>
+      <tr>
+          <td>lower()</td>
+          <td>返回一个所有英文字母都转换成小写后的新字符串</td>
+      </tr>
+      <tr>
+          <td>lstrip(chars=None)</td>
+          <td>返回一个去除左侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串</td>
+      </tr>
+      <tr>
+          <td>partition(sep)</td>
+          <td>在字符串中搜索 sep 参数指定的分隔符，如果找到，返回一个 3 元组 (&lsquo;在sep前面的部分&rsquo;, &lsquo;sep&rsquo;, &lsquo;在sep后面的部分&rsquo;)；如果未找到，则返回 (&lsquo;原字符串&rsquo;, &lsquo;&rsquo;, &lsquo;&rsquo;)</td>
+      </tr>
+      <tr>
+          <td>removeprefix(prefix)</td>
+          <td>如果存在 prefix 参数指定的前缀子字符串，则返回一个将该前缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝</td>
+      </tr>
+      <tr>
+          <td>removesuffix(suffix)</td>
+          <td>如果存在 suffix 参数指定的后缀子字符串，则返回一个将该后缀去除后的新字符串；如果不存在，则返回一个原字符串的拷贝</td>
+      </tr>
+      <tr>
+          <td>replace(old,  new, count=-1)</td>
+          <td>返回一个将所有 old 参数指定的子字符串替换为 new 的新字符串；  ount  参数指定替换的次数，默认是 -1，表示替换全部</td>
+      </tr>
+      <tr>
+          <td>rfind(sub[,  start[, end]])</td>
+          <td>在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，返回 -1</td>
+      </tr>
+      <tr>
+          <td>rindex(sub[,  start[, end]])</td>
+          <td>在字符串中自右向左查找 sub 子字符串，返回匹配的最高索引值；可选参数 start 和 end 用于指定起始和结束位置；如果未能匹配子字符串，抛出 ValueError 异常</td>
+      </tr>
+      <tr>
+          <td>rjust(width,  fillchar=&rsquo; &lsquo;)</td>
+          <td>返回一个字符右对齐的新字符串（width &lt;= 字符串长度，新字符串 = 原字符串；width &gt; 字符串宽度，所有字符右对齐，左侧使用 fillchar 参数指定的字符填充）</td>
+      </tr>
+      <tr>
+          <td>rpartition(sep)</td>
+          <td>在字符串中自右向左搜索sep参数指定的分隔符，如果找到，返回一个 3 元组 (&lsquo;在sep前面的部分&rsquo;, &lsquo;sep&rsquo;, &lsquo;在sep后面的部分&rsquo;)；如果未找到，则返回 (&rsquo;&rsquo;, &lsquo;&rsquo;, &lsquo;原字符串&rsquo;)</td>
+      </tr>
+      <tr>
+          <td>rsplit(sep=None,  maxsplit=-1)</td>
+          <td>将字符串自右向左进行分割，并将结果以列表的形式返回；sep 参数指定一个字符串作为分隔的依据，默认是任意空白字符；maxsplit 参数用于指定分割的次数（注意：分割 2 次的结果是 3 份），默认是不限制</td>
+      </tr>
+      <tr>
+          <td>rstrip(chars=None)</td>
+          <td>返回一个去除右侧空白字符的新字符串；通过 chars 参数可以指定将要去除的字符串</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="列表list">列表(list)<a hidden class="anchor" aria-hidden="true" href="#列表list">#</a></h1>
+<table>
+  <thead>
+      <tr>
+          <th>功能 （list为具体列表）</th>
+          <th>解释</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>list.index(&ldquo;xxx&rdquo;)</td>
+          <td>指定开始和结束位置：index(x,start,end)</td>
+      </tr>
+      <tr>
+          <td>list.append()</td>
+          <td>增：在列表末尾添加新值</td>
+      </tr>
+      <tr>
+          <td>list.remove()</td>
+          <td>删：删除某个值（第一次匹配）</td>
+      </tr>
+      <tr>
+          <td>list[n]=xxx</td>
+          <td>改：修改某个值：list[n]=xxx  范围修改:list[n:]=x,y,z…</td>
+      </tr>
+      <tr>
+          <td>list[n]</td>
+          <td>查：查找某个值 ：list[n]  0-第n个：list[0:n]  第n个往后：list[n:]</td>
+      </tr>
+      <tr>
+          <td>list.insert(n,x)</td>
+          <td>插：某个位置插入某个值</td>
+      </tr>
+      <tr>
+          <td>list.sort()</td>
+          <td>小到大排序（改变源列表顺序，而使用sorted()函数只是对结果进行排序）</td>
+      </tr>
+      <tr>
+          <td>list.sorted(x, reverse=True)</td>
+          <td>大到小排序</td>
+      </tr>
+      <tr>
+          <td>list.reverse()</td>
+          <td>反向排序（改变源列表顺序，而使用reversed()函数只是对结果进行排序）</td>
+      </tr>
+      <tr>
+          <td>list.count()</td>
+          <td>统计某个值的次数</td>
+      </tr>
+      <tr>
+          <td>list.copy()</td>
+          <td>正常使用（浅拷贝）<!-- raw HTML omitted -->导入copy模块: import copy  <!-- raw HTML omitted -->浅拷贝：copy.copy(list)——存在嵌套时，引用子列表<!-- raw HTML omitted -->深拷贝：copy.deepcopy(list)——存在嵌套时，实现全部拷贝复制</td>
+      </tr>
+      <tr>
+          <td>enumerate(list)</td>
+          <td>获取index下标以及对应的值 ，返回的是一个对象，可使用list、dict、tuple进行转换 <!-- raw HTML omitted -->&raquo;&gt; any = [&ldquo;a&rdquo;,&ldquo;b&rdquo;,&ldquo;c&rdquo;]<!-- raw HTML omitted -->&raquo;&gt; enumerate(any)<!-- raw HTML omitted -->&lt;enumerate object at 0x000001C68FFD8C18&gt;<!-- raw HTML omitted -->&raquo;&gt; list(enumerate(any))<!-- raw HTML omitted -->[(0, &lsquo;a&rsquo;), (1, &lsquo;b&rsquo;), (2, &lsquo;c&rsquo;)]<!-- raw HTML omitted -->&raquo;&gt; dict(enumerate(any))<!-- raw HTML omitted -->{0: &lsquo;a&rsquo;, 1: &lsquo;b&rsquo;, 2: &lsquo;c&rsquo;}<!-- raw HTML omitted -->&raquo;&gt; tuple(enumerate(any))<!-- raw HTML omitted -->((0, &lsquo;a&rsquo;), (1, &lsquo;b&rsquo;), (2, &lsquo;c&rsquo;))</td>
+      </tr>
+      <tr>
+          <td>all(list)</td>
+          <td>判断迭代对象中所有值是否都为真，真返回True，否返回False<!-- raw HTML omitted -->&raquo;&gt; b=[1,2,5,4,3]<!-- raw HTML omitted -->&raquo;&gt; all(b)<!-- raw HTML omitted -->True<!-- raw HTML omitted -->&raquo;&gt; a=[0,1,2,5,4,3]<!-- raw HTML omitted -->&raquo;&gt; all(a)<!-- raw HTML omitted -->False</td>
+      </tr>
+      <tr>
+          <td>any(list)</td>
+          <td>判断迭代对象中所有值是否有一个为真，真返回True，否返回False<!-- raw HTML omitted -->&raquo;&gt; a = [0,0,0]<!-- raw HTML omitted -->&raquo;&gt; any(a)<!-- raw HTML omitted -->False<!-- raw HTML omitted -->&raquo;&gt; b = [0,1]<!-- raw HTML omitted -->&raquo;&gt; any(b)<!-- raw HTML omitted -->True</td>
+      </tr>
+      <tr>
+          <td>zip(list1, list2, &hellip;)</td>
+          <td>创建一个聚合多个可迭代对象的迭代器，它会将作为参数传入的每一个可迭代对象的每一个元素依次组成元组，即第i个元组包含来自每个参数的第i个元素，不过这个取最短列表的长度，其他list多余的会丢弃，不想丢弃，需要依赖<strong>itertools</strong>模块<!-- raw HTML omitted -->&raquo;&gt; x=[1,2,3]<!-- raw HTML omitted -->&raquo;&gt; y=[2,4,6]<!-- raw HTML omitted -->&raquo;&gt; zip(x,y)<!-- raw HTML omitted -->&lt;zip object at 0x000001C68FFE7548&gt;<!-- raw HTML omitted -->&raquo;&gt; list(zip(x,y))<!-- raw HTML omitted -->[(2, 2), (4, 4), (6, 6)]<!-- raw HTML omitted -->&raquo;&gt; dict(zip(x,y))<!-- raw HTML omitted -->{2: 2, 4: 4, 6: 6}<!-- raw HTML omitted -->&raquo;&gt; tuple(zip(x,y))<!-- raw HTML omitted -->((2, 2), (4, 4), (6, 6))<!-- raw HTML omitted --><!-- raw HTML omitted -->&raquo;&gt; x=[1,2,3]<!-- raw HTML omitted -->&raquo;&gt; y=[2,4,6,7]<!-- raw HTML omitted -->&raquo;&gt; list(zip(x,y))<!-- raw HTML omitted -->[(2, 2), (4, 4), (6, 6)]<!-- raw HTML omitted --><!-- raw HTML omitted --><strong>不丢弃任何字符</strong><!-- raw HTML omitted -->&raquo;&gt; x=[1,2,3]<!-- raw HTML omitted -->&raquo;&gt; y=[2,4,6,7]<!-- raw HTML omitted -->&raquo;&gt; import itertools<!-- raw HTML omitted -->&raquo;&gt; list(itertools.zip_longest(x,y))<!-- raw HTML omitted -->[(2, 2), (4, 4), (6, 6), (None, 7)]</td>
+      </tr>
+      <tr>
+          <td>map(func, list1,&hellip;)</td>
+          <td>根据提供的函数对指定的迭代器对象的每个元素进行运算，并将返回运算结果的迭代器<!-- raw HTML omitted -->&raquo;&gt; a=[1,2,3]<!-- raw HTML omitted -->&raquo;&gt; b=[4,5,6]<!-- raw HTML omitted -->&raquo;&gt; c=[7,8,9]<!-- raw HTML omitted -->&raquo;&gt; list(map(max, a,b,c))<!-- raw HTML omitted -->[7, 8, 9]</td>
+      </tr>
+      <tr>
+          <td>filter()</td>
+          <td>根据提供的函数对指定的可迭代对象的每个元素进行运算，并将运算结果为真的元素，以迭代器的形式返回<!-- raw HTML omitted -->&raquo;&gt; list(filter(str.islower, &ldquo;Any&rdquo;))<!-- raw HTML omitted -->[&rsquo;n&rsquo;, &lsquo;y&rsquo;]</td>
+      </tr>
+      <tr>
+          <td>reduce()</td>
+          <td>列表内函数进行运算<!-- raw HTML omitted -->已经不是内置方法，需要进行导入：from functools import reduce<!-- raw HTML omitted -->&raquo;&gt; from functools import reduce<!-- raw HTML omitted -->&raquo;&gt; l = [1,2,3,4,5,6,7,8,9]<!-- raw HTML omitted -->&raquo;&gt; print(reduce(lambda x,y : x+y, l))<!-- raw HTML omitted -->45                   #此时res的值为列表内所有元素相加，也可以在后面加上一个基数参数，表示在此加上</td>
+      </tr>
+  </tbody>
+</table>
+<p>列表推导式</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt;&gt;&gt; x <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>i + <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">for</span> i in <span style="color:#f92672">[</span>1,2,3<span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; x
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2, 3, 4<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; x <span style="color:#f92672">=</span> <span style="color:#f92672">[[</span>1,2,3<span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>				 <span style="color:#f92672">[</span>4,5,6<span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>				 <span style="color:#f92672">[</span>7,8,9<span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; diag <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>x<span style="color:#f92672">[</span>j<span style="color:#f92672">][</span>i<span style="color:#f92672">]</span> <span style="color:#66d9ef">for</span> i in range<span style="color:#f92672">(</span>len<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span> <span style="color:#66d9ef">for</span> j in range<span style="color:#f92672">(</span>len<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; diag
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>1, 4, 7, 2, 5, 8, 3, 6, 9<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; diag <span style="color:#f92672">=</span> <span style="color:#f92672">[</span>x<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#66d9ef">for</span> i in range<span style="color:#f92672">(</span>len<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span> <span style="color:#66d9ef">for</span> j in range<span style="color:#f92672">(</span>len<span style="color:#f92672">(</span>x<span style="color:#f92672">))</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>&gt;&gt;&gt; diag
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>1, 2, 3, 4, 5, 6, 7, 8, 9<span style="color:#f92672">]</span>
+</span></span></code></pre></div><h1 id="元组tuple">元组(tuple)<a hidden class="anchor" aria-hidden="true" href="#元组tuple">#</a></h1>
+<p>python的元组与列表类似，不同之处是元组（tuple）是一种不可变（immutable）的数据结构，一旦创建，就不能增加、删除或修改其中的元素。元组的主要用途是存储一系列的值，并且这些值在元组的生命周期内不会改变。</p>
+<p>元组使用小括号()，列表使用中括号[]</p>
+<h1 id="字典dict">字典(dict)<a hidden class="anchor" aria-hidden="true" href="#字典dict">#</a></h1>
+<p>集合的创建方式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span> a <span style="color:#f92672">=</span> <span style="color:#f92672">{</span><span style="color:#e6db74">&#39;刘备&#39;</span>:<span style="color:#e6db74">&#39;1&#39;</span>, <span style="color:#e6db74">&#39;关羽&#39;</span>:<span style="color:#e6db74">&#39;2&#39;</span>, <span style="color:#e6db74">&#39;张飞&#39;</span>:<span style="color:#e6db74">&#39;3&#39;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> b <span style="color:#f92672">=</span> dict<span style="color:#f92672">(</span>刘备<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;1&#39;</span>, 关羽<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2&#39;</span>, 张飞<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;3&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> c <span style="color:#f92672">=</span> dict<span style="color:#f92672">([(</span><span style="color:#e6db74">&#34;刘备&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span><span style="color:#f92672">)</span>, <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;关羽&#34;</span>, <span style="color:#e6db74">&#34;2&#34;</span><span style="color:#f92672">)</span>, <span style="color:#f92672">(</span><span style="color:#e6db74">&#34;张飞&#34;</span>, <span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">)])</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>d <span style="color:#f92672">=</span>  dict<span style="color:#f92672">({</span><span style="color:#e6db74">&#34;刘备&#34;</span>:<span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;关羽&#34;</span>:<span style="color:#e6db74">&#34;2&#34;</span>, <span style="color:#e6db74">&#34;张飞&#34;</span>:<span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">})</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>e <span style="color:#f92672">=</span>  dict<span style="color:#f92672">({</span><span style="color:#e6db74">&#34;刘备&#34;</span>:<span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;关羽&#34;</span>:<span style="color:#e6db74">&#34;2&#34;</span><span style="color:#f92672">}</span>, 张飞<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>f <span style="color:#f92672">=</span>  dict<span style="color:#f92672">(</span>zip<span style="color:#f92672">([</span><span style="color:#e6db74">&#34;刘备&#34;</span>, <span style="color:#e6db74">&#34;关羽&#34;</span>, <span style="color:#e6db74">&#34;张飞&#34;</span><span style="color:#f92672">]</span>, <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;2&#34;</span>, <span style="color:#e6db74">&#34;3&#34;</span><span style="color:#f92672">]))</span>
+</span></span></code></pre></div><p>方法</p>
+<table>
+  <thead>
+      <tr>
+          <th>方法</th>
+          <th>解释</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>dict.fromkeys(interable[, values])</td>
+          <td>指定可迭代对象interable创造一个字典并且初始化为values参数指定的值<!-- raw HTML omitted -->默认空值<!-- raw HTML omitted -->&raquo;&gt; dict.fromkeys(&ldquo;any&rdquo;)<!-- raw HTML omitted -->{&lsquo;a&rsquo;: None, &rsquo;n&rsquo;: None, &lsquo;y&rsquo;: None}<!-- raw HTML omitted -->赋值：<!-- raw HTML omitted -->&raquo;&gt; dict.fromkeys(&ldquo;any&rdquo;,99)<!-- raw HTML omitted -->{&lsquo;a&rsquo;: 99, &rsquo;n&rsquo;: 99, &lsquo;y&rsquo;: 99}<!-- raw HTML omitted --></td>
+      </tr>
+      <tr>
+          <td>dict.pop(key[,default])</td>
+          <td>删除某个key键值，如果没有默认输出为default；</td>
+      </tr>
+      <tr>
+          <td>dict.popitem()</td>
+          <td>python3.7之后阔以使用删除最后一个键值对(3.7之前顺序没有保障)</td>
+      </tr>
+      <tr>
+          <td>del</td>
+          <td>指定删除一个键值<!-- raw HTML omitted -->删除某个值：del dict[&lsquo;xxx&rsquo;]<!-- raw HTML omitted -->删除字典：del dict</td>
+      </tr>
+      <tr>
+          <td>dict.clear()</td>
+          <td>清空字典</td>
+      </tr>
+      <tr>
+          <td>dict.update(key=&ldquo;abc&rdquo;)</td>
+          <td>在字典中更新键值对，如果没有对应的键则会进行新增<!-- raw HTML omitted -->&raquo;&gt; x = {&ldquo;a&rdquo;:1, &ldquo;b&rdquo;:2, &ldquo;c&rdquo;:3}<!-- raw HTML omitted -->&raquo;&gt; print(x.update(c=9))<!-- raw HTML omitted -->{&lsquo;a&rsquo;: 1, &lsquo;b&rsquo;: 2, &lsquo;c&rsquo;: 9}</td>
+      </tr>
+      <tr>
+          <td>dict.get(key[,default])</td>
+          <td>查找一个键的键值，如不存在则返回默认值default</td>
+      </tr>
+      <tr>
+          <td>dict.setdefault(key[,default])</td>
+          <td>查找一个键，如不存在则直接赋其默认值default，并且存到字典中</td>
+      </tr>
+      <tr>
+          <td>dict.items()</td>
+          <td>返回键值对迭代器对象</td>
+      </tr>
+      <tr>
+          <td>dict.keys()</td>
+          <td>返回key的迭代器对象</td>
+      </tr>
+      <tr>
+          <td>dict.values()</td>
+          <td>返回value的迭代器对象</td>
+      </tr>
+      <tr>
+          <td>iter()<!-- raw HTML omitted -->next()</td>
+          <td>iter()：迭代器<!-- raw HTML omitted -->next()：取迭代器的值<!-- raw HTML omitted -->&raquo;&gt; x<!-- raw HTML omitted -->{&lsquo;a&rsquo;: 1, &lsquo;b&rsquo;: 2, &lsquo;c&rsquo;: 9}<!-- raw HTML omitted -->&raquo;&gt; iter = iter(x)<!-- raw HTML omitted -->&raquo;&gt; next(iter)<!-- raw HTML omitted -->&lsquo;a&rsquo;<!-- raw HTML omitted -->&raquo;&gt; next(iter)<!-- raw HTML omitted -->&lsquo;b&rsquo;<!-- raw HTML omitted -->&raquo;&gt; next(iter)<!-- raw HTML omitted -->&lsquo;c&rsquo;</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="集合set">集合(set)<a hidden class="anchor" aria-hidden="true" href="#集合set">#</a></h1>
+<p>唯一性</p>
+<p>无序性</p>
+<p>创建空集合使用set()，不能用{}，这个是创建空字典</p>
+<table>
+  <thead>
+      <tr>
+          <th>方法</th>
+          <th>解释</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>s.add(x)</td>
+          <td>添加元素，可以多个，逗号分隔，如果元素已存在，则不进行任何操作</td>
+      </tr>
+      <tr>
+          <td>s.update(x)</td>
+          <td>添加元素，且参数可以是列表，元组，字典等</td>
+      </tr>
+      <tr>
+          <td>s.remove(x)</td>
+          <td>移除元素，元素不存在会报错</td>
+      </tr>
+      <tr>
+          <td>s.discard(x)</td>
+          <td>移除元素，元素不存在不会报错</td>
+      </tr>
+      <tr>
+          <td>s.pop()</td>
+          <td>随机删除一个元素（对集合先进行无序排列，然后删除左起第一个元素，如果集合为空，则抛出 KeyError 异常）</td>
+      </tr>
+      <tr>
+          <td>len(s)</td>
+          <td>计算集合元素个数</td>
+      </tr>
+      <tr>
+          <td>s.clear()</td>
+          <td>清空集合</td>
+      </tr>
+      <tr>
+          <td>s.copy()</td>
+          <td>浅拷贝</td>
+      </tr>
+      <tr>
+          <td>s.isdisjoint(other)</td>
+          <td>如果 s  集合中没有与 other 容器存在共同的元素，那么返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>s.issubset(other)</td>
+          <td>如果 s  集合是 other 容器的子集（注1），那么返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>s.issuperset(other)</td>
+          <td>如果 s  集合是 other 容器的超集（注2），那么返回 True，否则返回 False</td>
+      </tr>
+      <tr>
+          <td>s.union(*others)</td>
+          <td>返回一个新集合，其内容是  s 集合与 others 容器的并集（注3）</td>
+      </tr>
+      <tr>
+          <td>s.intersection(*others)</td>
+          <td>返回一个新集合，其内容是  s 集合与 others 容器的交集（注4）</td>
+      </tr>
+      <tr>
+          <td>s.difference(*others)</td>
+          <td>返回一个新集合，其内容是存在于  s 集合中，但不存在于 others 容器中的元素（注5）</td>
+      </tr>
+      <tr>
+          <td>s.symmetric_difference(other)</td>
+          <td>回一个新集合，其内容是排除掉  s 集合和 other 容器中共有的元素后，剩余的所有元素</td>
+      </tr>
+  </tbody>
+</table>
+<h1 id="变量">变量<a hidden class="anchor" aria-hidden="true" href="#变量">#</a></h1>
+<p>作用域：局部、全局</p>
+<p>在函数内部声明的变量属于局部作用域，仅在函数体内部可见。</p>
+<p>全局作用域中声明的变量可以在整个代码文件中访问，包括函数内部。</p>
+<p>当需要在函数内部修改全局变量时，需要使用<code>global</code>关键字，以明确指示要操作的是全局变量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>global_variable <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;I am global&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">modify_global_variable</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> global_variable
+</span></span><span style="display:flex;"><span>    global_variable <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Modified global&#34;</span>
+</span></span><span style="display:flex;"><span>    print(global_variable)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 调用修改函数</span>
+</span></span><span style="display:flex;"><span>modify_global_variable()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 在函数外查看修改后的全局变量</span>
+</span></span><span style="display:flex;"><span>print(global_variable)
+</span></span></code></pre></div><p><strong>闭包中的作用域</strong></p>
+<p>闭包是函数和其引用环境的组合。在闭包中，可以访问包含函数外部的变量。</p>
+<h1 id="函数">函数<a hidden class="anchor" aria-hidden="true" href="#函数">#</a></h1>
+<p>传可变参数：<code>**agrs&amp;&amp;**kwargs</code>（<code>**args</code>必须位于<code>**kwargs</code>之前）</p>
+<p>**args：可变参数，格式化存储在一个元组中，长度没有限制，必须位于普通参数和默认参数之后（格式：str1，str2）；</p>
+<p>**kwargs：可变参数，格式化存储在一个字典中，必须位于参数列表的最后面（格式：str1=“”，str2=“”）；</p>
+<ul>
+<li><strong>高阶函数：</strong></li>
+</ul>
+<p>1、把一个函数名（函数的内存地址）当作实参传给另外一个函数；</p>
+<p>2、返回值中包含函数名（不改变函数原来的调用方式）；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test1</span>():
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test2</span>(func):
+</span></span><span style="display:flex;"><span>  func()
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>		
+</span></span><span style="display:flex;"><span>test2(test1)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test1</span>():
+</span></span><span style="display:flex;"><span>  print(<span style="color:#e6db74">&#34;in the test1&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test2</span>(func):
+</span></span><span style="display:flex;"><span>    print(func) <span style="color:#75715e">#直接打印函数的内存地址</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> func <span style="color:#75715e">#返回func函数的内存地址</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>test1 <span style="color:#f92672">=</span> test2(test1)   <span style="color:#75715e">#将函数test2的返回值赋值给test1，相当于覆盖掉原函数test1变量的值</span>
+</span></span><span style="display:flex;"><span>test1()  <span style="color:#75715e">#重新调用函数test1</span>
+</span></span></code></pre></div><ul>
+<li><strong>嵌套函数</strong></li>
+</ul>
+<p>函数中行调用函数</p>
+<!-- raw HTML omitted -->
+<p>内嵌函数：函数内中的变量只能被调用而不能被更改</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>使用nonlocal进行重定义</p>
+<!-- raw HTML omitted -->
+<ul>
+<li><strong>匿名函数</strong></li>
+</ul>
+<p>lamda：匿名函数（不需要定义函数）</p>
+<!-- raw HTML omitted -->
+<h1 id="装饰器闭包">装饰器&amp;闭包<a hidden class="anchor" aria-hidden="true" href="#装饰器闭包">#</a></h1>
+<p><strong>闭包</strong>：内部函数中引用了外部作用域的变量</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">outer</span>():
+</span></span><span style="display:flex;"><span>    n <span style="color:#f92672">=</span> <span style="color:#ae81ff">9</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner</span>():
+</span></span><span style="display:flex;"><span>        print(n)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> inner
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>f <span style="color:#f92672">=</span> outer()
+</span></span><span style="display:flex;"><span>f()   <span style="color:#75715e"># 打印10</span>
+</span></span></code></pre></div><p><strong>装饰器</strong>：装饰器 =》 高阶函数 + 嵌套函数</p>
+<p>装饰器作用就是修改其他函数的功能</p>
+<p>应用场景:</p>
+<p>1、收集函数的操作或错误日志记录。</p>
+<p>2、验证函数的使用权限。</p>
+<p>3、计算函数的运行时间。</p>
+<p>4、在ORM/DB模型操作时，通过属性方法动态地获取关联的数据。</p>
+<p>5、函数数据的缓存。</p>
+<p>6、定制函数的输入和输出（序列化和反序列化）。</p>
+<p>给函数增加功能，但是不改变原函数的方法，不改变原函数的调用方式；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> time
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">timer</span>(func):
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">deco</span>():   <span style="color:#75715e">#函数的嵌套</span>
+</span></span><span style="display:flex;"><span>    start_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>    func()   <span style="color:#75715e">#调用传入的函数内存地址：func</span>
+</span></span><span style="display:flex;"><span>    stop_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> deco     <span style="color:#75715e">#返回deco函数的内存地址</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@timer</span>     <span style="color:#75715e">#调用装饰器，相当于：test1 = timer(test1)  将timer函数返回的内嵌函数deco的内存地址复制给test1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test1</span>():   <span style="color:#75715e">#原函数</span>
+</span></span><span style="display:flex;"><span>  print(<span style="color:#e6db74">&#34;in the test1&#34;</span>)
+</span></span><span style="display:flex;"><span>		
+</span></span><span style="display:flex;"><span>test1() <span style="color:#75715e">#原函数的调用（此时相当于把deco函数的内存地址赋值给test1变量，调用实际函数是test2，增加了计时的功能）</span>
+</span></span></code></pre></div><p><strong>传参:</strong></p>
+<ul>
+<li>固定参数</li>
+</ul>
+<p>实现一个加法器</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> time
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">showtime</span>(f):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner</span>(x, y):
+</span></span><span style="display:flex;"><span>        start_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>        f(x,y)
+</span></span><span style="display:flex;"><span>        stop_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>        print(stop_time <span style="color:#f92672">-</span> start_time)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> inner
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@showtime</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">my_sum</span>(a, b):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;a+b=</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>)<span style="color:#f92672">.</span>format(a<span style="color:#f92672">+</span>b)
+</span></span></code></pre></div><ul>
+<li>不定参数：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> time
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">timer</span>(func):
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">deco</span>(<span style="color:#f92672">*</span>arg,<span style="color:#f92672">**</span>kwargs):   <span style="color:#75715e">#函数的嵌套，使用可变参数：*args，**kwargs</span>
+</span></span><span style="display:flex;"><span>    start_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>    func(<span style="color:#f92672">*</span>arg,<span style="color:#f92672">**</span>kwargs)   <span style="color:#75715e">#调用传入的函数内存地址：func</span>
+</span></span><span style="display:flex;"><span>    stop_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> deco    <span style="color:#75715e">#返回deco函数的内存地址</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@timer</span>     <span style="color:#75715e">#调用装饰器，相当于：test1 = timer(test1)  将timer函数返回的内嵌函数deco的内存地址复制给test1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test1</span>():   <span style="color:#75715e">#原函数</span>
+</span></span><span style="display:flex;"><span>  print(<span style="color:#e6db74">&#34;in the test1&#34;</span>)
+</span></span><span style="display:flex;"><span>		
+</span></span><span style="display:flex;"><span>test1(str) <span style="color:#75715e">#原函数的调用（此时相当于把deco函数的内存地址赋值给test1变量，调用实际函数是deco，增加了计时的功能）</span>
+</span></span></code></pre></div><p><strong>多个装饰器的使用</strong></p>
+<p>多个装饰器的装饰过程：由内到外的一个装饰过程，先执行内部的装饰器，在执行外部的装饰器。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">make_div</span>(func):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;make_div装饰器执行了&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner</span>():
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&lt;div&gt;&#39;</span> <span style="color:#f92672">+</span> func() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;&lt;/div&gt;&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> inner
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">make_p</span>(func):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;make_p装饰器执行了&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner</span>():
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&lt;p&gt;&#39;</span> <span style="color:#f92672">+</span> func() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;&lt;/p&gt;&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> inner
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 原理剖析：content = make_div(make_p(content))</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 分布拆解：content = make_p(content)，内部装饰器完成，content = make_p.inner</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#          content = make_div(make_p.inner)</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@make_div</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@make_p</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">content</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;人生苦短，我用python&#39;</span>
+</span></span><span style="display:flex;"><span>c <span style="color:#f92672">=</span> content()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(c)
+</span></span><span style="display:flex;"><span>make_p装饰器执行了
+</span></span><span style="display:flex;"><span>make_div装饰器执行了
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span>div<span style="color:#f92672">&gt;&lt;</span>p<span style="color:#f92672">&gt;</span>人生苦短<span style="color:#960050;background-color:#1e0010">，</span>我用python<span style="color:#f92672">&lt;/</span>p<span style="color:#f92672">&gt;&lt;/</span>div<span style="color:#f92672">&gt;</span>
+</span></span></code></pre></div><p><strong>类装饰器</strong></p>
+<p>类装饰器：使用类装饰已有函数</p>
+<p>示例1：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyDecorator</span>(object):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, func):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>__func <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 实现__call__方法，表示对象是一个可调用对象，可以像调用函数一样进行调用</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__call__</span>(self, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 对已有函数进行封装</span>
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;马上就下班&#39;</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>__func()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@MyDecorator</span>  <span style="color:#75715e"># @MyDecorator =&gt; show = MyDecorator(show)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">show</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;快要下雪啦&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行show，就相当于执行MyDecorator类创建的实例对象，show() =&gt; 对象()</span>
+</span></span><span style="display:flex;"><span>show()
+</span></span><span style="display:flex;"><span>马上就下班
+</span></span><span style="display:flex;"><span>快要下雪啦
+</span></span></code></pre></div><p>示例2：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> time
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">printLogs</span>(obj):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, flag):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>flag <span style="color:#f92672">=</span> flag
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__call__</span>(self, func):
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">@wraps</span>(func)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inner</span>(<span style="color:#f92672">*</span>args):
+</span></span><span style="display:flex;"><span>            start_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>            f(<span style="color:#f92672">*</span>args)
+</span></span><span style="display:flex;"><span>            stop_time <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>            print(stop_time <span style="color:#f92672">-</span> start_time)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>flag <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;true&#34;</span>:
+</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">&#39;日志记录&#39;</span>)
+</span></span><span style="display:flex;"><span>    	<span style="color:#66d9ef">return</span> inner
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@printLogs</span>(<span style="color:#e6db74">&#39;true&#39;</span>)				<span style="color:#75715e"># 表示打印日志</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test1</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;tets1...&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@printLogs</span>(<span style="color:#e6db74">&#39;false&#39;</span>)				<span style="color:#75715e"># 表示不打印日志</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">test2</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;tets2...&#34;</span>)
+</span></span></code></pre></div><p><strong>@wraps 装饰器</strong></p>
+<p>当使用装饰器时，装饰后的函数实际上是包装器函数（wrapper function），而不是原来的函数。这会导致一些问题，例如：</p>
+<ol>
+<li>原函数的名称和文档字符串（docstring）被包装器函数覆盖。</li>
+<li>原函数的属性（如<code>__name__</code>和<code>__doc__</code>）丢失。</li>
+</ol>
+<p>为了解决这些问题，Python提供了<code>functools.wraps</code>装饰器，它可以保留原函数的元数据。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> functools <span style="color:#f92672">import</span> wraps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">my_decorator</span>(func):
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@wraps</span>(func)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapper</span>(<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Something is happening before the function is called.&#34;</span>)
+</span></span><span style="display:flex;"><span>        result <span style="color:#f92672">=</span> func(<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Something is happening after the function is called.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@my_decorator</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">say_hello</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#This is the docstring of say_hello function</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Hello!&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(say_hello<span style="color:#f92672">.</span>__name__)  <span style="color:#75715e"># 输出: say_hello</span>
+</span></span><span style="display:flex;"><span>print(say_hello<span style="color:#f92672">.</span>__doc__)   <span style="color:#75715e"># 输出: This is the docstring of say_hello function.</span>
+</span></span></code></pre></div><h1 id="迭代器">迭代器<a hidden class="anchor" aria-hidden="true" href="#迭代器">#</a></h1>
+<p>一个可以记住遍历位置的对象</p>
+<p>迭代器对象从集合的第一个元素开始访问，知道所有的元素别访问完结束，只往前不会退后</p>
+<p><strong>可迭代对象与迭代器：</strong></p>
+<p>​		可迭代对象可以重复使用，而迭代器是一次性的</p>
+<p>迭代器有两个基本方法：</p>
+<p>iter(): 迭代器</p>
+<p>next(): 取迭代器的值，直到迭代完毕</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> list<span style="color:#f92672">=</span>[<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>]
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> it <span style="color:#f92672">=</span> iter(list)    <span style="color:#75715e"># 创建迭代器对象</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> print (next(it))   <span style="color:#75715e"># 输出迭代器的下一个元素</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> print (next(it))
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span><span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> it:
+</span></span><span style="display:flex;"><span>    print (x, end<span style="color:#f92672">=</span><span style="color:#e6db74">&#34; &#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span>
+</span></span></code></pre></div><p>使用next函数：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys         <span style="color:#75715e"># 引入 sys 模块</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>list<span style="color:#f92672">=</span>[<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>]
+</span></span><span style="display:flex;"><span>it <span style="color:#f92672">=</span> iter(list)    <span style="color:#75715e"># 创建迭代器对象</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        print (next(it))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">StopIteration</span>:
+</span></span><span style="display:flex;"><span>        sys<span style="color:#f92672">.</span>exit()
+</span></span></code></pre></div><p>输出</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span>
+</span></span></code></pre></div><ul>
+<li><strong>类当中的迭代器：</strong></li>
+</ul>
+<p>把一个类作为一个迭代器使用需要在类中实现两个方法 <code>__iter__</code>() 与<code> __next__()</code> 。</p>
+<p>如果你已经了解的面向对象编程，就知道类都有一个构造函数，Python 的构造函数为 <code>__init__()</code>, 它会在对象初始化的时候执行。</p>
+<p><code>__iter__()</code> 方法返回一个特殊的迭代器对象， 这个迭代器对象实现了 <code>__next__()</code> 方法并通过 StopIteration 异常标识迭代的完成。</p>
+<p>__<code>next__()</code> 方法（Python 2 里是 next()）会返回下一个迭代器对象</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 创建一个返回数字的迭代器，初始值为 1，逐步递增 1：</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyNumbers</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__iter__</span>(self):
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>a <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> self
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__next__</span>(self):
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>a
+</span></span><span style="display:flex;"><span>    self<span style="color:#f92672">.</span>a <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> x
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>myclass <span style="color:#f92672">=</span> MyNumbers()
+</span></span><span style="display:flex;"><span>myiter <span style="color:#f92672">=</span> iter(myclass)
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>print(next(myiter))
+</span></span><span style="display:flex;"><span>print(next(myiter))
+</span></span><span style="display:flex;"><span>print(next(myiter))
+</span></span><span style="display:flex;"><span>print(next(myiter))
+</span></span><span style="display:flex;"><span>print(next(myiter))
+</span></span></code></pre></div><p>输出</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span>
+</span></span></code></pre></div><h1 id="生成器">生成器<a hidden class="anchor" aria-hidden="true" href="#生成器">#</a></h1>
+<p>使用了yield的函数被称之为生成器（gennerator）</p>
+<p>与普通函数不同，生成器是一个返回迭代器的函数，只能用于迭代操作，更简单的生成器就是一个迭代器，在调用生成器的过程中，每次遇到yield时，函数会暂停并保存当前所有的运行信息，返回yield的值，并在下一次执行**next()**方法时，从当前位置继续运行。直到再次遇到 <strong>yield</strong> 语句。这样，生成器函数可以逐步产生值，而不需要一次性计算并返回所有结果。</p>
+<p>生成器函数的优势是它们可以按需生成值，避免一次性生成大量数据并占用大量内存。此外，生成器还可以与其他迭代工具（如for循环）无缝配合使用，提供简洁和高效的迭代方式。</p>
+<p>调用一个生成器函数，返回的是一个迭代器对象</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">countdown</span>(n):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> n <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> n
+</span></span><span style="display:flex;"><span>        n <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建生成器对象</span>
+</span></span><span style="display:flex;"><span>generator <span style="color:#f92672">=</span> countdown(<span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 通过迭代生成器获取值</span>
+</span></span><span style="display:flex;"><span>print(next(generator))  <span style="color:#75715e"># 输出: 5</span>
+</span></span><span style="display:flex;"><span>print(next(generator))  <span style="color:#75715e"># 输出: 4</span>
+</span></span><span style="display:flex;"><span>print(next(generator))  <span style="color:#75715e"># 输出: 3</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 使用 for 循环迭代生成器</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> value <span style="color:#f92672">in</span> generator:
+</span></span><span style="display:flex;"><span>    print(value)  <span style="color:#75715e"># 输出: 2 1</span>
+</span></span></code></pre></div><p>yield 实现斐波那契数列：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fibonacci</span>(n): <span style="color:#75715e"># 生成器函数 - 斐波那契</span>
+</span></span><span style="display:flex;"><span>    a, b, counter <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (counter <span style="color:#f92672">&gt;</span> n): 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">yield</span> a
+</span></span><span style="display:flex;"><span>        a, b <span style="color:#f92672">=</span> b, a <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>        counter <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>f <span style="color:#f92672">=</span> fibonacci(<span style="color:#ae81ff">10</span>) <span style="color:#75715e"># f 是一个迭代器，由生成器返回生成</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        print (next(f), end<span style="color:#f92672">=</span><span style="color:#e6db74">&#34; &#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">StopIteration</span>:
+</span></span><span style="display:flex;"><span>        sys<span style="color:#f92672">.</span>exit()
+</span></span></code></pre></div><p>输出</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">8</span> <span style="color:#ae81ff">13</span> <span style="color:#ae81ff">21</span> <span style="color:#ae81ff">34</span> <span style="color:#ae81ff">55</span>
+</span></span></code></pre></div><h1 id="深浅copy">深浅copy<a hidden class="anchor" aria-hidden="true" href="#深浅copy">#</a></h1>
+<p>可变数据类型：list、dict、set</p>
+<p>不可变数据类型：数字、string、tuple</p>
+<p>浅拷贝和深拷贝是创建对象副本的两种不同方式。浅拷贝会创建一个新对象，并将原始对象的值复制到新对象中。但是，如果原始对象的值包含对其他对象的引用（如列表中的列表或字典中的字典），则浅拷贝只会复制这些引用的地址，而不是所引用的对象本身。因此，通过浅拷贝得到的新对象中的这些引用仍然指向原始对象中的相应对象。而深拷贝则会递归地复制原始对象及其所有子对象，从而创建一个完全独立的新对象树。</p>
+<p>赋值与copy区别：</p>
+<p>当进行赋值操作（<code>=</code>）时，只是在创建一个新的变量名，它指向了原始对象在内存中的同一位置。如果原始对象是可变的（如列表、字典等），那么通过新变量名对对象所做的任何修改都会影响到原始对象，因为它们实际上是同一个对象。如果原始对象是不可变的，赋值时实际上是创建了新的对象，改变新对象的值（实际上是不可变的，所以不能直接改变）不会影响原始对象。</p>
+<p><strong>浅拷贝</strong></p>
+<p>使用copy中的copy()方法实现：</p>
+<ul>
+<li>
+<p>对于不可变数据类型，浅copy仅仅是地址指向，不会开辟新的空间；</p>
+</li>
+<li>
+<p>对于可变类型，浅拷贝会开辟新的空间（仅仅是顶层开辟新空间，里层不会变）</p>
+</li>
+<li>
+<p>浅拷贝后，如果改变的是原始数据中的可变数值类型，拷贝后对象的值也会受影响，如果改变的是原始数据中的不可变数值类型，拷贝后对象的值不受影响；</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> copy 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> list1<span style="color:#f92672">=</span>[<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>] 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> list2 <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>copy(list1)
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> list1[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> list2
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>]
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> dict1<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;name&#34;</span>:<span style="color:#e6db74">&#34;any&#34;</span>,<span style="color:#e6db74">&#34;age&#34;</span>:<span style="color:#ae81ff">99</span>}    
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> dict2 <span style="color:#f92672">=</span> copy<span style="color:#f92672">.</span>copy(dict1) 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> dict1[<span style="color:#e6db74">&#34;age&#34;</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">88</span> 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> dict2
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">&#39;name&#39;</span>: <span style="color:#e6db74">&#39;any&#39;</span>, <span style="color:#e6db74">&#39;age&#39;</span>: <span style="color:#ae81ff">99</span>}
+</span></span></code></pre></div><p><strong>深拷贝</strong></p>
+<p>使用后copy中的deepcopy()方法实现：</p>
+<ul>
+<li>克隆了一份，完全复制</li>
+<li>经过深拷贝之后，原始对象与新拷贝的对象是完全独立的</li>
+</ul>
+<h1 id="类对象">类对象<a hidden class="anchor" aria-hidden="true" href="#类对象">#</a></h1>
+<h2 id="元类metaclass">元类(Metaclass)<a hidden class="anchor" aria-hidden="true" href="#元类metaclass">#</a></h2>
+<p>对象是类的实例，而类是type的实例：</p>
+<ol>
+<li>对象是类的实例</li>
+<li>类是type的实例</li>
+</ol>
+<p>类就是创建对象的模板，而type又是创建类的模板，可以通过type创建自己想要的类。</p>
+<p>类的实例化过程：</p>
+<p>在对象被创建的时候调用类方法:<code>__new__</code>，负责创建一个实例对象，。<code>__new__</code>方法在返回一个实例之后，会自动的调用<code>__init__</code>方法，对实例进行初始化。如果<code>__new__</code>方法不返回值，或者返回的不是实例，那么它就不会自动的去调用<code>__init__</code>方法。</p>
+<p><code>__init__ </code>方法负责将该实例对象进行初始化，在对象被创建之后调用该方法，在<code>__new__</code>方法创建出一个实例后对实例属性进行初始化。<code>__init__</code>方法可以没有返回值。</p>
+<p><code>__call__</code>方法其实和类的创建过程和实例化没有多大关系了，定义了<code>__call__</code>方法才能被使用函数的方式执行。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 例如：</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span>(object):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__call__</span>(self):
+</span></span><span style="display:flex;"><span>        print <span style="color:#e6db74">&#34;__call__ be called&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>a <span style="color:#f92672">=</span> A()
+</span></span><span style="display:flex;"><span>a()
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#输出</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#__call__ be called </span>
+</span></span></code></pre></div><p>如果将创建实例的过程比作建一个房子。</p>
+<ul>
+<li>那么class就是一个房屋的设计图，他规定了这个房子有几个房间，每个人房间的大小朝向等。这个设计图就是累的结构</li>
+<li><code>__new__</code>就是一个房屋的框架，每个具体的房屋都需要先搭好框架后才能进行专修，当然现有了房屋设计才能有具体的房屋框架出来。这个就是从类到类实例的创建。</li>
+<li><code>__init__</code>就是装修房子的过程，对房屋的墙面和地板等颜色材质的丰富就是它该做的事情，当然先有具体的房子框架出来才能进行装饰了。这个就是实例属性的初始化，它是在<code>__new__</code>出一个实例后才能初始化。</li>
+<li><code>__call__</code>就是房子的电话，有了固定电话，才能被打电话嘛（就是通过括号的方式像函数一样执行）。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#coding:utf-8</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>(object):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#__new__是一个类方法，在对象创建的时候调用</span>
+</span></span><span style="display:flex;"><span>        print <span style="color:#e6db74">&#34;excute __new__&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> super(Foo,cls)<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls,<span style="color:#f92672">*</span>args,<span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self,value):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">#__init__是一个实例方法，在对象创建后调用，对实例属性做初始化</span>
+</span></span><span style="display:flex;"><span>        print <span style="color:#e6db74">&#34;excute __init&#34;</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>value <span style="color:#f92672">=</span> value
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>f1 <span style="color:#f92672">=</span> Foo(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>print f1<span style="color:#f92672">.</span>value
+</span></span><span style="display:flex;"><span>f2 <span style="color:#f92672">=</span> Foo(<span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>print f2<span style="color:#f92672">.</span>value
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#输出=========：</span>
+</span></span><span style="display:flex;"><span>excute <span style="color:#a6e22e">__new__</span>
+</span></span><span style="display:flex;"><span>excute __init
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>excute <span style="color:#a6e22e">__new__</span>
+</span></span><span style="display:flex;"><span>excute __init
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#==========可以看出new方法在init方法之前执行</span>
+</span></span></code></pre></div><p>子类如果重写<code>__new__</code>方法，一般依然要调用父类的<code>__new__</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Child</span>(Foo):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> suyper(Child, cls)<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span></code></pre></div><p>必须注意的是，类的<code>__new__</code>方法之后，必须生成本类的实例才能自动调用本类的<code>__init__</code>方法进行初始化，否则不会自动调用<code>__init__</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Foo</span>(object):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print <span style="color:#e6db74">&#34;Foo __init__&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> object<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(Stranger, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Stranger</span>(object):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self,name):
+</span></span><span style="display:flex;"><span>        print <span style="color:#e6db74">&#34;class Stranger&#39;s __init__ be called&#34;</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>name <span style="color:#f92672">=</span> name
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>foo <span style="color:#f92672">=</span> Foo(<span style="color:#e6db74">&#34;test&#34;</span>)
+</span></span><span style="display:flex;"><span>print type(foo) 	<span style="color:#75715e">#&lt;class &#39;__main__.Stranger&#39;&gt;</span>
+</span></span><span style="display:flex;"><span>print foo<span style="color:#f92672">.</span>name 		<span style="color:#75715e">#AttributeError: &#39;Stranger&#39; object has no attribute &#39;name&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#说明：如果new方法返回的不是本类的实例，那么本类（Foo）的init和生成的类(Stranger)的init都不会被调用</span>
+</span></span></code></pre></div><p>使用type创建类：</p>
+<p>定义一个 Hello 的 class：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Hello</span>(object):
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hello</span>(self, name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;world&#39;</span>):
+</span></span><span style="display:flex;"><span>		print(<span style="color:#e6db74">&#39;Hello, </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">.&#39;</span> <span style="color:#f92672">%</span> name)
+</span></span></code></pre></div><p>当 Python 解释器载入 hello 模块时，就会依次执行该模块的所有语句，执行结果就是动态创建出一个 Hello 的 class对象。</p>
+<p><code>type()</code>函数既可以查看一个类型或变量的类型，也可以根据参数创建出新的类型，比如上面那段类的定义本质上就是：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">hello</span>(self, name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;world&#39;</span>):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;Hello, </span><span style="color:#e6db74">%s</span><span style="color:#e6db74">.&#39;</span> <span style="color:#f92672">%</span> name)
+</span></span><span style="display:flex;"><span>Hello <span style="color:#f92672">=</span> type(<span style="color:#e6db74">&#39;Hello&#39;</span>, (object,), dict(hello<span style="color:#f92672">=</span>hello))
+</span></span></code></pre></div><p><code>type()</code>函数创建class 对象，依次传入 3 个参数：</p>
+<ul>
+<li>class 类的名称；</li>
+<li>继承的父类集合，注意 Python 支持多重继承，如果只有一个父类，别忘了 tuple 的单元素写法；</li>
+<li>class 的方法名称与函数绑定以及字段名称与对应的值，这里把函数 fn 绑定到方法名 hello 上。</li>
+</ul>
+<p>使用示例：</p>
+<p>下面定义一个class M，M是A的元类，A为M的object。而a又是A的object。在通过M创建A的时候，此时会依次运行M的<code>__new__()</code>方法和<code>__init__()</code>方法。
+在一般的类中，是只会运行<code>__new__()</code>方法的，除非没有<code>__new__()</code>方法，则会运行<code>__init__()</code>方法。
+这个时候我们可以通过重写M中的<code>__new__()</code>方法和<code>__init__()</code>方法来做一些自定义操作。
+在metaclass里定义的<code>__init__()</code>方法，这个方法是在通过元类创建出类后调用的。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> icecream <span style="color:#f92672">import</span> ic
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">M</span>(type):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(mcs, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(mcs, args, kwargs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(mcs, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(cls, args, kwargs)
+</span></span><span style="display:flex;"><span>        cls<span style="color:#f92672">.</span>random_id <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">__init__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span>(metaclass<span style="color:#f92672">=</span>M):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ic(A<span style="color:#f92672">.</span>random_id)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 输出</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">class</span> <span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">main</span><span style="color:#f92672">.</span>M<span style="color:#960050;background-color:#1e0010">’</span><span style="color:#f92672">&gt;</span> (<span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>, (), {<span style="color:#960050;background-color:#1e0010">‘</span>module<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>main<span style="color:#960050;background-color:#1e0010">’</span>, <span style="color:#960050;background-color:#1e0010">‘</span>qualname<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>}) {}
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">class</span> <span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">main</span><span style="color:#f92672">.</span>A<span style="color:#960050;background-color:#1e0010">’</span><span style="color:#f92672">&gt;</span> (<span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>, (), {<span style="color:#960050;background-color:#1e0010">‘</span>module<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>main<span style="color:#960050;background-color:#1e0010">’</span>, <span style="color:#960050;background-color:#1e0010">‘</span>qualname<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>}) {}
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">15</span>:<span style="color:#ae81ff">38</span>:<span style="color:#ae81ff">07</span><span style="color:#f92672">|&gt;</span> A<span style="color:#f92672">.</span>random_id: <span style="color:#ae81ff">27</span>
+</span></span></code></pre></div><p>在metaclass里还可以继续定义<code>__call__()</code>方法，这个方法是在通过元类创建出类后，再通过该类实例化时调用的。
+注意：普通的类中，在通过该类的实例化对象调用后才会运行<code>__call__()</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">M</span>(type):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__new__</span>(mcs, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(mcs, args, kwargs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">__new__</span>(mcs, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__call__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs):
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;call&#39;</span>)
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">return</span> type<span style="color:#f92672">.</span><span style="color:#a6e22e">__call__</span>(cls, <span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span>(metaclass<span style="color:#f92672">=</span>M):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>a <span style="color:#f92672">=</span> A()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 输出</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">class</span> <span style="color:#960050;background-color:#1e0010">‘</span><span style="color:#a6e22e">main</span><span style="color:#f92672">.</span>M<span style="color:#960050;background-color:#1e0010">’</span><span style="color:#f92672">&gt;</span> (<span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>, (), {<span style="color:#960050;background-color:#1e0010">‘</span>module<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>main<span style="color:#960050;background-color:#1e0010">’</span>, <span style="color:#960050;background-color:#1e0010">‘</span>qualname<span style="color:#960050;background-color:#1e0010">’</span>: <span style="color:#960050;background-color:#1e0010">‘</span>A<span style="color:#960050;background-color:#1e0010">’</span>}) {}
+</span></span><span style="display:flex;"><span>call
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="//localhost:1313/go/%E5%9F%BA%E7%A1%80/">
+    <span class="title">« Prev</span>
+    <span>基础</span>
+  </a>
+  <a class="next" href="//localhost:1313/python/%E5%AE%89%E8%A3%85/">
+    <span class="title">Next »</span>
+    <span>安装</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+<script>
+  (() => {
+    const toc = document.querySelector('.post-single > .toc');
+    if (!toc) return;
+
+    const title = toc.querySelector('summary .title');
+    if (title) title.textContent = '目录';
+
+    const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+    const headings = links
+      .map((link) => {
+        const id = decodeURIComponent(link.getAttribute('href').slice(1));
+        return { link, heading: document.getElementById(id) };
+      })
+      .filter((item) => item.heading);
+
+    const activate = (link) => {
+      links.forEach((item) => item.classList.remove('active'));
+      link.classList.add('active');
+    };
+
+    if (headings.length > 0) activate(headings[0].link);
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+
+      const current = headings.find((item) => item.heading === visible.target);
+      if (current) activate(current.link);
+    }, { rootMargin: '-20% 0px -65% 0px', threshold: [0, 1] });
+
+    headings.forEach((item) => observer.observe(item.heading));
+    links.forEach((link) => link.addEventListener('click', () => activate(link)));
+  })();
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

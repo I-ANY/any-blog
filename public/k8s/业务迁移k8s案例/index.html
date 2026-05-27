@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>业务迁移k8s案例 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="参考博客：https://www.cuiliangblog.cn/detail/article/52
@@ -100,16 +100,16 @@ ok[root@k8s-master springboot]#
 推送至镜像仓库
 构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.ec02a866fa918349cce479f6c3402dc063d4e92f9ec141c865ba3165931e70a2.css" integrity="sha256-7AKoZvqRg0nM5Hn2w0AtwGPU6S&#43;ewUHIZboxZZMecKI=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd261d8913ed4ffb3752d5809c0f14b8fea2241b71a37c55d50cac9993107f3b.css" integrity="sha256-zSYdiRPtT/s3UtWAnA8UuP6iJBtxo3xV1QysmZMQfzs=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
 <noscript>
     <style>
         #theme-toggle,
@@ -155,186 +155,91 @@ ok[root@k8s-master springboot]#
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="业务迁移k8s案例">
-  <meta property="og:description" content="参考博客：https://www.cuiliangblog.cn/detail/article/52
-基本流程 第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。 再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者守护进程。 创建、上传镜像 编写yaml文件，创建资源 创建service，ingress外部访问 操作分为了三个层面，最底层的操作系统，中间层的运行环境，上层的应用服务。
-前提准备 打包镜像 dockerfile构建镜像经验
-减少镜像的层数，尽量把一些功能上面统一的命令合到一起来做； 注意清理镜像构建的中间产物，比如一些安装包在装完之后就把它删掉； 注意优化网络请求，使用yum源的时候，用一些网络比较好的源站点，可节约时间，减少失败率； 尽量去使用缓存构建，尽量把一些不变的东西或者变动比较少的东西放在前面。例如业务更新，打包新版本镜像时，只有代码发生变化，其他内容不变。此时可以把拷贝代码放最后，前面的构建阶段直接使用缓存即可。 使用Pod运行容器 当我们把应用封装成docker镜像后，接下来就是在kubernetes中启动镜像运行容器。因为Pod是Kubernetes管理的最小单元，Kubernetes不直接管理容器，而是管理Pod，Pod里面包含一个或多个容器。需要考虑是一个Pod中放置多个容器，还是一个Pod中放置一个容器。在一个pod中所有container共享，PID、Network、IPC
-在有些业务场景中，例如一个web服务，对应的资源文件需要从远端实时监听更新，就需要使用边车 (sidercar)模式，一个pod中包含一个web容器一个file容器，通过共享存储方式实现。又比如一个用户的微服务包含：User API、User Control、User Data等三个模块，彼此之间紧耦合，对外只需要通过User API，这样类型的应用就可以放置在一个Pod中。
-Pod资源清单建议
-建议开发项目时，提供healthy健康检查接口，便于检测服务是否正常。 建议运维配置LivenessProbe存活检测探针，防止服务假死。 建议配置resources，避免程序出现异常，并占用大量的系统资源，从而会影响节点上其他的Pod。 开放端口访问 使用Service访问Pod
-service使用：
-ClusterIP(集群IP)：集群内的服务间通信。 例如，应用程序的前端(front-end)和后端(back-end)组件之间的通信。 NodePort(节点端口)：k8s集群内部服务暴露给外部时访问，可以通过k8s节点ip&#43;端口方式访问服务。 LoadBalancer（负载均衡器）：使用云厂商来托管您的 Kubernetes 集群时。由它接入外部客户端的请求并调度至集群节点相应的NodePort之上 ExternalName（外部名称）：在 Kubernetes 内创建服务来表示映射外部服务名称，例如在 Kubernetes 中使用公有云数据库时，可以创建一个ExternalName资源，后续更换云数据库地址时，更新ExternalName配置即可 Ingress提供外部访问：
-Ingress同样也只是一个概念，它的具体的实现依赖控制器，Ingress控制器并不直接运行为kube-controller-manager的一部分，它是Kubernetes集群的一个重要附件，类似于CoreDNS，需要在集群上单独部署。Ingress控制器可以由任何具有反向代理（HTTP/HTTPS）功能的服务程序实现，如Nginx、Envoy、HAProxy、Vulcand和Traefik等。
-ConfigMap管理配置文件 在DevOps的部署流水线中，其中有一个核心的理念就是代码和配置的分离，这样更容易实现流水线的编排。我们只需要使用一套代码，配合不同的配置文件，就可以实现灵活发布到测试环境、预发布环境、生产环境等。
-kubernetes配置与文件管理方案：
-ConfigMap配置文件：可以从文件、文件夹等途径创建ConfigMap。然后再Pod中挂载使用配置文件，例如nginx配置。
-secret私密文件：使用base64加密的文件，例如存储第三方镜像仓库凭证 配置TLS 类型secret 用于记录证书秘钥等信息。
-持久化存储数据
-存储卷包括传统的NAS或SAN设备（如NFS、iSCSI、fc）、分布式存储（如GlusterFS、RBD）、云端存储（如gcePersistentDisk、azureDisk、cinder和awsElasticBlockStore）以及建构在各类存储系统之上的抽象管理层（如flocker、portworxVolume和vsphereVolume）等。
-资源清单部署 案例1：springboot 分析
-开发提供jar包：基础镜像直接使用open-jdk即可 部署到k8s：多副本管理，滚动更新：需要使用Deployment控制器；Pod多副本负载均衡：需要使用ClusterIP服务资源 用户通过域名访问：使用Ingress创建域名路由，流量转发到Service 我们将打包好的jar文件和dockerfile放在同一级目录下，执行docker build指令，即可完成镜像构建
-[root@tiaoban springboot]# ls demo demo-v1.jar demo-v2.jar Dockerfile [root@tiaoban springboot]# cat Dockerfile FROM openjdk:19-jdk-alpine3.16 ADD demo-v1.jar /opt/app.jar EXPOSE 8888 WORKDIR /opt CMD [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;] # 打包镜像 [root@tiaoban springboot]# docker build -t springboot:v1 . # 启动容器，访问测试 [root@k8s-master springboot]# docker run -d -p 8888:8888 springboot:v1 74a8bc2446d7f30195099c8f6f905481b2fdc6b585436e4b810849f1df50185d [root@k8s-master springboot]# curl 127.0.0.1:8888 Hello SpringBoot Version:v1[root@k8s-master springboot]# [root@k8s-master springboot]# curl 127.0.0.1:8888/healthy ok[root@k8s-master springboot]# 推送至镜像仓库 构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="业务迁移k8s案例">
-  <meta name="twitter:description" content="参考博客：https://www.cuiliangblog.cn/detail/article/52
-基本流程 第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。 再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者守护进程。 创建、上传镜像 编写yaml文件，创建资源 创建service，ingress外部访问 操作分为了三个层面，最底层的操作系统，中间层的运行环境，上层的应用服务。
-前提准备 打包镜像 dockerfile构建镜像经验
-减少镜像的层数，尽量把一些功能上面统一的命令合到一起来做； 注意清理镜像构建的中间产物，比如一些安装包在装完之后就把它删掉； 注意优化网络请求，使用yum源的时候，用一些网络比较好的源站点，可节约时间，减少失败率； 尽量去使用缓存构建，尽量把一些不变的东西或者变动比较少的东西放在前面。例如业务更新，打包新版本镜像时，只有代码发生变化，其他内容不变。此时可以把拷贝代码放最后，前面的构建阶段直接使用缓存即可。 使用Pod运行容器 当我们把应用封装成docker镜像后，接下来就是在kubernetes中启动镜像运行容器。因为Pod是Kubernetes管理的最小单元，Kubernetes不直接管理容器，而是管理Pod，Pod里面包含一个或多个容器。需要考虑是一个Pod中放置多个容器，还是一个Pod中放置一个容器。在一个pod中所有container共享，PID、Network、IPC
-在有些业务场景中，例如一个web服务，对应的资源文件需要从远端实时监听更新，就需要使用边车 (sidercar)模式，一个pod中包含一个web容器一个file容器，通过共享存储方式实现。又比如一个用户的微服务包含：User API、User Control、User Data等三个模块，彼此之间紧耦合，对外只需要通过User API，这样类型的应用就可以放置在一个Pod中。
-Pod资源清单建议
-建议开发项目时，提供healthy健康检查接口，便于检测服务是否正常。 建议运维配置LivenessProbe存活检测探针，防止服务假死。 建议配置resources，避免程序出现异常，并占用大量的系统资源，从而会影响节点上其他的Pod。 开放端口访问 使用Service访问Pod
-service使用：
-ClusterIP(集群IP)：集群内的服务间通信。 例如，应用程序的前端(front-end)和后端(back-end)组件之间的通信。 NodePort(节点端口)：k8s集群内部服务暴露给外部时访问，可以通过k8s节点ip&#43;端口方式访问服务。 LoadBalancer（负载均衡器）：使用云厂商来托管您的 Kubernetes 集群时。由它接入外部客户端的请求并调度至集群节点相应的NodePort之上 ExternalName（外部名称）：在 Kubernetes 内创建服务来表示映射外部服务名称，例如在 Kubernetes 中使用公有云数据库时，可以创建一个ExternalName资源，后续更换云数据库地址时，更新ExternalName配置即可 Ingress提供外部访问：
-Ingress同样也只是一个概念，它的具体的实现依赖控制器，Ingress控制器并不直接运行为kube-controller-manager的一部分，它是Kubernetes集群的一个重要附件，类似于CoreDNS，需要在集群上单独部署。Ingress控制器可以由任何具有反向代理（HTTP/HTTPS）功能的服务程序实现，如Nginx、Envoy、HAProxy、Vulcand和Traefik等。
-ConfigMap管理配置文件 在DevOps的部署流水线中，其中有一个核心的理念就是代码和配置的分离，这样更容易实现流水线的编排。我们只需要使用一套代码，配合不同的配置文件，就可以实现灵活发布到测试环境、预发布环境、生产环境等。
-kubernetes配置与文件管理方案：
-ConfigMap配置文件：可以从文件、文件夹等途径创建ConfigMap。然后再Pod中挂载使用配置文件，例如nginx配置。
-secret私密文件：使用base64加密的文件，例如存储第三方镜像仓库凭证 配置TLS 类型secret 用于记录证书秘钥等信息。
-持久化存储数据
-存储卷包括传统的NAS或SAN设备（如NFS、iSCSI、fc）、分布式存储（如GlusterFS、RBD）、云端存储（如gcePersistentDisk、azureDisk、cinder和awsElasticBlockStore）以及建构在各类存储系统之上的抽象管理层（如flocker、portworxVolume和vsphereVolume）等。
-资源清单部署 案例1：springboot 分析
-开发提供jar包：基础镜像直接使用open-jdk即可 部署到k8s：多副本管理，滚动更新：需要使用Deployment控制器；Pod多副本负载均衡：需要使用ClusterIP服务资源 用户通过域名访问：使用Ingress创建域名路由，流量转发到Service 我们将打包好的jar文件和dockerfile放在同一级目录下，执行docker build指令，即可完成镜像构建
-[root@tiaoban springboot]# ls demo demo-v1.jar demo-v2.jar Dockerfile [root@tiaoban springboot]# cat Dockerfile FROM openjdk:19-jdk-alpine3.16 ADD demo-v1.jar /opt/app.jar EXPOSE 8888 WORKDIR /opt CMD [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;] # 打包镜像 [root@tiaoban springboot]# docker build -t springboot:v1 . # 启动容器，访问测试 [root@k8s-master springboot]# docker run -d -p 8888:8888 springboot:v1 74a8bc2446d7f30195099c8f6f905481b2fdc6b585436e4b810849f1df50185d [root@k8s-master springboot]# curl 127.0.0.1:8888 Hello SpringBoot Version:v1[root@k8s-master springboot]# [root@k8s-master springboot]# curl 127.0.0.1:8888/healthy ok[root@k8s-master springboot]# 推送至镜像仓库 构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "业务迁移k8s案例",
-      "item": "/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "业务迁移k8s案例",
-  "name": "业务迁移k8s案例",
-  "description": "参考博客：https://www.cuiliangblog.cn/detail/article/52\n基本流程 第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。 再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者守护进程。 创建、上传镜像 编写yaml文件，创建资源 创建service，ingress外部访问 操作分为了三个层面，最底层的操作系统，中间层的运行环境，上层的应用服务。\n前提准备 打包镜像 dockerfile构建镜像经验\n减少镜像的层数，尽量把一些功能上面统一的命令合到一起来做； 注意清理镜像构建的中间产物，比如一些安装包在装完之后就把它删掉； 注意优化网络请求，使用yum源的时候，用一些网络比较好的源站点，可节约时间，减少失败率； 尽量去使用缓存构建，尽量把一些不变的东西或者变动比较少的东西放在前面。例如业务更新，打包新版本镜像时，只有代码发生变化，其他内容不变。此时可以把拷贝代码放最后，前面的构建阶段直接使用缓存即可。 使用Pod运行容器 当我们把应用封装成docker镜像后，接下来就是在kubernetes中启动镜像运行容器。因为Pod是Kubernetes管理的最小单元，Kubernetes不直接管理容器，而是管理Pod，Pod里面包含一个或多个容器。需要考虑是一个Pod中放置多个容器，还是一个Pod中放置一个容器。在一个pod中所有container共享，PID、Network、IPC\n在有些业务场景中，例如一个web服务，对应的资源文件需要从远端实时监听更新，就需要使用边车 (sidercar)模式，一个pod中包含一个web容器一个file容器，通过共享存储方式实现。又比如一个用户的微服务包含：User API、User Control、User Data等三个模块，彼此之间紧耦合，对外只需要通过User API，这样类型的应用就可以放置在一个Pod中。\nPod资源清单建议\n建议开发项目时，提供healthy健康检查接口，便于检测服务是否正常。 建议运维配置LivenessProbe存活检测探针，防止服务假死。 建议配置resources，避免程序出现异常，并占用大量的系统资源，从而会影响节点上其他的Pod。 开放端口访问 使用Service访问Pod\nservice使用：\nClusterIP(集群IP)：集群内的服务间通信。 例如，应用程序的前端(front-end)和后端(back-end)组件之间的通信。 NodePort(节点端口)：k8s集群内部服务暴露给外部时访问，可以通过k8s节点ip+端口方式访问服务。 LoadBalancer（负载均衡器）：使用云厂商来托管您的 Kubernetes 集群时。由它接入外部客户端的请求并调度至集群节点相应的NodePort之上 ExternalName（外部名称）：在 Kubernetes 内创建服务来表示映射外部服务名称，例如在 Kubernetes 中使用公有云数据库时，可以创建一个ExternalName资源，后续更换云数据库地址时，更新ExternalName配置即可 Ingress提供外部访问：\nIngress同样也只是一个概念，它的具体的实现依赖控制器，Ingress控制器并不直接运行为kube-controller-manager的一部分，它是Kubernetes集群的一个重要附件，类似于CoreDNS，需要在集群上单独部署。Ingress控制器可以由任何具有反向代理（HTTP/HTTPS）功能的服务程序实现，如Nginx、Envoy、HAProxy、Vulcand和Traefik等。\nConfigMap管理配置文件 在DevOps的部署流水线中，其中有一个核心的理念就是代码和配置的分离，这样更容易实现流水线的编排。我们只需要使用一套代码，配合不同的配置文件，就可以实现灵活发布到测试环境、预发布环境、生产环境等。\nkubernetes配置与文件管理方案：\nConfigMap配置文件：可以从文件、文件夹等途径创建ConfigMap。然后再Pod中挂载使用配置文件，例如nginx配置。\nsecret私密文件：使用base64加密的文件，例如存储第三方镜像仓库凭证 配置TLS 类型secret 用于记录证书秘钥等信息。\n持久化存储数据\n存储卷包括传统的NAS或SAN设备（如NFS、iSCSI、fc）、分布式存储（如GlusterFS、RBD）、云端存储（如gcePersistentDisk、azureDisk、cinder和awsElasticBlockStore）以及建构在各类存储系统之上的抽象管理层（如flocker、portworxVolume和vsphereVolume）等。\n资源清单部署 案例1：springboot 分析\n开发提供jar包：基础镜像直接使用open-jdk即可 部署到k8s：多副本管理，滚动更新：需要使用Deployment控制器；Pod多副本负载均衡：需要使用ClusterIP服务资源 用户通过域名访问：使用Ingress创建域名路由，流量转发到Service 我们将打包好的jar文件和dockerfile放在同一级目录下，执行docker build指令，即可完成镜像构建\n[root@tiaoban springboot]# ls demo demo-v1.jar demo-v2.jar Dockerfile [root@tiaoban springboot]# cat Dockerfile FROM openjdk:19-jdk-alpine3.16 ADD demo-v1.jar /opt/app.jar EXPOSE 8888 WORKDIR /opt CMD [\u0026#34;java\u0026#34;,\u0026#34;-jar\u0026#34;,\u0026#34;app.jar\u0026#34;] # 打包镜像 [root@tiaoban springboot]# docker build -t springboot:v1 . # 启动容器，访问测试 [root@k8s-master springboot]# docker run -d -p 8888:8888 springboot:v1 74a8bc2446d7f30195099c8f6f905481b2fdc6b585436e4b810849f1df50185d [root@k8s-master springboot]# curl 127.0.0.1:8888 Hello SpringBoot Version:v1[root@k8s-master springboot]# [root@k8s-master springboot]# curl 127.0.0.1:8888/healthy ok[root@k8s-master springboot]# 推送至镜像仓库 构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "参考博客：https://www.cuiliangblog.cn/detail/article/52\n基本流程 第一步就是要编写dockerfile，将原本在Linux服务器上运行的服务打包到容器中运行。 再部署运行环境，配置环境变量，最后上传项目代码到服务器中，配置启动脚本或者守护进程。 创建、上传镜像 编写yaml文件，创建资源 创建service，ingress外部访问 操作分为了三个层面，最底层的操作系统，中间层的运行环境，上层的应用服务。\n前提准备 打包镜像 dockerfile构建镜像经验\n减少镜像的层数，尽量把一些功能上面统一的命令合到一起来做； 注意清理镜像构建的中间产物，比如一些安装包在装完之后就把它删掉； 注意优化网络请求，使用yum源的时候，用一些网络比较好的源站点，可节约时间，减少失败率； 尽量去使用缓存构建，尽量把一些不变的东西或者变动比较少的东西放在前面。例如业务更新，打包新版本镜像时，只有代码发生变化，其他内容不变。此时可以把拷贝代码放最后，前面的构建阶段直接使用缓存即可。 使用Pod运行容器 当我们把应用封装成docker镜像后，接下来就是在kubernetes中启动镜像运行容器。因为Pod是Kubernetes管理的最小单元，Kubernetes不直接管理容器，而是管理Pod，Pod里面包含一个或多个容器。需要考虑是一个Pod中放置多个容器，还是一个Pod中放置一个容器。在一个pod中所有container共享，PID、Network、IPC\n在有些业务场景中，例如一个web服务，对应的资源文件需要从远端实时监听更新，就需要使用边车 (sidercar)模式，一个pod中包含一个web容器一个file容器，通过共享存储方式实现。又比如一个用户的微服务包含：User API、User Control、User Data等三个模块，彼此之间紧耦合，对外只需要通过User API，这样类型的应用就可以放置在一个Pod中。\nPod资源清单建议\n建议开发项目时，提供healthy健康检查接口，便于检测服务是否正常。 建议运维配置LivenessProbe存活检测探针，防止服务假死。 建议配置resources，避免程序出现异常，并占用大量的系统资源，从而会影响节点上其他的Pod。 开放端口访问 使用Service访问Pod\nservice使用：\nClusterIP(集群IP)：集群内的服务间通信。 例如，应用程序的前端(front-end)和后端(back-end)组件之间的通信。 NodePort(节点端口)：k8s集群内部服务暴露给外部时访问，可以通过k8s节点ip+端口方式访问服务。 LoadBalancer（负载均衡器）：使用云厂商来托管您的 Kubernetes 集群时。由它接入外部客户端的请求并调度至集群节点相应的NodePort之上 ExternalName（外部名称）：在 Kubernetes 内创建服务来表示映射外部服务名称，例如在 Kubernetes 中使用公有云数据库时，可以创建一个ExternalName资源，后续更换云数据库地址时，更新ExternalName配置即可 Ingress提供外部访问：\nIngress同样也只是一个概念，它的具体的实现依赖控制器，Ingress控制器并不直接运行为kube-controller-manager的一部分，它是Kubernetes集群的一个重要附件，类似于CoreDNS，需要在集群上单独部署。Ingress控制器可以由任何具有反向代理（HTTP/HTTPS）功能的服务程序实现，如Nginx、Envoy、HAProxy、Vulcand和Traefik等。\nConfigMap管理配置文件 在DevOps的部署流水线中，其中有一个核心的理念就是代码和配置的分离，这样更容易实现流水线的编排。我们只需要使用一套代码，配合不同的配置文件，就可以实现灵活发布到测试环境、预发布环境、生产环境等。\nkubernetes配置与文件管理方案：\nConfigMap配置文件：可以从文件、文件夹等途径创建ConfigMap。然后再Pod中挂载使用配置文件，例如nginx配置。\nsecret私密文件：使用base64加密的文件，例如存储第三方镜像仓库凭证 配置TLS 类型secret 用于记录证书秘钥等信息。\n持久化存储数据\n存储卷包括传统的NAS或SAN设备（如NFS、iSCSI、fc）、分布式存储（如GlusterFS、RBD）、云端存储（如gcePersistentDisk、azureDisk、cinder和awsElasticBlockStore）以及建构在各类存储系统之上的抽象管理层（如flocker、portworxVolume和vsphereVolume）等。\n资源清单部署 案例1：springboot 分析\n开发提供jar包：基础镜像直接使用open-jdk即可 部署到k8s：多副本管理，滚动更新：需要使用Deployment控制器；Pod多副本负载均衡：需要使用ClusterIP服务资源 用户通过域名访问：使用Ingress创建域名路由，流量转发到Service 我们将打包好的jar文件和dockerfile放在同一级目录下，执行docker build指令，即可完成镜像构建\n[root@tiaoban springboot]# ls demo demo-v1.jar demo-v2.jar Dockerfile [root@tiaoban springboot]# cat Dockerfile FROM openjdk:19-jdk-alpine3.16 ADD demo-v1.jar /opt/app.jar EXPOSE 8888 WORKDIR /opt CMD [\"java\",\"-jar\",\"app.jar\"] # 打包镜像 [root@tiaoban springboot]# docker build -t springboot:v1 . # 启动容器，访问测试 [root@k8s-master springboot]# docker run -d -p 8888:8888 springboot:v1 74a8bc2446d7f30195099c8f6f905481b2fdc6b585436e4b810849f1df50185d [root@k8s-master springboot]# curl 127.0.0.1:8888 Hello SpringBoot Version:v1[root@k8s-master springboot]# [root@k8s-master springboot]# curl 127.0.0.1:8888/healthy ok[root@k8s-master springboot]# 推送至镜像仓库 构建好镜像测试无误后，接下来就可以推送到harbor私有镜像仓库或者公有云镜像仓库中\n编写deploy yaml文件\ncat \u003edeployment.yaml \u003c",
-  "wordCount" : "1305",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
-            <li>
-                <a href="/k8s/" title="Kubernetes">
-                    <span>Kubernetes</span>
-                </a>
-            </li>
-            <li>
-                <a href="/docker/" title="Docker">
-                    <span>Docker</span>
-                </a>
-            </li>
-            <li>
-                <a href="/go/" title="Go">
-                    <span>Go</span>
-                </a>
-            </li>
-            <li>
-                <a href="/linux/" title="Linux">
-                    <span>Linux</span>
-                </a>
-            </li>
-            <li>
-                <a href="/python/" title="Python">
-                    <span>Python</span>
-                </a>
-            </li>
-            <li>
-                <a href="/cicd/" title="CI/CD">
-                    <span>CI/CD</span>
-                </a>
-            </li>
-            <li>
-                <a href="/log/" title="日志">
-                    <span>日志</span>
-                </a>
-            </li>
-            <li>
-                <a href="/middleware/" title="中间件">
-                    <span>中间件</span>
-                </a>
+            <li class="has-dropdown">
+                <button class="menu-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>博客</span>
+                    <span class="menu-caret" aria-hidden="true">⌄</span>
+                </button>
+                <ul class="menu-dropdown" aria-label="博客 分类">
+                    <li>
+                        <a href="//localhost:1313/k8s/" title="Kubernetes">
+                            <span>Kubernetes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/docker/" title="Docker">
+                            <span>Docker</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/go/" title="Go">
+                            <span>Go</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/linux/" title="Linux">
+                            <span>Linux</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/python/" title="Python">
+                            <span>Python</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/cicd/" title="CI/CD">
+                            <span>CI/CD</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/log/" title="日志">
+                            <span>日志</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="//localhost:1313/middleware/" title="中间件">
+                            <span>中间件</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
+        <div class="logo-switches">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
     </nav>
 </header>
 <main class="main">
@@ -1043,11 +948,11 @@ ingress资源同样也是两套，对应不同的环境域名</p>
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/">
+  <a class="prev" href="//localhost:1313/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/">
     <span class="title">« Prev</span>
     <span>一些k8s 面试题</span>
   </a>
-  <a class="next" href="/linux/%E5%9F%BA%E6%93%8D/">
+  <a class="next" href="//localhost:1313/linux/%E5%9F%BA%E6%93%8D/">
     <span class="title">Next »</span>
     <span>基操</span>
   </a>
@@ -1058,7 +963,7 @@ ingress资源同样也是两套，对应不同的环境域名</p>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     
