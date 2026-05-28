@@ -1,18 +1,4 @@
 {{- define "main" }}
-{{- $moduleMeta := dict
-  "k8s" (dict "title" "Kubernetes" "desc" "集群安装、网络、监控、排障、备份与迁移" "icon" "K8s")
-  "docker" (dict "title" "Docker" "desc" "容器运行、镜像、服务部署与运行环境" "icon" "DK")
-  "go" (dict "title" "Go" "desc" "Go 语言基础与后端工程实践" "icon" "Go")
-  "linux" (dict "title" "Linux" "desc" "基础操作、自动化、同步与进程管理" "icon" "Ln")
-  "python" (dict "title" "Python" "desc" "Django、Celery、爬虫与常用模块" "icon" "Py")
-  "CICD" (dict "title" "CI/CD" "desc" "Jenkins、GitLab、GitOps、Harbor 与交付流水线" "icon" "CI")
-  "log" (dict "title" "日志系统" "desc" "Loki、Elasticsearch、Filebeat、Graylog" "icon" "Log")
-  "middleware" (dict "title" "中间件" "desc" "Nacos、Dubbo、Sentinel、SkyWalking" "icon" "Mid")
-  "shell" (dict "title" "Shell" "desc" "Shell 脚本与命令行效率工具" "icon" "Sh")
-  "bigData" (dict "title" "大数据" "desc" "Hadoop、Kafka 与数据基础设施" "icon" "BD")
-  "前端" (dict "title" "前端" "desc" "Vue 与前端工程基础" "icon" "FE")
-}}
-{{- $moduleOrder := slice "k8s" "docker" "go" "linux" "python" "CICD" "log" "middleware" "shell" "bigData" "前端" }}
 
 <section class="kb-hero" aria-labelledby="kb-hero-title">
   <div class="kb-hero-content">
@@ -38,20 +24,18 @@
     <p>每个模块对应一个独立知识板块，文章按主题聚合，方便快速定位。</p>
   </div>
   <div class="kb-module-grid">
-    {{- range $moduleOrder }}
-      {{- $section := site.GetPage "section" . }}
-      {{- if $section }}
-        {{- $meta := index $moduleMeta . }}
-        {{- $count := len $section.RegularPagesRecursive }}
-        <a class="kb-module-card" href="{{ $section.RelPermalink }}">
-          <span class="kb-module-icon">{{ index $meta "icon" }}</span>
-          <span class="kb-module-body">
-            <strong>{{ index $meta "title" }}</strong>
-            <span>{{ index $meta "desc" }}</span>
-          </span>
-          <span class="kb-module-count">{{ $count }} 篇</span>
-        </a>
-      {{- end }}
+    {{- range where site.Sections.ByWeight "File" "ne" nil }}
+      {{- $desc := .Description | default (.Summary | plainify | htmlUnescape | truncate 72) }}
+      {{- $icon := .Params.icon | default (substr .Title 0 2) }}
+      {{- $count := len .RegularPagesRecursive }}
+      <a class="kb-module-card" href="{{ .RelPermalink }}">
+        <span class="kb-module-icon">{{ $icon }}</span>
+        <span class="kb-module-body">
+          <strong>{{ .Title }}</strong>
+          <span>{{ $desc }}</span>
+        </span>
+        <span class="kb-module-count">{{ $count }} 篇</span>
+      </a>
     {{- end }}
   </div>
 </section>

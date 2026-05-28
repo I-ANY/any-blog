@@ -38,19 +38,31 @@
             {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
-            <li{{ if .HasChildren }} class="has-dropdown"{{ end }}>
-                {{- if .HasChildren }}
+            {{- $isBlogMenu := eq .Identifier "blog" }}
+            {{- $hasDynamicChildren := and $isBlogMenu (gt (len (where site.Sections "File" "ne" nil)) 0) }}
+            <li{{ if or .HasChildren $hasDynamicChildren }} class="has-dropdown"{{ end }}>
+                {{- if or .HasChildren $hasDynamicChildren }}
                 <button class="menu-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
                     <span>{{- .Pre }}{{- .Name -}}{{ .Post -}}</span>
                     <span class="menu-caret" aria-hidden="true">⌄</span>
                 </button>
                 <ul class="menu-dropdown" aria-label="{{ .Name }} 分类">
+                    {{- if $hasDynamicChildren }}
+                    {{- range where site.Sections.ByWeight "File" "ne" nil }}
+                    <li>
+                        <a href="{{ .RelPermalink }}" title="{{ .Title }}">
+                            <span>{{ .Title }}</span>
+                        </a>
+                    </li>
+                    {{- end }}
+                    {{- else }}
                     {{- range .Children }}
                     <li>
                         <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }}">
                             <span>{{- .Pre }}{{- .Name -}}{{ .Post -}}</span>
                         </a>
                     </li>
+                    {{- end }}
                     {{- end }}
                 </ul>
                 {{- else }}

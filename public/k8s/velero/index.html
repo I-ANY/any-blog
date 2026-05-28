@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>velero | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="简介
@@ -44,16 +44,16 @@ VolumeSnapshotLocation
 minio客户端
 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
 <meta name="author" content="ANY">
-<link rel="canonical" href="http://127.0.0.1:1314/k8s/velero/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
-<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
+<link rel="canonical" href="/k8s/velero/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.16bdc45e8f314de8647e47b7776b6a6ec6a1e7669b00a2701180b7dfd9fe1cbd.css" integrity="sha256-Fr3EXo8xTehkfke3d2tqbsah52abAKJwEYC339n&#43;HL0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/k8s/velero/">
+<link rel="alternate" hreflang="en" href="/k8s/velero/">
 <noscript>
     <style>
         #theme-toggle,
@@ -99,17 +99,102 @@ minio客户端
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="/k8s/velero/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="velero">
+  <meta property="og:description" content="简介 参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。
+开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：
+Velero 组件一共分两部分，分别是服务端和客户端。
+服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：
+velero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：
+Velero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。
+BackupStorageLocation ​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。
+VolumeSnapshotLocation ​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。
+安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="velero">
+  <meta name="twitter:description" content="简介 参考博客：https://www.cnblogs.com/nf01/p/18118159
+Velero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。
+开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：
+Velero 组件一共分两部分，分别是服务端和客户端。
+服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：
+velero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：
+Velero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。
+BackupStorageLocation ​	主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。
+VolumeSnapshotLocation ​	主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。
+安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "velero",
+      "item": "/k8s/velero/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "velero",
+  "name": "velero",
+  "description": "简介 参考博客：https://www.cnblogs.com/nf01/p/18118159\nVelero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。\n开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：\nVelero 组件一共分两部分，分别是服务端和客户端。\n服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：\nvelero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：\nVelero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。\nBackupStorageLocation ​\t主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。\nVolumeSnapshotLocation ​\t主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。\n安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "简介 参考博客：https://www.cnblogs.com/nf01/p/18118159\nVelero 是一款云原生时代的灾难恢复和迁移工具，采用 Go 语言编写，并在 github 上进行了开源，利用 velero 用户可以安全的备份、恢复和迁移 Kubernetes 集群资源和持久卷。\n开源地址：https://github.com/vmware-tanzu/velero 官方文档：https://velero.io/docs/v1.11/ 版本支持列表：\nVelero 组件一共分两部分，分别是服务端和客户端。\n服务端：运行在你 Kubernetes 的集群中 客户端：是一些运行在本地的命令行的工具，需要已配置好 kubectl 及集群 kubeconfig 的机器上 velero备份流程：\nvelero客户端调用kubernetes API Server创建backup任务 Backup控制器基于watch机制通过Api Server获取到备份任务 Backup控制器开始执行备份动作，会通过请求Api Server获取到需要备份的数据 Backup 控制器将获取到的数据备份到指定的对象存储server端 Velero后端存储：\nVelero支持两种关于后端存储的CRD，分别是BackupStorageLocation和VolumeSnapshotLocation。\nBackupStorageLocation ​\t主要用来定义 Kubernetes 集群资源的数据存放位置，也就是集群对象数据，不是 PVC 的数据。主要支持的后端存储是 S3 兼容的存储，比如：Mino 和阿里云 OSS 等。\nVolumeSnapshotLocation ​\t主要用来给 PV 做快照，需要云提供商提供插件。阿里云已经提供了插件，这个需要使用 CSI 等存储机制。你也可以使用专门的备份工具 Restic，把 PV 数据备份到阿里云 OSS 中去(安装时需要自定义选项)。\n安装 minio客户端 在 Github Release 页面下载指定的 velero 二进制客户端安装包，比如这里我们下载我们k8s集群对应的版本为 v1.11.1\n版本列表：https://github.com/vmware-tanzu/velero/releases\n$ wget https://github.com/vmware-tanzu/velero/releases/download/v1.11.1/velero-v1.11.1-linux-amd64.tar.gz $ tar zxf velero-v1.11.1-linux-amd64.tar.gz $ mv velero-v1.11.1-linux-amd64/velero /usr/bin/ $ velero -h # 启用命令补全 $ source \u003c(velero completion bash) $ velero completion bash \u003e /etc/bash_completion.d/velero minio服务端 使用minio作为后端存储（安装可参考minio篇）\nVelero支持很多种存储插件，可查看：Velero Docs - Providers获取插件信息，这里使用minio作为S3兼容的对象存储提供程序。也可以在任意地方部署Minio对象存储，只需要保证K8S集群可以访问到即可。\n可以使用 velero 客户端来安装服务端，也可以使用 Helm Chart 来进行安装，这里用客户端来安装，velero 命令默认读取 kubectl 配置的集群上下文，所以前提是 velero 客户端所在的节点有可访问集群的 kubeconfig 配置。\n创建密钥 首先准备密钥文件，在当前目录建立一个空白文本文件，内容如下所示：\n$ cat \u003e credentials-velero \u003c",
+  "wordCount" : "565",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/velero/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="http://127.0.0.1:1314/" title="首页">
+                <a href="/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -120,43 +205,58 @@ minio客户端
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
+                        <a href="/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
+                        <a href="/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/go/" title="Go">
+                        <a href="/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
+                        <a href="/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/python/" title="Python">
+                        <a href="/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
+                        <a href="/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/log/" title="日志">
-                            <span>日志</span>
+                        <a href="/log/" title="日志系统">
+                            <span>日志系统</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
+                        <a href="/middleware/" title="中间件">
                             <span>中间件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/shell/" title="Shell">
+                            <span>Shell</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/bigdata/" title="大数据">
+                            <span>大数据</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/%E5%89%8D%E7%AB%AF/" title="前端">
+                            <span>前端</span>
                         </a>
                     </li>
                 </ul>
@@ -467,13 +567,13 @@ minio客户端
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://127.0.0.1:1314/k8s/traefik/">
+  <a class="prev" href="/k8s/traefik/">
     <span class="title">« Prev</span>
     <span>traefik</span>
   </a>
-  <a class="next" href="http://127.0.0.1:1314/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
+  <a class="next" href="/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/">
     <span class="title">Next »</span>
-    <span>Vue3快速上手</span>
+    <span>一些k8s 面试题</span>
   </a>
 </nav>
 
@@ -482,7 +582,7 @@ minio客户端
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
 
     
     

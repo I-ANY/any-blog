@@ -74,6 +74,14 @@
   transform: translateY(-1px);
 }
 
+.kb-hero h1 {
+  background: linear-gradient(120deg, #0f766e 0%, #14b8a6 45%, #22d3ee 100%);
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 [data-theme="dark"] {
   --kb-card: rgba(17, 24, 39, 0.72);
   --kb-card-border: rgba(148, 163, 184, 0.20);
@@ -83,8 +91,13 @@
 
 .logo a {
   position: relative;
+  background: linear-gradient(120deg, #0f766e 0%, #14b8a6 45%, #22d3ee 100%);
+  background-clip: text;
+  color: transparent;
   font-weight: 900;
   letter-spacing: -0.05em;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @media (min-width: 769px) {

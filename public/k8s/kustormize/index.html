@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>kustormize | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="简介
@@ -31,16 +31,16 @@ base
 
 ​	一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置">
 <meta name="author" content="ANY">
-<link rel="canonical" href="http://127.0.0.1:1314/k8s/kustormize/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
-<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
+<link rel="canonical" href="/k8s/kustormize/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.16bdc45e8f314de8647e47b7776b6a6ec6a1e7669b00a2701180b7dfd9fe1cbd.css" integrity="sha256-Fr3EXo8xTehkfke3d2tqbsah52abAKJwEYC339n&#43;HL0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/k8s/kustormize/">
+<link rel="alternate" hreflang="en" href="/k8s/kustormize/">
 <noscript>
     <style>
         #theme-toggle,
@@ -86,17 +86,92 @@ base
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="/k8s/kustormize/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="kustormize">
+  <meta property="og:description" content="简介 官网：https://kubectl.docs.kubernetes.io/
+一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：
+如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源 如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量 如何简化维护应用的流程，不需要额外学习模板语法 Kustomize 通过以下几种方式解决了上述问题：
+kustomize 通过 Base &amp; Overlays 方式(下文会说明)方式维护不同环境的应用配置 kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用 kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法 kustomize概念 kustomization ​	指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。
+base ​	一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="k8s">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="kustormize">
+  <meta name="twitter:description" content="简介 官网：https://kubectl.docs.kubernetes.io/
+一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：
+如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源 如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量 如何简化维护应用的流程，不需要额外学习模板语法 Kustomize 通过以下几种方式解决了上述问题：
+kustomize 通过 Base &amp; Overlays 方式(下文会说明)方式维护不同环境的应用配置 kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用 kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法 kustomize概念 kustomization ​	指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。
+base ​	一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Kubernetes",
+      "item": "/k8s/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "kustormize",
+      "item": "/k8s/kustormize/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "kustormize",
+  "name": "kustormize",
+  "description": "简介 官网：https://kubectl.docs.kubernetes.io/\n一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：\n如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源 如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量 如何简化维护应用的流程，不需要额外学习模板语法 Kustomize 通过以下几种方式解决了上述问题：\nkustomize 通过 Base \u0026amp; Overlays 方式(下文会说明)方式维护不同环境的应用配置 kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用 kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法 kustomize概念 kustomization ​\t指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。\nbase ​\t一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "简介 官网：https://kubectl.docs.kubernetes.io/\n一般应用都会存在多套部署环境：开发环境、测试环境、生产环境，多套环境意味着存在多套 K8S 应用资源 YAML。而这么多套 YAML 之间只存在微小配置差异，比如镜像版本不同、Label 不同等，而这些不同环境下的YAML 经常会因为人为疏忽导致配置错误。再者，多套环境的 YAML 维护通常是通过把一个环境下的 YAML 拷贝出来然后对差异的地方进行修改。一些类似 Helm 等应用管理工具需要额外学习DSL 语法。总结以上，在 k8s 环境下存在多套环境的应用，经常遇到以下几个问题：\n如何管理不同环境或不同团队的应用的 Kubernetes YAML 资源 如何以某种方式管理不同环境的微小差异，使得资源配置可以复用，减少 copy and change 的工作量 如何简化维护应用的流程，不需要额外学习模板语法 Kustomize 通过以下几种方式解决了上述问题：\nkustomize 通过 Base \u0026 Overlays 方式(下文会说明)方式维护不同环境的应用配置 kustomize 使用 patch 方式复用 Base 配置，并在 Overlay 描述与 Base 应用配置的差异部分来实现资源复用 kustomize 管理的都是 Kubernetes 原生 YAML 文件，不需要学习额外的 DSL 语法 kustomize概念 kustomization ​\t指的是 kustomization.yaml 文件，或者指的是包含 kustomization.yaml 文件的目录以及它里面引用的所有相关文件路径，用于声明基本资源，以及如何修改这些资源。\nbase ​\t一个目录，包含该应用基本 的Kubernetes 资源配置文件及对应的kustomization ，任何的 kustomization 包括 overlay (后面提到)，都可以作为另一个 kustomization 的 base (简单理解为基础资源)。base 中描述了原始的 Kubernetes YAML 文件，如资源和常见的资源配置\noverlay ​\toverlay 是一个目录，包含用于不同环境（如预生产、生产和两个测试环境）的覆盖层配置。每个子目录（如pre、prod、test1 和 test2）都有自己的kustomization，代表一个环境，包含针对该环境的特定修改。它修改(并因此依赖于)另外一个 kustomization，overlay 中的 kustomization指的是一些其它的 kustomization（也就是 base，没有 base，overlay 无法使用），并且一个 overlay 可以用作另一个 overlay 的 base(基础)。简而言之，overlay 声明了与 base 之间的差异。通过 overlay 来维护基于 base 的不同 variants(变体)，例如开发、QA 和生产环境的不同 variants\nvariant ​\tvariant 是在集群中将 overlay 应用于 base 的结果。例如开发和生产环境都修改了一些共同 base 以创建不同的 variant。这些 variant 使用相同的总体资源，并与简单的方式变化，例如 deployment 的副本数、ConfigMap使用的数据源等。简而言之，variant 是含有同一组 base 的不同 kustomization\nresource ​\t在 kustomize 的上下文中，resource 是描述 k8s API 对象的 YAML 或 JSON 文件的相对路径。即是指向一个声明了 kubernetes API 对象的 YAML 文件\npatch ​\t修改文件的一般说明。文件路径，指向一个声明了 kubernetes API patch 的 YAML 文件\n目录结构示例：\n├── base │ ├── deployment.yaml │ ├── kustomization.yaml │ └── service.yaml └── overlays ├── dev │ ├── kustomization.yaml │ └── patch.yaml ├── prod │ ├── kustomization.yaml │ └── patch.yaml └── staging ├── kustomization.yaml └── patch.yaml 客户端安装 官网：https://kubectl.docs.kubernetes.io/installation/kustomize/\n在kubernetes 1.14版本以上，已经集成到kubectl中了，你可以通过kubectl –help来进行查看命令。\n[root@k8s-master ~]# kubectl kustomize -h kustomize Build a kustomization target from a directory or URL. 但是内置的kustomize功能较少，推荐安装完整的kustomize客户端，使用更多功能。\n# wget https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.1/kustomize_v5.0.1_linux_amd64.tar.gz # tar -zxvf kustomize_v5.0.1_linux_amd64.tar.gz -C /usr/local/bin/ # kustomize version v5.0.1 常用命令\nkubectl # 不创建资源，预览资源文件，也不会覆盖原来文件，只是输出到前端 kubectl kustomize ./ # 客户端命令 kustomize # 创建资源 kubectl apply -k ./ # 查看资源对象 kubectl get -k ./ # 查看资源详情 kubectl describe -k ./ # 比较应用前后资源在集群将处于的状态 kubectl diff -k ./ # 删除资源 kubectl delete -k ./ Kustomize客户端 # 于生成最终应用于 Kubernetes 集群的 YAML 配置，生成的结果可以通过 kubectl apply -f 等命令应用于集群。 kustomize build # 该命令允许用户直接在命令行中修改 Kustomization 中的镜像及其标签 # 例如: kustomize edit set image busybox=alpine:3.6 会将 busybox 镜像修改为 alpine:3.63。 kustomize edit set image # 创建新的 Kustomization 文件夹和基本的 kustomization.yaml 文件 kustomize create 常用方法 以下全局基本的deployment资源文件\ncat \u003e demo.yaml \u003c\u003c EOF apiVersion: apps/v1 kind: Deployment metadata: name: myapp spec: selector: matchLabels: app: myapp template: metadata: labels: app: myapp spec: containers: - name: myapp image: ikubernetes/myapp:v1 ports: - containerPort: 80 volumeMounts: - name: my-conf mountPath: /etc/conf volumes: - name: my-conf configMap: name: my-configMap EOF configMapGenerator 基于文件生成 ConfigMap # 准备一个.properties文件 cat \u003eapplication.properties \u003c",
+  "wordCount" : "1517",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/k8s/kustormize/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="http://127.0.0.1:1314/" title="首页">
+                <a href="/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -107,43 +182,58 @@ base
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
+                        <a href="/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
+                        <a href="/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/go/" title="Go">
+                        <a href="/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
+                        <a href="/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/python/" title="Python">
+                        <a href="/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
+                        <a href="/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/log/" title="日志">
-                            <span>日志</span>
+                        <a href="/log/" title="日志系统">
+                            <span>日志系统</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
+                        <a href="/middleware/" title="中间件">
                             <span>中间件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/shell/" title="Shell">
+                            <span>Shell</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/bigdata/" title="大数据">
+                            <span>大数据</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/%E5%89%8D%E7%AB%AF/" title="前端">
+                            <span>前端</span>
                         </a>
                     </li>
                 </ul>
@@ -978,13 +1068,13 @@ base
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://127.0.0.1:1314/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/">
+  <a class="prev" href="/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/">
     <span class="title">« Prev</span>
     <span>k8s集群证书过期更换</span>
   </a>
-  <a class="next" href="http://127.0.0.1:1314/log/loki/">
+  <a class="next" href="/k8s/minio/">
     <span class="title">Next »</span>
-    <span>Loki</span>
+    <span>minio</span>
   </a>
 </nav>
 
@@ -993,7 +1083,7 @@ base
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
 
     
     

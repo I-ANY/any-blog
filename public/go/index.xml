@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Go on 探无止境</title>
-    <link>http://127.0.0.1:1314/go/</link>
+    <link>/go/</link>
     <description>Recent content in Go on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="http://127.0.0.1:1314/go/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="/go/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>基础</title>
-      <link>http://127.0.0.1:1314/go/%E5%9F%BA%E7%A1%80/</link>
+      <link>/go/%E5%9F%BA%E7%A1%80/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>http://127.0.0.1:1314/go/%E5%9F%BA%E7%A1%80/</guid>
+      <guid>/go/%E5%9F%BA%E7%A1%80/</guid>
       <description>&lt;h1 id=&#34;一安装配置&#34;&gt;一、安装&amp;amp;配置&lt;/h1&gt;
 &lt;p&gt;推荐安装包的方式安装Go，Go的官方 &lt;a href=&#34;https://golang.org/dl/&#34;&gt;https://golang.org/dl/&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;二进制包安装，官方release 地址 &lt;a href=&#34;https://go.dev/doc/devel/release&#34;&gt;https://go.dev/doc/devel/release&lt;/a&gt;&lt;/p&gt;

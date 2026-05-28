@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1314&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>es | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947
@@ -94,16 +94,16 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
 
 如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。">
 <meta name="author" content="ANY">
-<link rel="canonical" href="http://127.0.0.1:1314/log/es/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b01491626c2cb5f952401272ebede5ec188832b0dc83cc994dafd20f78095b5c.css" integrity="sha256-sBSRYmwstflSQBJy6&#43;3l7BiIMrDcg8yZTa/SD3gJW1w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://127.0.0.1:1314/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:1314/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://127.0.0.1:1314/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://127.0.0.1:1314/apple-touch-icon.png">
-<link rel="mask-icon" href="http://127.0.0.1:1314/safari-pinned-tab.svg">
+<link rel="canonical" href="/log/es/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.16bdc45e8f314de8647e47b7776b6a6ec6a1e7669b00a2701180b7dfd9fe1cbd.css" integrity="sha256-Fr3EXo8xTehkfke3d2tqbsah52abAKJwEYC339n&#43;HL0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://127.0.0.1:1314/log/es/">
+<link rel="alternate" hreflang="en" href="/log/es/">
 <noscript>
     <style>
         #theme-toggle,
@@ -149,17 +149,114 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="/log/es/">
+  <meta property="og:site_name" content="探无止境">
+  <meta property="og:title" content="es">
+  <meta property="og:description" content="文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947
+ES简介 ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。
+特点和优势 分布式实时文件存储，可将每一个字段存入索引，使其可以被检索到。 近乎实时分析的分布式搜索引擎。 分布式：索引分拆成多个分片，每个分片可有零个或多个副本。集群中的每个数据节点都可承载一个或多个分片，并且协调和处理各种操作； 负载再平衡和路由在大多数情况下自动完成。 可以扩展到上百台服务器，处理PB级别的结构化或非结构化数据。也可以运行在单台PC上。 支持插件机制，分词插件、同步插件、Hadoop插件、可视化插件等。 基本概念 集群（cluster）
+​	ES可以作为一个独立的单个搜索服务器。不过，一般为了处理大型数据集，实现容错和高可用性，ES可以运行在许多互相合作的服务器上。这些服务器的集合称为集群。
+节点（Node）
+​	运行了单个实例的ES主机称为节点，它是集群的一个成员，可以存储数据、参与集群索引及搜索操作。节点通过为其配置的ES集群名称确定其所要加入的集群。
+分片（Shard）
+​	ES的“分片(shard)”机制可将一个索引内部的数据分布地存储于多个节点，它通过将一个索引切分为多个底层物理的Lucene索引完成索引数据的分割存储功能，这每一个物理的Lucene索引称为一个分片(shard)。 这样的好处是可以把一个大的索引拆分成多个，分布到不同的节点上。降低单服务器的压力，构成分布式搜索，**提高整体检索的效率（分片数的最优值与硬件参数和数据量大小有关）。*分片的数量*只能在索引创建前指定，并且索引创建后不能更改。
+副本（Replica）
+​	副本是一个分片的精确复制，每个分片可以有零个或多个副本。副本的作用一是提高系统的容错性，当某个节点某个分片损坏或丢失时可以从副本中恢复。二是提高es的查询效率，es会自动对搜索请求进行负载均衡。
+数据架构 索引（index） ​	ES将数据存储于一个或多个索引中，索引是具有类似特性的文档的集合。类比传统的关系型数据库领域来说，**索引相当于SQL中的一个数据库。**Elasticsearch可以把索引存放在一台机器或者分散在多台服务器上，每个索引有一或多个分片（shard），每个分片可以有多个副本（replica）。
+文档（Document） ​	存储在Elasticsearch中的主要实体叫文档（document）。用关系型数据库来类比的话，一个文档相当于数据库表中的一行记录。 Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Elasticsearch的文档中，相同字段必须有相同类型。 文档由多个字段组成，每个字段可能多次出现在一个文档里，这样的字段叫多值字段（multivalued）。 ​	每个字段的类型，可以是文本、数值、日期等。字段类型也可以是复杂类型，一个字段包含其他子文档或者数组。 在Elasticsearch中，文档以JSON格式进行存储，可以是嵌套的复杂的结构。
+一个文档不只有数据。它还包含了元数据(metadata)——关于文档的信息。三个必须的元数据节点是：
+节点 说明 _index 文档存储的地方 _type 文档代表的对象的类 _id 文档的唯一标识 写入原理 正排索引 ​	正排索引就是最普通的索引排序方式。正排索引也是采取key-value pair的方式对数据进行保存，key是doc-id，value则可以存储多种内容，如doc的分词词表、doc所在网页的属性信息等。由此可见，正排索引可以随意添加数据，但如果你要查询某个单词在哪些文档中出现，那么你就不得不将全部文档都遍历一遍，效率极低。如：
+文档ID 文档内容 1 elasticsearch是最流行的搜索引擎 2 php是世界上最好的语言 3 搜索引擎是如何诞生的 倒排索引 倒排索引类似将正排索引反过来，以全部文档中出现的所有words建立一个词典（term dictionary ），然后对于term dictionary 中的每个词，它后面都会跟随一个链表，该链表就是倒排表 ，倒排表内存储着如下信息：
+该词出现的doc-id 该词在某doc中的出现次数和出现位置 如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="log">
+    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
+    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="es">
+  <meta name="twitter:description" content="文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947
+ES简介 ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。
+特点和优势 分布式实时文件存储，可将每一个字段存入索引，使其可以被检索到。 近乎实时分析的分布式搜索引擎。 分布式：索引分拆成多个分片，每个分片可有零个或多个副本。集群中的每个数据节点都可承载一个或多个分片，并且协调和处理各种操作； 负载再平衡和路由在大多数情况下自动完成。 可以扩展到上百台服务器，处理PB级别的结构化或非结构化数据。也可以运行在单台PC上。 支持插件机制，分词插件、同步插件、Hadoop插件、可视化插件等。 基本概念 集群（cluster）
+​	ES可以作为一个独立的单个搜索服务器。不过，一般为了处理大型数据集，实现容错和高可用性，ES可以运行在许多互相合作的服务器上。这些服务器的集合称为集群。
+节点（Node）
+​	运行了单个实例的ES主机称为节点，它是集群的一个成员，可以存储数据、参与集群索引及搜索操作。节点通过为其配置的ES集群名称确定其所要加入的集群。
+分片（Shard）
+​	ES的“分片(shard)”机制可将一个索引内部的数据分布地存储于多个节点，它通过将一个索引切分为多个底层物理的Lucene索引完成索引数据的分割存储功能，这每一个物理的Lucene索引称为一个分片(shard)。 这样的好处是可以把一个大的索引拆分成多个，分布到不同的节点上。降低单服务器的压力，构成分布式搜索，**提高整体检索的效率（分片数的最优值与硬件参数和数据量大小有关）。*分片的数量*只能在索引创建前指定，并且索引创建后不能更改。
+副本（Replica）
+​	副本是一个分片的精确复制，每个分片可以有零个或多个副本。副本的作用一是提高系统的容错性，当某个节点某个分片损坏或丢失时可以从副本中恢复。二是提高es的查询效率，es会自动对搜索请求进行负载均衡。
+数据架构 索引（index） ​	ES将数据存储于一个或多个索引中，索引是具有类似特性的文档的集合。类比传统的关系型数据库领域来说，**索引相当于SQL中的一个数据库。**Elasticsearch可以把索引存放在一台机器或者分散在多台服务器上，每个索引有一或多个分片（shard），每个分片可以有多个副本（replica）。
+文档（Document） ​	存储在Elasticsearch中的主要实体叫文档（document）。用关系型数据库来类比的话，一个文档相当于数据库表中的一行记录。 Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Elasticsearch的文档中，相同字段必须有相同类型。 文档由多个字段组成，每个字段可能多次出现在一个文档里，这样的字段叫多值字段（multivalued）。 ​	每个字段的类型，可以是文本、数值、日期等。字段类型也可以是复杂类型，一个字段包含其他子文档或者数组。 在Elasticsearch中，文档以JSON格式进行存储，可以是嵌套的复杂的结构。
+一个文档不只有数据。它还包含了元数据(metadata)——关于文档的信息。三个必须的元数据节点是：
+节点 说明 _index 文档存储的地方 _type 文档代表的对象的类 _id 文档的唯一标识 写入原理 正排索引 ​	正排索引就是最普通的索引排序方式。正排索引也是采取key-value pair的方式对数据进行保存，key是doc-id，value则可以存储多种内容，如doc的分词词表、doc所在网页的属性信息等。由此可见，正排索引可以随意添加数据，但如果你要查询某个单词在哪些文档中出现，那么你就不得不将全部文档都遍历一遍，效率极低。如：
+文档ID 文档内容 1 elasticsearch是最流行的搜索引擎 2 php是世界上最好的语言 3 搜索引擎是如何诞生的 倒排索引 倒排索引类似将正排索引反过来，以全部文档中出现的所有words建立一个词典（term dictionary ），然后对于term dictionary 中的每个词，它后面都会跟随一个链表，该链表就是倒排表 ，倒排表内存储着如下信息：
+该词出现的doc-id 该词在某doc中的出现次数和出现位置 如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "日志系统",
+      "item": "/log/"
+    }
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "es",
+      "item": "/log/es/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "es",
+  "name": "es",
+  "description": "文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947\nES简介 ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。\n特点和优势 分布式实时文件存储，可将每一个字段存入索引，使其可以被检索到。 近乎实时分析的分布式搜索引擎。 分布式：索引分拆成多个分片，每个分片可有零个或多个副本。集群中的每个数据节点都可承载一个或多个分片，并且协调和处理各种操作； 负载再平衡和路由在大多数情况下自动完成。 可以扩展到上百台服务器，处理PB级别的结构化或非结构化数据。也可以运行在单台PC上。 支持插件机制，分词插件、同步插件、Hadoop插件、可视化插件等。 基本概念 集群（cluster）\n​\tES可以作为一个独立的单个搜索服务器。不过，一般为了处理大型数据集，实现容错和高可用性，ES可以运行在许多互相合作的服务器上。这些服务器的集合称为集群。\n节点（Node）\n​\t运行了单个实例的ES主机称为节点，它是集群的一个成员，可以存储数据、参与集群索引及搜索操作。节点通过为其配置的ES集群名称确定其所要加入的集群。\n分片（Shard）\n​\tES的“分片(shard)”机制可将一个索引内部的数据分布地存储于多个节点，它通过将一个索引切分为多个底层物理的Lucene索引完成索引数据的分割存储功能，这每一个物理的Lucene索引称为一个分片(shard)。 这样的好处是可以把一个大的索引拆分成多个，分布到不同的节点上。降低单服务器的压力，构成分布式搜索，**提高整体检索的效率（分片数的最优值与硬件参数和数据量大小有关）。*分片的数量*只能在索引创建前指定，并且索引创建后不能更改。\n副本（Replica）\n​\t副本是一个分片的精确复制，每个分片可以有零个或多个副本。副本的作用一是提高系统的容错性，当某个节点某个分片损坏或丢失时可以从副本中恢复。二是提高es的查询效率，es会自动对搜索请求进行负载均衡。\n数据架构 索引（index） ​\tES将数据存储于一个或多个索引中，索引是具有类似特性的文档的集合。类比传统的关系型数据库领域来说，**索引相当于SQL中的一个数据库。**Elasticsearch可以把索引存放在一台机器或者分散在多台服务器上，每个索引有一或多个分片（shard），每个分片可以有多个副本（replica）。\n文档（Document） ​\t存储在Elasticsearch中的主要实体叫文档（document）。用关系型数据库来类比的话，一个文档相当于数据库表中的一行记录。 Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Elasticsearch的文档中，相同字段必须有相同类型。 文档由多个字段组成，每个字段可能多次出现在一个文档里，这样的字段叫多值字段（multivalued）。 ​\t每个字段的类型，可以是文本、数值、日期等。字段类型也可以是复杂类型，一个字段包含其他子文档或者数组。 在Elasticsearch中，文档以JSON格式进行存储，可以是嵌套的复杂的结构。\n一个文档不只有数据。它还包含了元数据(metadata)——关于文档的信息。三个必须的元数据节点是：\n节点 说明 _index 文档存储的地方 _type 文档代表的对象的类 _id 文档的唯一标识 写入原理 正排索引 ​\t正排索引就是最普通的索引排序方式。正排索引也是采取key-value pair的方式对数据进行保存，key是doc-id，value则可以存储多种内容，如doc的分词词表、doc所在网页的属性信息等。由此可见，正排索引可以随意添加数据，但如果你要查询某个单词在哪些文档中出现，那么你就不得不将全部文档都遍历一遍，效率极低。如：\n文档ID 文档内容 1 elasticsearch是最流行的搜索引擎 2 php是世界上最好的语言 3 搜索引擎是如何诞生的 倒排索引 倒排索引类似将正排索引反过来，以全部文档中出现的所有words建立一个词典（term dictionary ），然后对于term dictionary 中的每个词，它后面都会跟随一个链表，该链表就是倒排表 ，倒排表内存储着如下信息：\n该词出现的doc-id 该词在某doc中的出现次数和出现位置 如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "文档参自非常优秀的博客：https://www.cuiliangblog.cn/detail/section/106629947\nES简介 ES是elaticsearch简写， Elasticsearch是一个开源的高扩展的分布式全文检索引擎，它可以近乎实时的存储、检索数据；本身扩展性很好，可以扩展到上百台服务器，处理PB级别的数据。\n特点和优势 分布式实时文件存储，可将每一个字段存入索引，使其可以被检索到。 近乎实时分析的分布式搜索引擎。 分布式：索引分拆成多个分片，每个分片可有零个或多个副本。集群中的每个数据节点都可承载一个或多个分片，并且协调和处理各种操作； 负载再平衡和路由在大多数情况下自动完成。 可以扩展到上百台服务器，处理PB级别的结构化或非结构化数据。也可以运行在单台PC上。 支持插件机制，分词插件、同步插件、Hadoop插件、可视化插件等。 基本概念 集群（cluster）\n​\tES可以作为一个独立的单个搜索服务器。不过，一般为了处理大型数据集，实现容错和高可用性，ES可以运行在许多互相合作的服务器上。这些服务器的集合称为集群。\n节点（Node）\n​\t运行了单个实例的ES主机称为节点，它是集群的一个成员，可以存储数据、参与集群索引及搜索操作。节点通过为其配置的ES集群名称确定其所要加入的集群。\n分片（Shard）\n​\tES的“分片(shard)”机制可将一个索引内部的数据分布地存储于多个节点，它通过将一个索引切分为多个底层物理的Lucene索引完成索引数据的分割存储功能，这每一个物理的Lucene索引称为一个分片(shard)。 这样的好处是可以把一个大的索引拆分成多个，分布到不同的节点上。降低单服务器的压力，构成分布式搜索，**提高整体检索的效率（分片数的最优值与硬件参数和数据量大小有关）。*分片的数量*只能在索引创建前指定，并且索引创建后不能更改。\n副本（Replica）\n​\t副本是一个分片的精确复制，每个分片可以有零个或多个副本。副本的作用一是提高系统的容错性，当某个节点某个分片损坏或丢失时可以从副本中恢复。二是提高es的查询效率，es会自动对搜索请求进行负载均衡。\n数据架构 索引（index） ​\tES将数据存储于一个或多个索引中，索引是具有类似特性的文档的集合。类比传统的关系型数据库领域来说，**索引相当于SQL中的一个数据库。**Elasticsearch可以把索引存放在一台机器或者分散在多台服务器上，每个索引有一或多个分片（shard），每个分片可以有多个副本（replica）。\n文档（Document） ​\t存储在Elasticsearch中的主要实体叫文档（document）。用关系型数据库来类比的话，一个文档相当于数据库表中的一行记录。 Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Elasticsearch的文档中，相同字段必须有相同类型。 文档由多个字段组成，每个字段可能多次出现在一个文档里，这样的字段叫多值字段（multivalued）。 ​\t每个字段的类型，可以是文本、数值、日期等。字段类型也可以是复杂类型，一个字段包含其他子文档或者数组。 在Elasticsearch中，文档以JSON格式进行存储，可以是嵌套的复杂的结构。\n一个文档不只有数据。它还包含了元数据(metadata)——关于文档的信息。三个必须的元数据节点是：\n节点 说明 _index 文档存储的地方 _type 文档代表的对象的类 _id 文档的唯一标识 写入原理 正排索引 ​\t正排索引就是最普通的索引排序方式。正排索引也是采取key-value pair的方式对数据进行保存，key是doc-id，value则可以存储多种内容，如doc的分词词表、doc所在网页的属性信息等。由此可见，正排索引可以随意添加数据，但如果你要查询某个单词在哪些文档中出现，那么你就不得不将全部文档都遍历一遍，效率极低。如：\n文档ID 文档内容 1 elasticsearch是最流行的搜索引擎 2 php是世界上最好的语言 3 搜索引擎是如何诞生的 倒排索引 倒排索引类似将正排索引反过来，以全部文档中出现的所有words建立一个词典（term dictionary ），然后对于term dictionary 中的每个词，它后面都会跟随一个链表，该链表就是倒排表 ，倒排表内存储着如下信息：\n该词出现的doc-id 该词在某doc中的出现次数和出现位置 如此一来，倒排索引就可以在用户输入查询query时，将query分词成一个个token，然后将一个个token带到term dictionary 去“查字典”，然后获得出现该词的doc-id集合，最终在这若干个token对应的若干doc-id集合上做交集，得到最符合用户query查询的结果。\n由此可见，倒排索引大大加快了查询速度，然而一旦有新的文档加入文档库，你就要重新做一次\"入库操作\"，即建立倒排索引的操作。因为此时各个token在不同文档中的出现次数、以及每个token对应的 倒排表 都可能发生变化。如：\n单词 文档ID elasticsearch 1 流行 1 搜索引擎 1，3 php 2 世界 2 最好 2 语言 2 如何 3 诞生 3 分词 分词是指将文本转换成一系列单词（term or token）的过程，也可以叫做文本分析，在 es 里面称为 Analysis\n分词器\n分词器是ES中专门处理分词的组件，英文为Analyzer，它的组成如下：\nCharacter Filters：针对原始文本进行处理，比如去除html标签 Tokenizer：将原始文本按照一定规则切分为单词 Token Filters：针对Tokenizer处理的单词进行再加工，比如转小写、删除或增新等处理 分词器调用顺序\n写索引原理 数据复制模型 Elasticsearch 中的每个索引都被划分为shard，每个shard 可以有多个副本，这些副本称为副本组，在添加或删除文档时必须保持同步。\n路由 在ELasticsearch中，会采用计算的方式来确定存储到哪个节点，计算公式如下：\nshard = hash(routing) % number_1 of_primary_shards # routing值是一个任意字符串，它默认是_id但也可以自定义。 # 这个routing字符串通过哈希函数生成一个数字，然后除以主切片的数量得到一个余数(remainder)，余数的范围永远是0到number_of_primary_shards - 1，这个数字就是特定文档所在的分片。 这就是为什么创建了主分片后，不能修改的原因。因为如果数量变化了，那么所有之前路由的值都会无效，文档也再也找不到了。\n写入过程 新建、索引和删除请求都是写(write)操作，它们必须在主分片上成功完成才能复制到相关的复制分片上。\n下面我们罗列在主分片和复制分片上成功新建、索引或删除一个文档必要的顺序步骤：\n客户端给Node 1 发送新建、索引或删除请求。 节点使用文档的_id 确定文档属于分片0 。它转发请求到Node 3 ，分片0 位于这个节点上。 Node 3 在主分片上执行请求，如果成功，它转发请求到相应的位于Node 1 和Node 2 的复制节点上。当所有的复制节点报告成功， Node 3 报告成功到请求的节点，请求的节点再报告给客户端。 客户端接收到成功响应的时候，文档的修改已经被应用于主分片和所有的复制分片。你的修改生效了。 存储原理 分段存储（segment） 索引文档以段的形式存储在磁盘上，索引文件被拆分为多个子文件，则每个子文件叫作段，每一个段本身都是一个倒排索引，并且段具有不变性，一旦索引的数据被写入硬盘，就不可再修改。 在底层采用了分段的存储模式，使它在读写时几乎完全避免了锁的出现，大大提升了读写性能。 段被写入到磁盘后会生成一个提交点，提交点是一个用来记录所有提交后段信息的文件。 一个段一旦拥有了提交点，就说明这个段只有读的权限，失去了写的权限。相反，当段在内存中时，就只有写的权限，而不具备读数据的权限，意味着不能被检索。 段的概念提出主要是因为：在早期全文检索中为整个文档集合建立了一个很大的倒排索引，并将其写入磁盘中。 如果索引有更新，就需要重新全量创建一个索引来替换原来的索引。这种方式在数据量很大时效率很低，并且由于创建一次索引的成本很高，所以对数据的更新不能过于频繁，也就不能保证时效性。 索引文件分段存储并且不可修改，那么新增、更新和删除如何处理呢？\n新增，新增很好处理，由于数据是新的，所以只需要对当前文档新增一个段就可以了。 删除，由于不可修改，所以对于删除操作，不会把文档从旧的段中移除而是通过新增一个 .del 文件，文件中会列出这些被删除文档的段信息。这个被标记删除的文档仍然可以被查询匹配到， 但它会在最终结果被返回前从结果集中移除。 更新，不能修改旧的段来进行反映文档的更新，其实更新相当于是删除和新增这两个动作组成。会将旧的文档在 .del 文件中标记删除，然后文档的新版本被索引到一个新的段中。可能两个版本的文档都会被一个查询匹配到，但被删除的那个旧版本文档在结果集返回前就会被移除。 段被设定为不可修改具有一定的优势也有一定的缺点，优势主要表现在：\n不需要锁。如果你从来不更新索引，你就不需要担心多进程同时修改数据的问题。 一旦索引被读入内核的文件系统缓存，便会留在哪里，由于其不变性。只要文件系统缓存中还有足够的空间，那么大部分读请求会直接请求内存，而不会命中磁盘。这提供了很大的性能提升。 其它缓存(像 Filter 缓存)，在索引的生命周期内始终有效。它们不需要在每次数据改变时被重建，因为数据不会变化。 写入单个大的倒排索引允许数据被压缩，减少磁盘 I/O 和需要被缓存到内存的索引的使用量。 段的不变性的缺点如下：\n当对旧数据进行删除时，旧数据不会马上被删除，而是在 .del 文件中被标记为删除。而旧数据只能等到段更新时才能被移除，这样会造成大量的空间浪费。 若有一条数据频繁的更新，每次更新都是新增新的标记旧的，则会有大量的空间浪费。 每次新增数据时都需要新增一个段来存储数据。当段的数量太多时，对服务器的资源例如文件句柄的消耗会非常大。 在查询的结果中包含所有的结果集，需要排除被标记删除的旧数据，这增加了查询的负担。 延迟写入（refresh） ​\t如果是数据直接写入到磁盘上，磁盘的 I/O 消耗上会严重影响性能。那么当写数据量大的时候会造成 ES 停顿卡死，查询也无法做到快速响应。如果真是这样 ES 也就不会称之为近实时全文搜索引擎了。为了提升写的性能，ES 并没有每新增一条数据就增加一个段到磁盘上，而是采用延迟写的策略。 ​\t每当有新增的数据时，就将其先写入到内存中，在内存和磁盘之间是文件系统缓存。当达到默认的时间（1 秒钟）或者内存的数据达到一定量时，会触发一次刷新（Refresh），将内存中的数据生成到一个新的段上并缓存到文件缓存系统 上，稍后再被刷新到磁盘中并生成提交点。\n​\t这里的内存使用的是 ES 的 JVM 内存，而文件缓存系统使用的是操作系统的内存。新的数据会继续的被写入内存，但内存中的数据并不是以段的形式存储的，因此不能提供检索功能。由内存刷新到文件缓存系统的时候会生成新的段，并将段打开以供搜索使用，而不需要等到被刷新到磁盘。 ​\t在 Elasticsearch 中，写入和打开一个新段的轻量的过程叫做 Refresh （即内存刷新到文件缓存系统）。默认情况下每个分片会每秒自动刷新一次。这就是为什么我们说 Elasticsearch 是近实时搜索，因为文档的变化并不是立即对搜索可见，但会在一秒之内变为可见。 我们也可以手动触发 Refresh，POST /_refresh 刷新所有索引，POST /nba/_refresh 刷新指定的索引。 Tips：尽管刷新是比提交轻量很多的操作，它还是会有性能开销。当写测试的时候， 手动刷新很有用，但是不要在生产\u003e环境下每次索引一个文档都去手动刷新。而且并不是所有的情况都需要每秒刷新。\n​\t可能你正在使用 Elasticsearch 索引大量的日志文件， 你可能想优化索引速度而不是\u003e近实时搜索。这时可以在创建索引时在 Settings 中通过调大 refresh_interval = “30s” 的值 ， 降低每个索引的刷新频率，设值时需要注意后面带上时间单位，否则默认是毫秒。当refresh_interval=-1 时表示关闭索引的自动刷新。\n事务日志(Translog) 虽然通过延时写的策略可以减少数据往磁盘上写的次数提升了整体的写入能力，但是我们知道文件缓存系统也是内存空间，属于操作系统的内存，只要是内存都存在断电或异常情况下丢失数据的危险。 为了避免丢失数据，Elasticsearch 添加了事务日志（Translog），事务日志记录了所有还没有持久化到磁盘的数据。 添加了事务日志后整个写索引的流程如上图所示：\n一个新文档被索引之后，先被写入到内存中，但是为了防止数据的丢失，会追加一份数据到事务日志中。不断有新的文档被写入到内存，同时也都会记录到事务日志中。这时新数据还不能被检索和查询。 当达到默认的刷新时间或内存中的数据达到一定量后，会触发一次 Refresh，将内存中的数据以一个新段形式刷新到文件缓存系统中并清空内存。这时虽然新段未被提交到磁盘，但是可以提供文档的检索功能且不能被修改。 随着新文档索引不断被写入，当日志数据大小超过 512M 或者时间超过 30 分钟时，会触发一次 Flush。内存中的数据被写入到一个新段同时被写入到文件缓存系统，文件系统缓存中数据通过 Fsync 刷新到磁盘中，生成提交点，日志文件被删除，创建一个空的新日志。 通过这种方式当断电或需要重启时，ES 不仅要根据提交点去加载已经持久化过的段，还需要工具 Translog 里的记录，把未持久化的数据重新持久化到磁盘上，避免了数据丢失的可能。\n段合并(flush) ​\t由于自动刷新流程每秒会创建一个新的段 ，这样会导致短时间内的段数量暴增。而段数目太多会带来较大的麻烦。 每一个段都会消耗文件句柄、内存和 CPU 运行周期。更重要的是，每个搜索请求都必须轮流检查每个段然后合并查询结果，所以段越多，搜索也就越慢。 ​\tElasticsearch 通过在后台定期进行段合并来解决这个问题。小的段被合并到大的段，然后这些大的段再被合并到更大的段。段合并的时候会将那些旧的已删除文档从文件系统中清除。被删除的文档不会被拷贝到新的大段中。合并的过程中不会中断索引和搜索。段合并在进行索引和搜索时会自动进行，合并进程选择一小部分大小相似的段，并且在后台将它们合并到更大的段中，这些段既可以是未提交的也可以是已提交的。合并结束后老的段会被删除，新的段被 Flush 到磁盘，同时写入一个包含新段且排除旧的和较小的段的新提交点，新的段被打开可以用来搜索。 ​\t段合并的计算量庞大， 而且还要吃掉大量磁盘 I/O，段合并会拖累写入速率，如果任其发展会影响搜索性能。Elasticsearch 在默认情况下会对合并流程进行资源限制，所以搜索仍然有足够的资源很好地执行。\n检索 搜索文档（单个文档） 文档能够从主分片或任意一个复制分片被检索。\n1.下面我们罗列在主分片或复制分片上检索一个文档必要的顺序步骤：\n客户端给Node 1 发送get请求。 节点使用文档的_id 确定文档属于分片0 。分片0 对应的复制分片在三个节点上都有。此时，它转发请求到Node 2 。 Node 2 返回文档(document)给Node 1 然后返回给客户端。 2.对于读请求，为了平衡负载，请求节点会为每个请求选择不同的分片——它会循环所有分片副本。\n可能的情况是，一个被索引的文档已经存在于主分片上却还没来得及同步到复制分片上。这时复制分片会报告文档未找到，主分片会成功返回文档。一旦索引请求成功返回给用户，文档则在主分片和复制分片都是可用的。\n全文搜索 搜索(query) 查询阶段包含以下三步：\n客户端发送一个search（搜索） 请求给Node 3 ,Node 3 创建了一个长度为from+size 的空优先级队 Node3转发这个搜索请求到索引中每个分片的原本或副本。每个分片在本地执行这个查询并且结果将结果到一个大小为from+size 的有序本地优先队列里去。 每个分片返回document的ID和它优先队列里的所有document的排序值给协调节点Node3 。Node3 把这些值合并到自己的优先队列里产生全局排序结果。 取回(fetch) 分发阶段由以下步骤构成：\n协调节点辨别出哪个document需要取回，并且向相关分片发出GET请求。 每个分片加载document并且根据需要丰富（enrich）它们，然后再将document返回协调节点。 一旦所有的document都被取回，协调节点会将结果返回给客户端。 集群 集群颜色：\n绿色状态：表示集群健康； 黄色状态：表示所有主分片均已分配，但有一个或多个副本分片未分配。如果集群中的某个节点发生故障，则在修复该节点之前，某些数据可能不可用； 红色状态：表示存在一个或多个主分片未分配，因此某些数据不可用。在集群启动期间，伴随着主分片的分配过程，这可能会短暂发生。 我们通常说集群状态变红了，实际上集群中某个索引出了问题，更精确的说，是某个索引上的某个分片出了问题。\n注意事项\n集群处于黄色状态： 索引仍在工作，并且数据也全部可以被索引、搜索，只是速度和可靠性可能达不到预期。当前出问题的副本分片可能：丢失、损坏或存在其他问题；或者集群可能处于移动或重建副本分片的过程中。 我们要做的工作是：手动或者自动重新处理这些可能出问题的副本分片以实现集群恢复绿色状态。 集群处于红色状态： 代表一个或多个索引缺少主分片，即无法索引、搜索或提供数据。健康状态基于每个分片的，假设集群中有50个分片，其中一个主分片出问题，其所在索引状态是红色，整个集群也都会变成红色。 我们要做的工作是：手动查找或修复这些未分配的主分片，否则一旦索引数据丢失，只能从快照或原始源数据中重新创建索引。\n节点异常处理 如果出现节点占用CPU很高，我们需要知道CPU在运行什么任务，一般通过线程堆栈来查看。 这里有两种方式可以查看哪些线程CPU占用率比较高：\n使用ElasticSearch提供的hot_threads api查看； 使用jstack和top命令查看，针对java应用cpu过高问题的这个是通用做法。 这里推荐使用hot_threads api GET /_nodes/hot_threadsGET /_nodes//hot_threads 通过返回的结果可以看到什么线程占用更高，正在做什么操作。 更详细的内容可以参考官网： https://www.elastic.co/guide/en/elasticsearch/reference/7.17/cluster-nodes-hot-threads.html\n",
+  "wordCount" : "339",
+  "inLanguage": "en",
+  "datePublished": "2026-05-28T00:01:08+08:00",
+  "dateModified": "2026-05-28T00:01:08+08:00",
+  "author":{
+    "@type": "Person",
+    "name": "ANY"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "/log/es/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "探无止境",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="http://127.0.0.1:1314/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="http://127.0.0.1:1314/" title="首页">
+                <a href="/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -170,43 +267,58 @@ Elasticsearch和MongoDB中的文档类似，都可以有不同的结构，但Ela
                 </button>
                 <ul class="menu-dropdown" aria-label="博客 分类">
                     <li>
-                        <a href="http://127.0.0.1:1314/k8s/" title="Kubernetes">
+                        <a href="/k8s/" title="Kubernetes">
                             <span>Kubernetes</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/docker/" title="Docker">
+                        <a href="/docker/" title="Docker">
                             <span>Docker</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/go/" title="Go">
+                        <a href="/go/" title="Go">
                             <span>Go</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/linux/" title="Linux">
+                        <a href="/linux/" title="Linux">
                             <span>Linux</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/python/" title="Python">
+                        <a href="/python/" title="Python">
                             <span>Python</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/cicd/" title="CI/CD">
+                        <a href="/cicd/" title="CI/CD">
                             <span>CI/CD</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/log/" title="日志">
-                            <span>日志</span>
+                        <a href="/log/" title="日志系统">
+                            <span>日志系统</span>
                         </a>
                     </li>
                     <li>
-                        <a href="http://127.0.0.1:1314/middleware/" title="中间件">
+                        <a href="/middleware/" title="中间件">
                             <span>中间件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/shell/" title="Shell">
+                            <span>Shell</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/bigdata/" title="大数据">
+                            <span>大数据</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/%E5%89%8D%E7%AB%AF/" title="前端">
+                            <span>前端</span>
                         </a>
                     </li>
                 </ul>
@@ -630,23 +742,13 @@ GET /_nodes/hot_threadsGET /_nodes/&lt;node_id&gt;/hot_threads
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
-<nav class="paginav">
-  <a class="prev" href="http://127.0.0.1:1314/middleware/dubbo/">
-    <span class="title">« Prev</span>
-    <span>dubbo</span>
-  </a>
-  <a class="next" href="http://127.0.0.1:1314/log/filebeat/">
-    <span class="title">Next »</span>
-    <span>filebeat</span>
-  </a>
-</nav>
 
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://127.0.0.1:1314/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
 
     
     
