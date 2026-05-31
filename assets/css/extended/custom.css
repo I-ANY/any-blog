@@ -165,7 +165,8 @@
     margin-left: auto;
   }
 
-  .theme-toggle {
+  .theme-toggle,
+  .nav-github-link {
     display: inline-flex;
     width: 24px;
     height: 24px;
@@ -182,19 +183,22 @@
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
 
-  .theme-toggle svg {
+  .theme-toggle svg,
+  .nav-github-link svg {
     width: 16px;
     height: 16px;
   }
 
-  .theme-toggle:hover {
+  .theme-toggle:hover,
+  .nav-github-link:hover {
     border-color: rgba(37, 99, 235, 0.35);
     background: rgba(37, 99, 235, 0.10);
     color: var(--kb-accent);
     transform: translateY(-1px);
   }
 
-  [data-theme="dark"] .theme-toggle {
+  [data-theme="dark"] .theme-toggle,
+  [data-theme="dark"] .nav-github-link {
     background: rgba(148, 163, 184, 0.10);
   }
 }
@@ -307,15 +311,17 @@
   list-style: none;
   border: 1px solid var(--kb-card-border);
   border-radius: 8px;
-  background: var(--kb-glass-strong, rgba(255, 255, 255, 0.90));
-  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.18);
+  background: var(--kb-dropdown-bg, rgba(255, 255, 255, 0.97));
+  box-shadow:
+    0 24px 55px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
   opacity: 0;
   visibility: hidden;
   transform: translate(-50%, 0) scale(0.98);
   transform-origin: top center;
   transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
 }
 
 .menu-dropdown::before {
@@ -326,20 +332,20 @@
   height: 12px;
   border-top: 1px solid var(--kb-card-border);
   border-left: 1px solid var(--kb-card-border);
-  background: var(--kb-glass-strong, rgba(255, 255, 255, 0.90));
+  background: var(--kb-dropdown-tip-bg, rgba(255, 255, 255, 0.97));
   content: "";
   transform: translateX(-50%) rotate(45deg);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
 }
 
 [data-theme="dark"] .menu-dropdown {
-  background: rgba(17, 24, 39, 0.82);
+  background: rgba(17, 24, 39, 0.97);
   box-shadow: 0 24px 55px rgba(0, 0, 0, 0.34);
 }
 
 [data-theme="dark"] .menu-dropdown::before {
-  background: rgba(17, 24, 39, 0.82);
+  background: rgba(17, 24, 39, 0.97);
 }
 
 .has-dropdown:hover .menu-dropdown,
@@ -729,7 +735,9 @@
   --kb-muted: #667085;
   --kb-line: rgba(15, 23, 42, 0.10);
   --kb-glass: rgba(255, 255, 255, 0.78);
-  --kb-glass-strong: rgba(255, 255, 255, 0.90);
+  --kb-glass-strong: rgba(255, 255, 255, 0.97);
+  --kb-dropdown-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  --kb-dropdown-tip-bg: rgba(255, 255, 255, 0.98);
   --kb-panel: rgba(255, 255, 255, 0.74);
   --kb-shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
   --kb-shadow-hover: 0 22px 55px rgba(15, 23, 42, 0.13);
@@ -740,7 +748,9 @@
   --kb-muted: #a7b0c0;
   --kb-line: rgba(148, 163, 184, 0.18);
   --kb-glass: rgba(17, 24, 39, 0.76);
-  --kb-glass-strong: rgba(17, 24, 39, 0.92);
+  --kb-glass-strong: rgba(17, 24, 39, 0.97);
+  --kb-dropdown-bg: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(15, 23, 42, 0.96));
+  --kb-dropdown-tip-bg: rgba(17, 24, 39, 0.98);
   --kb-panel: rgba(17, 24, 39, 0.72);
   --kb-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
   --kb-shadow-hover: 0 24px 62px rgba(0, 0, 0, 0.34);
@@ -838,19 +848,21 @@ body {
   padding: 12px;
   border-color: var(--kb-line);
   border-radius: 8px;
-  background: var(--kb-glass-strong);
-  box-shadow: var(--kb-shadow-hover);
+  background: var(--kb-dropdown-bg);
+  box-shadow:
+    var(--kb-shadow-hover),
+    inset 0 1px 0 rgba(255, 255, 255, 0.70);
   transform: translate(-50%, -4px);
-  backdrop-filter: blur(22px) saturate(165%);
-  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
 }
 
 .menu-dropdown::before {
   top: -6px;
   border-color: var(--kb-line);
-  background: var(--kb-glass-strong);
-  backdrop-filter: blur(22px) saturate(165%);
-  -webkit-backdrop-filter: blur(22px) saturate(165%);
+  background: var(--kb-dropdown-tip-bg);
+  backdrop-filter: blur(24px) saturate(145%);
+  -webkit-backdrop-filter: blur(24px) saturate(145%);
 }
 
 .has-dropdown:hover .menu-dropdown,
