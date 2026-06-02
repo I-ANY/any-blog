@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Shell on 探无止境</title>
-    <link>/shell/</link>
+    <link>//localhost:1313/shell/</link>
     <description>Recent content in Shell on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/shell/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/shell/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>shell学习</title>
-      <link>/shell/shell%E5%AD%A6%E4%B9%A0/</link>
+      <link>//localhost:1313/shell/shell%E5%AD%A6%E4%B9%A0/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/shell/shell%E5%AD%A6%E4%B9%A0/</guid>
+      <guid>//localhost:1313/shell/shell%E5%AD%A6%E4%B9%A0/</guid>
       <description>&lt;h1 id=&#34;一变量&#34;&gt;一、变量&lt;/h1&gt;
 &lt;p&gt;普通变量与临时环境变量&lt;/p&gt;
 &lt;p&gt;普通变量定义：VAR=value&lt;/p&gt;

@@ -1,0 +1,57 @@
+{{- $pages := .CurrentSection.RegularPages.ByWeight -}}
+{{- if eq (len $pages) 0 -}}
+  {{- $pages = (where site.RegularPages "Section" .Section).ByWeight -}}
+{{- end -}}
+{{- $currentIndex := -1 -}}
+{{- range $index, $page := $pages -}}
+  {{- if eq $page.RelPermalink $.RelPermalink -}}
+    {{- $currentIndex = $index -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (gt (len $pages) 1) (ge $currentIndex 0) -}}
+  {{- $prev := false -}}
+  {{- $next := false -}}
+  {{- if gt $currentIndex 0 -}}
+    {{- $prev = index $pages (sub $currentIndex 1) -}}
+  {{- end -}}
+  {{- if lt $currentIndex (sub (len $pages) 1) -}}
+    {{- $next = index $pages (add $currentIndex 1) -}}
+  {{- end -}}
+<section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    {{- with $prev }}
+    <a class="prev" href="{{ .Permalink }}">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">{{- .Name -}}</span>
+    </a>
+    {{- end }}
+    {{- with $next }}
+    <a class="next" href="{{ .Permalink }}">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">{{- .Name -}}</span>
+    </a>
+    {{- end }}
+  </nav>
+</section>
+{{- end -}}

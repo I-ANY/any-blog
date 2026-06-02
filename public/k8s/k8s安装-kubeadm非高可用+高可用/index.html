@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>k8s安装-kubeadm（非高可用&#43;高可用） | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="前言：版本差异
@@ -111,16 +111,16 @@ yum clean all &amp;&amp; yum makecache
 
 操作节点：所有节点（k8s-master，k8s-slave）均需执行">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
 <noscript>
     <style>
         #theme-toggle,
@@ -166,102 +166,17 @@ yum clean all &amp;&amp; yum makecache
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="k8s安装-kubeadm（非高可用&#43;高可用）">
-  <meta property="og:description" content="前言：版本差异 ​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。
-​	但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。
-从1.24开始，大家需要使用其他受到支持的运行时选项：
-containerd
-CRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）
-Docker Engine，需依赖使用cri-dockerd
-一、kubeadm安装K8s（1.23非高可用版） 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行
-本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）
-设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开
-# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i &#39;/ swap / s/^\(.*\)$/#\1/g&#39; /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri &#39;s#(SELINUX=).*#\1disabled#&#39; /etc/selinux/config systemctl disable firewalld &amp;&amp; systemctl stop firewalld systemctl disable NetworkManager &amp;&amp; systemctl stop NetworkManager # 修改内核参数 cat &lt;&lt;EOF &gt; /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat &gt;&gt; /etc/sysctl.conf&lt;&lt;EOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat &lt;&lt;EOF &gt; /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p &amp;&amp; sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat &gt;&gt;/etc/chrony.conf &lt;&lt;EOF ntpdate ntp1.aliyun.com iburst EOF ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime echo &#39;Asia/Shanghai&#39; &gt; /etc/timezone 设置yum源 curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo [kubernetes] name=Kubernetes baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 enabled=1 gpgcheck=0 repo_gpgcheck=0 gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg EOF yum clean all &amp;&amp; yum makecache 设置hosts解析 操作节点：所有节点（k8s-master，k8s-slave）均需执行">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="k8s安装-kubeadm（非高可用&#43;高可用）">
-  <meta name="twitter:description" content="前言：版本差异 ​	Kubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。
-​	但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。
-从1.24开始，大家需要使用其他受到支持的运行时选项：
-containerd
-CRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）
-Docker Engine，需依赖使用cri-dockerd
-一、kubeadm安装K8s（1.23非高可用版） 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行
-本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）
-设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开
-# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i &#39;/ swap / s/^\(.*\)$/#\1/g&#39; /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri &#39;s#(SELINUX=).*#\1disabled#&#39; /etc/selinux/config systemctl disable firewalld &amp;&amp; systemctl stop firewalld systemctl disable NetworkManager &amp;&amp; systemctl stop NetworkManager # 修改内核参数 cat &lt;&lt;EOF &gt; /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat &gt;&gt; /etc/sysctl.conf&lt;&lt;EOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat &lt;&lt;EOF &gt; /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p &amp;&amp; sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat &gt;&gt;/etc/chrony.conf &lt;&lt;EOF ntpdate ntp1.aliyun.com iburst EOF ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime echo &#39;Asia/Shanghai&#39; &gt; /etc/timezone 设置yum源 curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo [kubernetes] name=Kubernetes baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 enabled=1 gpgcheck=0 repo_gpgcheck=0 gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg EOF yum clean all &amp;&amp; yum makecache 设置hosts解析 操作节点：所有节点（k8s-master，k8s-slave）均需执行">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "k8s安装-kubeadm（非高可用+高可用）",
-      "item": "/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8+%E9%AB%98%E5%8F%AF%E7%94%A8/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "k8s安装-kubeadm（非高可用+高可用）",
-  "name": "k8s安装-kubeadm（非高可用\u002b高可用）",
-  "description": "前言：版本差异 ​\tKubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。\n​\t但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。\n从1.24开始，大家需要使用其他受到支持的运行时选项：\ncontainerd\nCRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）\nDocker Engine，需依赖使用cri-dockerd\n一、kubeadm安装K8s（1.23非高可用版） 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行\n本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）\n设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开\n# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i \u0026#39;/ swap / s/^\\(.*\\)$/#\\1/g\u0026#39; /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri \u0026#39;s#(SELINUX=).*#\\1disabled#\u0026#39; /etc/selinux/config systemctl disable firewalld \u0026amp;\u0026amp; systemctl stop firewalld systemctl disable NetworkManager \u0026amp;\u0026amp; systemctl stop NetworkManager # 修改内核参数 cat \u0026lt;\u0026lt;EOF \u0026gt; /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat \u0026gt;\u0026gt; /etc/sysctl.conf\u0026lt;\u0026lt;EOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat \u0026lt;\u0026lt;EOF \u0026gt; /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p \u0026amp;\u0026amp; sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat \u0026gt;\u0026gt;/etc/chrony.conf \u0026lt;\u0026lt;EOF ntpdate ntp1.aliyun.com iburst EOF ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime echo \u0026#39;Asia/Shanghai\u0026#39; \u0026gt; /etc/timezone 设置yum源 curl -o /etc/yum.repos.d/Centos-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo curl -o /etc/yum.repos.d/docker-ce.repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo cat \u0026lt;\u0026lt;EOF \u0026gt; /etc/yum.repos.d/kubernetes.repo [kubernetes] name=Kubernetes baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 enabled=1 gpgcheck=0 repo_gpgcheck=0 gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg EOF yum clean all \u0026amp;\u0026amp; yum makecache 设置hosts解析 操作节点：所有节点（k8s-master，k8s-slave）均需执行\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "前言：版本差异 ​\tKubernetes社区在2020年7月份发布的版本中已经开始了dockershim的移除计划，在1.20版本中将内置的dockershim进行分离，这个版本依旧还可以使用dockershim，但是在1.24中被删除。\n​\t但是如果想继续使用docker的话，可以在kubelet和docker之间加上一个中间层cri-docker。cri-docker是一个支持CRI标准的shim（垫片）。一头通过CRI跟kubelet交互，另一头跟docker api交互，从而间接的实现了kubernetes以docker作为容器运行时。但是这种架构缺点也很明显，调用链更长，效率更低。\n从1.24开始，大家需要使用其他受到支持的运行时选项：\ncontainerd\nCRI-O（另一个实现了容器运行时接口（CRI）的高级别容器运行时，可以使用 OCI（开放容器倡议）兼容的运行时， containerd 的一个替代品）\nDocker Engine，需依赖使用cri-dockerd\n一、kubeadm安装K8s（1.23非高可用版） 1. 调整系统配置 操作节点： 所有的master和slave节点（k8s-master,k8s-slave）需要执行\n本章下述操作均以k8s-master为例，其他节点均是相同的操作（ip和hostname的值换成对应机器的真实值）\n设置安全组开放端口 如果节点间无安全组限制（内网机器间可以任意访问），可以忽略，否则，至少保证如下端口可通： k8s-master节点：TCP：6443，2379，2380，60080，60081UDP协议端口全部打开 k8s-slave节点：UDP协议端口全部打开\n# 设置iptables iptables -P FORWARD ACCEPT # 关闭swap swapoff -a # 防止开机自动挂载 swap 分区 sed -i '/ swap / s/^\\(.*\\)$/#\\1/g' /etc/fstab # 关闭selinux和防火墙 setenforce 0 sed -ri 's#(SELINUX=).*#\\1disabled#' /etc/selinux/config systemctl disable firewalld \u0026\u0026 systemctl stop firewalld systemctl disable NetworkManager \u0026\u0026 systemctl stop NetworkManager # 修改内核参数 cat \u003c\u003cEOF \u003e /etc/sysctl.d/k8s.conf net.bridge.bridge-nf-call-ip6tables = 1 net.bridge.bridge-nf-call-iptables = 1 net.ipv4.ip_forward=1 vm.max_map_count=262144 EOF cat \u003e\u003e /etc/sysctl.conf\u003c\u003cEOF net.ipv4.ip_forward=1 net.bridge.bridge-nf-call-iptables=1 net.ipv4.neigh.default.gc_thresh1=4096 net.ipv4.neigh.default.gc_thresh2=6144 net.ipv4.neigh.default.gc_thresh3=8192 EOF #修改句柄数 cat \u003c\u003cEOF \u003e /etc/security/limits.conf * soft nofile 819200 * hard nofile 819200 * soft nproc unlimited * hard nproc unlimited * soft memlock unlimited * hard memlock unlimited * soft core unlimited EOF modprobe br_netfilter #生效 sysctl -p \u0026\u0026 sysctl --system 时间统一 #修改时区，同步时间 yum install chrony -y cat \u003e\u003e/etc/chrony.conf \u003c",
-  "wordCount" : "3439",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8+%E9%AB%98%E5%8F%AF%E7%94%A8/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -330,6 +245,11 @@ Docker Engine，需依赖使用cri-dockerd
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1468,8 +1388,8 @@ hostname必须只能包含小写字母、数字、&quot;,&quot;、&quot;-&quot;�
 </span></span><span style="display:flex;"><span><span style="color:#75715e"># 使用该命令拿到token，然后粘贴到</span>
 </span></span><span style="display:flex;"><span>$ kubectl -n kubernetes-dashboard get secret admin-token-fqdpf -o jsonpath={.data.token}|base64 -d
 </span></span><span style="display:flex;"><span>eyJhbGciOiJSUzI1NiIsImtpZCI6Ik1rb2xHWHMwbWFPMjJaRzhleGRqaExnVi1BLVNRc2txaEhETmVpRzlDeDQifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi1mcWRwZiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjYyNWMxNjJlLTQ1ZG...
-</span></span></code></pre></div><p><img alt="dashboard" loading="lazy" src="images%5Cdashboard.png"></p>
-<p><img alt="dashboard-content" loading="lazy" src="images%5Cdashboard-content.jpg"></p>
+</span></span></code></pre></div><p><img alt="dashboard" loading="lazy" src="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8+%E9%AB%98%E5%8F%AF%E7%94%A8/images/dashboard.png"></p>
+<p><img alt="dashboard-content" loading="lazy" src="/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8+%E9%AB%98%E5%8F%AF%E7%94%A8/images/dashboard-content.jpg"></p>
 <h3 id="10-kubeadm-reset清理环境">10. kubeadm reset清理环境<a hidden class="anchor" aria-hidden="true" href="#10-kubeadm-reset清理环境">#</a></h3>
 <p>如果你的集群安装过程中遇到了其他问题，我们可以使用下面的命令来进行重置：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>kubeadm reset <span style="color:#f92672">-f</span> 
@@ -2080,24 +2000,45 @@ hostname必须只能包含小写字母、数字、&quot;,&quot;、&quot;-&quot;�
 
   <footer class="post-footer">
     <ul class="post-tags">
-    </ul>
-<nav class="paginav">
-  <a class="prev" href="/k8s/istio/">
-    <span class="title">« Prev</span>
-    <span>istio</span>
-  </a>
-  <a class="next" href="/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/">
-    <span class="title">Next »</span>
-    <span>k8s安装-二进制</span>
-  </a>
-</nav>
-
+    </ul><section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    <a class="prev" href="//localhost:1313/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">k8s安装-二进制</span>
+    </a>
+    <a class="next" href="//localhost:1313/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">k8s笔记整理</span>
+    </a>
+  </nav>
+</section>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

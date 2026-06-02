@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>minio | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="介绍
@@ -52,16 +52,16 @@ MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)
 二进制(4磁盘3节点)
 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/minio/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/k8s/minio/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/minio/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/minio/">
 <noscript>
     <style>
         #theme-toggle,
@@ -107,94 +107,17 @@ MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/minio/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="minio">
-  <meta property="og:description" content="介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
-MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
-生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
-EC
-# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k &#43; m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
-docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name minio \ -v ~/minio/data:/data \ -e &#34;MINIO_ROOT_USER=minioadmin&#34; \ -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \ quay.io/minio/minio server /data --console-address &#34;:9001&#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="minio">
-  <meta name="twitter:description" content="介绍 官方文档(中文)：http://docs.minio.org.cn/docs/
-MinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。
-生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务
-EC
-# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k &#43; m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n&#43;m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html
-docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name minio \ -v ~/minio/data:/data \ -e &#34;MINIO_ROOT_USER=minioadmin&#34; \ -e &#34;MINIO_ROOT_PASSWORD=minioadmin&#34; \ quay.io/minio/minio server /data --console-address &#34;:9001&#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address &#34;:port&#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "minio",
-      "item": "/k8s/minio/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "minio",
-  "name": "minio",
-  "description": "介绍 官方文档(中文)：http://docs.minio.org.cn/docs/\nMinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。\n生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务\nEC\n# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k + m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n+m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html\ndocker mkdir -p ~/minio/data docker run \\ -p 9000:9000 \\ -p 9001:9001 \\ --name minio \\ -v ~/minio/data:/data \\ -e \u0026#34;MINIO_ROOT_USER=minioadmin\u0026#34; \\ -e \u0026#34;MINIO_ROOT_PASSWORD=minioadmin\u0026#34; \\ quay.io/minio/minio server /data --console-address \u0026#34;:9001\u0026#34; docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address \u0026#34;:port\u0026#34; 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "介绍 官方文档(中文)：http://docs.minio.org.cn/docs/\nMinIO 是在 Apache License v2.0 下发布的高性能对象存储。它是与 Amazon S3 云存储服务兼容的 API。使用 MinIO 构建 用于机器学习、分析和应用的高性能基础设施数据工作负载。MinIO 从根本上与众不同,专为企业和私有云设计。MinIO生产部署涵盖了全球。MinIO是全球使用最多和下载量最大的对象存储服务系统，还是全世界增长最快的对象存储系统。\n生产 MinIO 部署由至少 4 个具有同构存储和计算资源的 MinIO 主机组成。 这些资源聚合在一起作为一个 服务器池，对外抽象为一个可被访问的对象存储服务\nEC\n# ec 纠删码，也叫奇偶校验码，数字表示所有磁盘中要分出多少来进行数据校验，参考RAID 公式 n = k + m n: 总数据块 k: 原始数据块 m: 校验块，本架构指ec数量，也就意味着集群中可以允许m块磁盘进行故障而不影响读写 冗余度 n+m/n 冗余度越高，磁盘利用率越低 k值影响数据恢复代价 k值越小，数据分散度越小，故障影响面越大 k值越大，多路数据拷贝增加的网络和磁盘负载越大 一般推荐使用ec4集群冗余度1.33 安装 k8s https://www.minio.org.cn/docs/minio/kubernetes/upstream/index.html\ndocker mkdir -p ~/minio/data docker run \\ -p 9000:9000 \\ -p 9001:9001 \\ --name minio \\ -v ~/minio/data:/data \\ -e \"MINIO_ROOT_USER=minioadmin\" \\ -e \"MINIO_ROOT_PASSWORD=minioadmin\" \\ quay.io/minio/minio server /data --console-address \":9001\" docker run启动 MinIO 容器 -p将本地端口绑定到容器端口 -name为容器创建一个名称 9000表示MinIO服务地址，其上传调用的就是这个服务地址 9090表示MinIO的Web Console地址，Console监听的是一个动态的端口, 可以通过 --console-address \":port\" 指定静态端口 /mnt/data/minio/data:/data表示将MiniIO的数据挂载到宿主机上 /mnt/data/minio/config:/root/.minio表示将MiniIO的配置文件挂载到宿主机上 MINIO_ROOT_USER=minioadmin表示MinIO部署的root用户的用户名(accessKey)，不写默认的用户名就是minioadmin MINIO_ROOT_PASSWORD=minioadmin表示MinIO部署的root用户的密码(secretKey)，不写默认的密码就是minioadmin 二进制单节点 二进制(4磁盘3节点) 官方文档： https://www.minio.org.cn/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html\nwget https://dl.minio.org.cn/server/minio/release/linux-amd64/minio chmod +x minio sudo mv minio /usr/local/bin/ # 创建数据目录 mkdir -p /data/minio/disk-{1...4} groupadd -r minio-user useradd -M -r -g minio-user minio-user chown minio-user:minio-user /data/minio/* 配置环境变量文件\nmkdir /etc/minio/ -p cat \u003e/etc/minio/config \u003c",
-  "wordCount" : "210",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/minio/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -263,6 +186,11 @@ docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name m
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -437,24 +365,45 @@ docker mkdir -p ~/minio/data docker run \ -p 9000:9000 \ -p 9001:9001 \ --name m
 
   <footer class="post-footer">
     <ul class="post-tags">
-    </ul>
-<nav class="paginav">
-  <a class="prev" href="/k8s/kustormize/">
-    <span class="title">« Prev</span>
-    <span>kustormize</span>
-  </a>
-  <a class="next" href="/k8s/promethues/">
-    <span class="title">Next »</span>
-    <span>promethues</span>
-  </a>
-</nav>
-
+    </ul><section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    <a class="prev" href="//localhost:1313/k8s/kustormize/">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">kustormize</span>
+    </a>
+    <a class="next" href="//localhost:1313/k8s/promethues/">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">promethues</span>
+    </a>
+  </nav>
+</section>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

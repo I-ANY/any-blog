@@ -13,7 +13,7 @@
     {{- end }}
   </header>
 
-  {{- $pages := union .RegularPages .Sections }}
+  {{- $pages := (union .RegularPages .Sections).ByWeight }}
   {{- $paginator := .Paginate $pages }}
   <section class="kb-list-grid" aria-label="{{ .Title }} 文章列表">
     {{- range $paginator.Pages }}

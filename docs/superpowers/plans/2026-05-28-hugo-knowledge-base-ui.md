@@ -155,8 +155,6 @@ Create the file with:
 <section class="kb-section" id="modules" aria-labelledby="modules-title">
   <div class="kb-section-heading">
     <p class="kb-eyebrow">Modules</p>
-    <h2 id="modules-title">按模块浏览</h2>
-    <p>每个模块对应一个独立知识板块，文章按主题聚合，方便快速定位。</p>
   </div>
   <div class="kb-module-grid">
     {{- range $moduleOrder }}

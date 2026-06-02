@@ -2,17 +2,77 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Docker on 探无止境</title>
-    <link>/docker/</link>
+    <link>//localhost:1313/docker/</link>
     <description>Recent content in Docker on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/docker/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/docker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>安装使用</title>
+      <link>//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
+      <guid>//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</guid>
+      <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
+&lt;h2 id=&#34;docker的世界&#34;&gt;Docker的世界&lt;/h2&gt;
+&lt;p&gt;介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。&lt;/p&gt;
+&lt;h2 id=&#34;认识docker&#34;&gt;认识docker&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;轻量、高效的虚拟化&lt;/p&gt;
+&lt;p&gt;Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。&lt;/p&gt;
+&lt;p&gt;（思考为啥要用Linux容器技术？）&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/docker-differents.svg&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。&lt;/p&gt;
+&lt;p&gt;Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;软件交付过程中的环境依赖&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/why.png&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;知识点&#34;&gt;知识点&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;container容器之间相互隔离，且每个容器可以设置资源限额&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;CS架构的软件产品&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/docker-engine.png&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;版本管理&#34;&gt;版本管理&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Docker 引擎主要有两个版本：企业版（EE）和社区版（CE）&lt;/li&gt;
+&lt;li&gt;每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持&lt;/li&gt;
+&lt;li&gt;每个月社区版还会通过 Edge 方式发布月度版&lt;/li&gt;
+&lt;li&gt;从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/docker-version.png&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;发展史&#34;&gt;发展史&lt;/h3&gt;
+&lt;p&gt;13年成立，15年开始，迎来了飞速发展。&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/images/deplpment.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Docker 1.8之前，使用&lt;a href=&#34;https://linuxcontainers.org/fr/lxc/introduction/&#34;&gt;LXC&lt;/a&gt;，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。&lt;/p&gt;
+&lt;p&gt;之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。&lt;/p&gt;
+&lt;p&gt;2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。&lt;/p&gt;
+&lt;p&gt;OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (&lt;a href=&#34;https://github.com/opencontainers/runc&#34;&gt;https://github.com/opencontainers/runc&lt;/a&gt; )， 目前runC已经成为一个功能强大的runtime工具。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>docker运行各种服务</title>
-      <link>/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</link>
+      <link>//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</guid>
+      <guid>//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</guid>
       <description>&lt;h1 id=&#34;docker运行mysql&#34;&gt;docker运行mysql&lt;/h1&gt;
 &lt;p&gt;1、获取mysql镜像&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker search mysql
@@ -49,66 +109,6 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 查看拉取的镜像文件&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;docker images | grep redis
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;2、启动一个redis容器&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>安装使用</title>
-      <link>/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</link>
-      <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</guid>
-      <description>&lt;h1 id=&#34;介绍&#34;&gt;介绍&lt;/h1&gt;
-&lt;h2 id=&#34;docker的世界&#34;&gt;Docker的世界&lt;/h2&gt;
-&lt;p&gt;介绍docker的前世今生，了解docker的实现原理，以Django项目为例，带大家如何编写最佳的Dockerfile构建镜像。通过本章的学习，大家会知道docker的概念及基本操作，并学会构建自己的业务镜像，并通过抓包的方式掌握Docker最常用的bridge网络模式的通信。&lt;/p&gt;
-&lt;h2 id=&#34;认识docker&#34;&gt;认识docker&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;轻量、高效的虚拟化&lt;/p&gt;
-&lt;p&gt;Docker 公司位于旧金山,原名dotCloud，底层利用了Linux容器技术（在操作系统中实现资源隔离与限制）。为了方便创建和管理这些容器，dotCloud 开发了一套内部工具，之后被命名为“Docker”。Docker就是这样诞生的。&lt;/p&gt;
-&lt;p&gt;（思考为啥要用Linux容器技术？）&lt;/p&gt;
-&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;images%5Cdocker-differents.svg&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Hypervisor： 一种运行在基础物理服务器和操作系统之间的中间软件层，可允许多个操作系统和应用共享硬件 。常见的VMware的 Workstation 、ESXi、微软的Hyper-V或者思杰的XenServer。&lt;/p&gt;
-&lt;p&gt;Container Runtime：通过Linux内核虚拟化能力管理多个容器，多个容器共享一套操作系统内核。因此摘掉了内核占用的空间及运行所需要的耗时，使得容器极其轻量与快速。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;软件交付过程中的环境依赖&lt;/p&gt;
-&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;images%5Cwhy.png&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;知识点&#34;&gt;知识点&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;可以把应用程序代码及运行依赖环境打包成镜像，作为交付介质，在各环境部署&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;可以将镜像（image）启动成为容器(container)，并且提供多容器的生命周期进行管理（启、停、删）&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;container容器之间相互隔离，且每个容器可以设置资源限额&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;提供轻量级虚拟化功能，容器就是在宿主机中的一个个的虚拟的空间，彼此相互隔离，完全独立&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;CS架构的软件产品&lt;/p&gt;
-&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;images%5Cdocker-engine.png&#34;&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;版本管理&#34;&gt;版本管理&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Docker 引擎主要有两个版本：企业版（EE）和社区版（CE）&lt;/li&gt;
-&lt;li&gt;每个季度(1-3,4-6,7-9,10-12)，企业版和社区版都会发布一个稳定版本(Stable)。社区版本会提供 4 个月的支持，而企业版本会提供 12 个月的支持&lt;/li&gt;
-&lt;li&gt;每个月社区版还会通过 Edge 方式发布月度版&lt;/li&gt;
-&lt;li&gt;从 2017 年第一季度开始，Docker 版本号遵循 YY.MM-xx 格式，类似于 Ubuntu 等项目。例如，2018 年 6 月第一次发布的社区版本为 18.06.0-ce&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;images%5Cdocker-version.png&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;发展史&#34;&gt;发展史&lt;/h3&gt;
-&lt;p&gt;13年成立，15年开始，迎来了飞速发展。&lt;/p&gt;
-&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;images%5Cdeplpment.png&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Docker 1.8之前，使用&lt;a href=&#34;https://linuxcontainers.org/fr/lxc/introduction/&#34;&gt;LXC&lt;/a&gt;，Docker在上层做了封装， 把LXC复杂的容器创建与使用方式简化为自己的一套命令体系。&lt;/p&gt;
-&lt;p&gt;之后，为了实现跨平台等复杂的场景，Docker抽出了libcontainer项目，把对namespace、cgroup的操作封装在libcontainer项目里，支持不同的平台类型。&lt;/p&gt;
-&lt;p&gt;2015年6月，Docker牵头成立了 OCI（Open Container Initiative开放容器计划）组织，这个组织的目的是建立起一个围绕容器的通用标准 。 容器格式标准是一种不受上层结构绑定的协议，即不限于某种特定操作系统、硬件、CPU架构、公有云等 ， 允许任何人在遵循该标准的情况下开发应用容器技术，这使得容器技术有了一个更广阔的发展空间。&lt;/p&gt;
-&lt;p&gt;OCI成立后，libcontainer 交给OCI组织来维护，但是libcontainer中只包含了与kernel交互的库，因此基于libcontainer项目，后面又加入了一个CLI工具，并且项目改名为runC (&lt;a href=&#34;https://github.com/opencontainers/runc&#34;&gt;https://github.com/opencontainers/runc&lt;/a&gt; )， 目前runC已经成为一个功能强大的runtime工具。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

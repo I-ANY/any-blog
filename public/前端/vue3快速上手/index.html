@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>Vue3快速上手 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="1. Vue3简介
@@ -123,16 +123,16 @@ npm run serve
 2.2. 基于 vite 创建(推荐)
 vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的优势如下：">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
 <noscript>
     <style>
         #theme-toggle,
@@ -178,130 +178,17 @@ vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="Vue3快速上手">
-  <meta property="og:description" content="1. Vue3简介 2020年9月18日，Vue.js发布版3.0版本，代号：One Piece（n
-经历了：4800&#43;次提交、40&#43;个RFC、600&#43;次PR、300&#43;贡献者
-官方发版地址：Release v3.0.0 One Piece · vuejs/core
-截止2023年10月，最新的公开版本为：3.3.4
-1.1. 性能的提升 打包大小减少41%。
-初次渲染快55%, 更新渲染快133%。
-内存减少54%。
-1.2. 源码的升级 使用Proxy代替defineProperty实现响应式。
-重写虚拟DOM的实现和Tree-Shaking。
-1.3. 拥抱TypeScript Vue3可以更好的支持TypeScript。 1.4. 新的特性 Composition API（组合API）：
-setup
-ref与reactive
-computed与watch
-……
-新的内置组件：
-Fragment
-Teleport
-Suspense
-……
-其他改变：
-新的生命周期钩子
-data 选项应始终被声明为一个函数
-移除keyCode支持作为 v-on 的修饰符
-……
-2. 创建Vue3工程 2.1. 基于 vue-cli 创建 点击查看官方文档
-备注：目前vue-cli已处于维护模式，官方推荐基于 Vite 创建项目。
-## 查看@vue/cli版本，确保@vue/cli版本在4.5.0以上 vue --version ## 安装或者升级你的@vue/cli npm install -g @vue/cli ## 执行创建命令 vue create vue_test ## 随后选择3.x ## Choose a version of Vue.js that you want to start the project with (Use arrow keys) ## &gt; 3.x ## 2.x ## 启动 cd vue_test npm run serve 2.2. 基于 vite 创建(推荐) vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的优势如下：">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="前端">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Vue3快速上手">
-  <meta name="twitter:description" content="1. Vue3简介 2020年9月18日，Vue.js发布版3.0版本，代号：One Piece（n
-经历了：4800&#43;次提交、40&#43;个RFC、600&#43;次PR、300&#43;贡献者
-官方发版地址：Release v3.0.0 One Piece · vuejs/core
-截止2023年10月，最新的公开版本为：3.3.4
-1.1. 性能的提升 打包大小减少41%。
-初次渲染快55%, 更新渲染快133%。
-内存减少54%。
-1.2. 源码的升级 使用Proxy代替defineProperty实现响应式。
-重写虚拟DOM的实现和Tree-Shaking。
-1.3. 拥抱TypeScript Vue3可以更好的支持TypeScript。 1.4. 新的特性 Composition API（组合API）：
-setup
-ref与reactive
-computed与watch
-……
-新的内置组件：
-Fragment
-Teleport
-Suspense
-……
-其他改变：
-新的生命周期钩子
-data 选项应始终被声明为一个函数
-移除keyCode支持作为 v-on 的修饰符
-……
-2. 创建Vue3工程 2.1. 基于 vue-cli 创建 点击查看官方文档
-备注：目前vue-cli已处于维护模式，官方推荐基于 Vite 创建项目。
-## 查看@vue/cli版本，确保@vue/cli版本在4.5.0以上 vue --version ## 安装或者升级你的@vue/cli npm install -g @vue/cli ## 执行创建命令 vue create vue_test ## 随后选择3.x ## Choose a version of Vue.js that you want to start the project with (Use arrow keys) ## &gt; 3.x ## 2.x ## 启动 cd vue_test npm run serve 2.2. 基于 vite 创建(推荐) vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的优势如下：">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Vue3快速上手",
-      "item": "/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Vue3快速上手",
-  "name": "Vue3快速上手",
-  "description": "1. Vue3简介 2020年9月18日，Vue.js发布版3.0版本，代号：One Piece（n\n经历了：4800+次提交、40+个RFC、600+次PR、300+贡献者\n官方发版地址：Release v3.0.0 One Piece · vuejs/core\n截止2023年10月，最新的公开版本为：3.3.4\n1.1. 性能的提升 打包大小减少41%。\n初次渲染快55%, 更新渲染快133%。\n内存减少54%。\n1.2. 源码的升级 使用Proxy代替defineProperty实现响应式。\n重写虚拟DOM的实现和Tree-Shaking。\n1.3. 拥抱TypeScript Vue3可以更好的支持TypeScript。 1.4. 新的特性 Composition API（组合API）：\nsetup\nref与reactive\ncomputed与watch\n\u0026hellip;\u0026hellip;\n新的内置组件：\nFragment\nTeleport\nSuspense\n\u0026hellip;\u0026hellip;\n其他改变：\n新的生命周期钩子\ndata 选项应始终被声明为一个函数\n移除keyCode支持作为 v-on 的修饰符\n\u0026hellip;\u0026hellip;\n2. 创建Vue3工程 2.1. 基于 vue-cli 创建 点击查看官方文档\n备注：目前vue-cli已处于维护模式，官方推荐基于 Vite 创建项目。\n## 查看@vue/cli版本，确保@vue/cli版本在4.5.0以上 vue --version ## 安装或者升级你的@vue/cli npm install -g @vue/cli ## 执行创建命令 vue create vue_test ## 随后选择3.x ## Choose a version of Vue.js that you want to start the project with (Use arrow keys) ## \u0026gt; 3.x ## 2.x ## 启动 cd vue_test npm run serve 2.2. 基于 vite 创建(推荐) vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的优势如下：\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "1. Vue3简介 2020年9月18日，Vue.js发布版3.0版本，代号：One Piece（n\n经历了：4800+次提交、40+个RFC、600+次PR、300+贡献者\n官方发版地址：Release v3.0.0 One Piece · vuejs/core\n截止2023年10月，最新的公开版本为：3.3.4\n1.1. 性能的提升 打包大小减少41%。\n初次渲染快55%, 更新渲染快133%。\n内存减少54%。\n1.2. 源码的升级 使用Proxy代替defineProperty实现响应式。\n重写虚拟DOM的实现和Tree-Shaking。\n1.3. 拥抱TypeScript Vue3可以更好的支持TypeScript。 1.4. 新的特性 Composition API（组合API）：\nsetup\nref与reactive\ncomputed与watch\n……\n新的内置组件：\nFragment\nTeleport\nSuspense\n……\n其他改变：\n新的生命周期钩子\ndata 选项应始终被声明为一个函数\n移除keyCode支持作为 v-on 的修饰符\n……\n2. 创建Vue3工程 2.1. 基于 vue-cli 创建 点击查看官方文档\n备注：目前vue-cli已处于维护模式，官方推荐基于 Vite 创建项目。\n## 查看@vue/cli版本，确保@vue/cli版本在4.5.0以上 vue --version ## 安装或者升级你的@vue/cli npm install -g @vue/cli ## 执行创建命令 vue create vue_test ## 随后选择3.x ## Choose a version of Vue.js that you want to start the project with (Use arrow keys) ## \u003e 3.x ## 2.x ## 启动 cd vue_test npm run serve 2.2. 基于 vite 创建(推荐) vite 是新一代前端构建工具，官网地址：https://vitejs.cn，vite的优势如下：\n轻量快速的热重载（HMR），能实现极速的服务启动。 对 TypeScript、JSX、CSS 等支持开箱即用。 真正的按需编译，不再等待整个应用编译完成。 webpack构建 与 vite构建对比图如下： 具体操作如下（点击查看官方文档） ## 1.创建命令 npm create vue@latest ## 2.具体配置 ## 配置项目名称 √ Project name: vue3_test ## 是否添加TypeScript支持 √ Add TypeScript? Yes ## 是否添加JSX支持 √ Add JSX Support? No ## 是否添加路由环境 √ Add Vue Router for Single Page Application development? No ## 是否添加pinia环境 √ Add Pinia for state management? No ## 是否添加单元测试 √ Add Vitest for Unit Testing? No ## 是否添加端到端测试方案 √ Add an End-to-End Testing Solution? » No ## 是否添加ESLint语法检查 √ Add ESLint for code quality? Yes ## 是否添加Prettiert代码格式化 √ Add Prettier for code formatting? No 自己动手编写一个App组件\n\u003ctemplate\u003e \u003cdiv class=\"app\"\u003e \u003ch1\u003e你好啊！\u003c/h1\u003e \u003c/div\u003e \u003c/template\u003e \u003cscript lang=\"ts\"\u003e export default { name:'App' //组件名 } \u003c/script\u003e \u003cstyle\u003e .app { background-color: #ddd; box-shadow: 0 0 10px; border-radius: 10px; padding: 20px; } \u003c/style\u003e 安装官方推荐的vscode插件：\n总结：\nVite 项目中，index.html 是项目的入口文件，在项目最外层。 加载index.html后，Vite 解析 ",
-  "wordCount" : "3680",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -370,6 +257,11 @@ data 选项应始终被声明为一个函数
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -3116,13 +3008,12 @@ data 选项应始终被声明为一个函数
   <footer class="post-footer">
     <ul class="post-tags">
     </ul>
-
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>k8s问题排查手册 | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="前言：
@@ -21,16 +21,16 @@ Pod 无法连接到其他服务，如何排查？
 ​		使用 kubectl exec -it [pod_name] -n [namespace_name] &ndash; /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。
 ​		使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
 <noscript>
     <style>
         #theme-toggle,
@@ -76,102 +76,17 @@ Pod 无法连接到其他服务，如何排查？
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="k8s问题排查手册">
-  <meta property="og:description" content="前言：
-文章取自：啊铭老师
-公众号：运维狗工作日记
-K8S云原生企业实战训练营课程大纲
-链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80&amp;sub=66406314DFE348DAAC39162CF32540FA
-一、Pod 相关问题及排查： Pod 无法启动，如何查找原因？ ​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。
-​	使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。
-​	使用 kubectl get events –field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。
-Pod 无法连接到其他服务，如何排查？ ​	使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。
-​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="k8s问题排查手册">
-  <meta name="twitter:description" content="前言：
-文章取自：啊铭老师
-公众号：运维狗工作日记
-K8S云原生企业实战训练营课程大纲
-链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80&amp;sub=66406314DFE348DAAC39162CF32540FA
-一、Pod 相关问题及排查： Pod 无法启动，如何查找原因？ ​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。
-​	使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。
-​	使用 kubectl get events –field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。
-Pod 无法连接到其他服务，如何排查？ ​	使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。
-​	使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "k8s问题排查手册",
-      "item": "/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "k8s问题排查手册",
-  "name": "k8s问题排查手册",
-  "description": "前言：\n文章取自：啊铭老师\n公众号：运维狗工作日记\nK8S云原生企业实战训练营课程大纲\n链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80\u0026amp;sub=66406314DFE348DAAC39162CF32540FA\n一、Pod 相关问题及排查： Pod 无法启动，如何查找原因？ ​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。\n​\t使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。\n​\t使用 kubectl get events \u0026ndash;field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。\nPod 无法连接到其他服务，如何排查？ ​\t使用 kubectl exec -it [pod_name] -n [namespace_name] \u0026ndash; /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "前言：\n文章取自：啊铭老师\n公众号：运维狗工作日记\nK8S云原生企业实战训练营课程大纲\n链接：http://note.youdao.com/noteshare?id=86f9beec95d8ceffb1e150afd16a9f80\u0026sub=66406314DFE348DAAC39162CF32540FA\n一、Pod 相关问题及排查： Pod 无法启动，如何查找原因？ ​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看该Pod 的状态信息，检查容器的状态和事件信息，判断是否出现问题。\n​\t使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，判断是否有错误或异常信息。\n​\t使用 kubectl get events –field-selector involvedObject.name=[pod_name] -n [namespace_name] 命令查看该 Pod 相关的事件信息，判断是否有异常事件发生。\nPod 无法连接到其他服务，如何排查？ ​\t使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入该 Pod 所在的容器，尝试使用 ping 或 telnet 等命令测试与其他服务的网络连接情况。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 NetworkPolicy 配置，判断是否阻止了该 Pod 访问其他服务。\n​\t使用 kubectl describe service [service_name] -n [namespace_name] 命令检查目标服务的配置和状态信息，判断是否存在故障。\nPod 运行缓慢或异常，如何排查？ ​\t使用 kubectl top pod [pod_name] -n [namespace_name] 命令查看该 Pod 的CPU 和内存使用情况，判断是否存在性能瓶颈。\n​\t使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入该 Pod 所在的容器，使用 top 或 htop 命令查看容器内部进程的 CPU 和内存使用情况，找出可能存在的瓶颈。\n​\t使用 kubectl logs [pod_name] -n [namespace_name] 命令查看该 Pod 容器的日志信息，寻找可能的错误或异常信息。\nPod 无法被调度到节点上运行，如何排查？ ​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看 Pod的调度情况，判断是否存在资源不足、调度策略等问题。\n​\t使用 kubectl get nodes 和 kubectl describe node [node_name] 命令查看所有节点的资源使用情况，判断是否存在节点资源不足或故障的情况。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod所需的标签和注释，以及节点的标签和注释，判断是否匹配。\nPod 状态一直是 Pending ，怎么办？ ​\t使用 kubectl get pods -n 命令检查 Pod 的状态和事件，确定Pod 处于何种状态以及是否有任何错误或警告信息。\n​\t检查 Pod 的描述文件（YAML 或 JSON），确保各项字段（如镜像名称、资源请求、端口等）配置正确。\n​\t如果 Pod 需要特定类型的节点（如 GPU 节点），确认集群中是否有符合条件的节点可用。\n​\t检查 Pod 所需的资源配额（如 CPU、内存）是否已经达到上限，可以使用kubectl describe pod -n 查看详细信息。\n​\t检查 Pod 所需的存储卷是否可用，确保没有引发挂载错误。\n​\t如果是调度问题，可以通过以下方式解决：\n​\t确保有足够的节点资源满足该 Pod 调度需求\n​\t检查该节点的 taints 和 tolerations 是否与 Pod 的 selector 匹配调整 Pod 的调度策略，如使用 NodeSelector、Affinity 等\nPod 无法访问外部服务，怎么办？ ​\t查看 Pod 中的 DNS 配置是否正确\n​\t检查 Pod 所在的命名空间中是否存在 Service 服务\n​\t确认该 Pod 是否具有网络访问权限\n​\t查看 Pod 所在的节点是否有对外的访问权限\n​\t检查网络策略是否阻止了 Pod 对外的访问\nPod 启动后立即退出，怎么办？ ​\t查看该 Pod 的事件信息： kubectl describe pod ​\t查看该 Pod 的日志： kubectl logs ​\t检查容器镜像是否正确、环境变量是否正确、入口脚本是否正常\n​\t尝试在本地使用相同的镜像运行该容器，查看是否有报错信息，如执行 docker run Pod 启动后无法正确运行应用程序，怎么办？ ​\t查看 Pod 中的应用程序日志： kubectl logs ​\t查看该 Pod 的事件信息： kubectl describe pod ​\t检查应用程序的配置文件是否正确\n​\t检查应用程序的依赖是否正常\n​\t尝试在本地使用相同的镜像运行该容器，查看是否有报错信息，如执行 docker run 确认该应用程序是否与 Pod 的资源限制相符 Kubernetes 集群中的 Service 不可访问，怎么办？ ​\t检查coreDNS服务是否可用；\n​\t查看dns配置文件是否正确（/etc/resolv.conf）；\n​\t业务层面svc的port是否正确；\n​\tsvc是否正确关联到后端的pod；\n​\t业务pod是否正常工作；\n​\tCNI网络组件（flannel，calico）组件是否有问题；\n​\tkube-proxy组件是否正常；\n​\t是否已经创建相关iptables规则或ipvs路由；\n附：Service工作流程图：\nPod 启动后立即终止或 CrashLoopBackOff 状态： ​\t使用 kubectl get pods -n 命令检查 Pod 的状态和事件，查看是否有任何错误或警告信息。\n​\t使用 kubectl logs -n 命令查看 Pod 的日志输出，尤其关注最后几行的错误信息。确认 Pod 的生命周期钩子（如 postStart、preStop）是否正确配置，是否有引发异常的操作。\n​\t确认 Pod 执行的命令或容器启动命令是否正确，是否会导致容器意外退出。\n​\t检查容器的资源使用情况是否超过 Pod 的资源限制，尤其是内存限制。\nPod 内部服务无法访问或网络连接问题： ​\t使用 kubectl get pods -n 命令检查 Pod 的状态和事件，查看是否有任何错误或警告信息。\n​\t确认 Pod 所属的 Service 是否已经创建，且与 Pod 使用的端口和协议匹配。\n​\t确认 Pod 的防火墙规则是否允许从其他 Pod 或节点访问所需的端口。\n​\t检查 Pod 内部的 DNS 配置，确保能够解析其他服务的域名。\n​\t使用 kubectl exec -n – 命令进入 Pod内部，手动测试容器之间的网络连通性。\nPod 与存储卷之间的问题： ​\t使用 kubectl get pods -n 命令检查 Pod 的状态和事件，查看是否有任何错误或警告信息。\n​\t确认存储卷是否已经正确地绑定到 Pod 上，可以使用 kubectl describe pod -n 查看详细信息。\n​\t使用 kubectl exec -n – 命令进入 Pod内部，手动测试存储卷是否能够正常挂载和访问。\n​\t检查存储卷提供程序（如 NFS、AWS EBS）的配置是否正确，并确保其可用性。\n​\t确保存储卷访问模式（如 ReadWriteOnce、ReadOnlyMany）与应用程序的要求相匹配。\n**二、**Node 相关问题及排查 Node 状态异常，如何排查？ ​\t使用 kubectl get nodes 命令查看集群中所有节点的状态和信息，判断是否存在故障。\n​\t使用 kubectl describe node [node_name] 命令查看目标节点的详细信息，包括 CPU、内存、磁盘等硬件资源的使用情况，判断是否存在性能瓶颈。\n​\t使用 kubectl get pods -o wide –all-namespaces 命令查看集群中所有 Pod的状态信息，判断是否有 Pod 运行在目标节点上导致资源紧张。\nNode 上运行的 Pod 无法访问网络，如何排查？ ​\t使用 kubectl describe node [node_name] 命令查看目标节点的信息，检查节点是否正常连接到网络。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看 Pod所运行的节点信息，判断是否因为节点状态异常导致网络访问失败。\n​\t使用 kubectl logs [pod_name] -n [namespace_name] 命令查看 Pod 容器的日志信息，寻找可能的错误或异常信息。\nNode 上的 Pod 无法访问存储，如何排查？ ​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 volumes 配置信息，判断是否存在存储挂载失败的情况。\n​\t使用 kubectl exec -it [pod_name] -n [namespace_name] – /bin/bash 命令进入 Pod 所在的容器，尝试使用 ls 和 cat 等命令访问挂载的文件系统，判断是否存在读写错误。\n​\t使用 kubectl describe persistentvolumeclaim [pvc_name] -n [namespace_name] 命令查看相关 PVC 配置和状态信息，判断是否存在故障。\n存储卷挂载失败，如何处理？ ​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的 volumes 配置信息，判断是否存在存储卷定义错误。\n​\t使用 kubectl describe persistentvolumeclaim [pvc_name] -n [namespace_name] 命令检查 PVC 的状态和信息，判断是否存在存储配额不足或存储资源故障等原因。\n​\t如果是 NFS 或 Ceph 等网络存储，需要确认网络连接是否正常，以及存储服务器的服务是否正常。\nNode 节点加入 Kubernetes 集群后无法被调度，怎么办？ ​\t检查该节点的 taints 和 tolerations 是否与 Pod 的 selector 匹配\n​\t检查该节点的资源使用情况是否满足 Pod 的调度要求确保该节点与 Kubernetes API server 的连接正常\nKubernetes 集群中的 PersistentVolume 挂载失败，怎么办？\n检查 PersistentVolume 和 Pod 之间的匹配关系是否正确检查 PersistentVolumeClaim 中的 storageClassName 是否与 PersistentVolume\n的 storageClassName 匹配\n检查节点存储配置和 PersistentVolume 的定义是否正确\n自动供给层面的权限是否已经给到位\n三、集群层面问题及排查： 集群中很多 Pod 运行缓慢，如何排查？ ​\t使用 kubectl top pod -n [namespace_name] 命令查看所有 Pod 的 CPU 和内存使用情况，判断是否存在资源瓶颈。\n​\t使用 kubectl get nodes 和 kubectl describe node [node_name] 命令查看所有节点的资源使用情况，判断是否存在单个节点资源紧张的情况。\n​\t使用 kubectl logs [pod_name] -n [namespace_name] 命令查看 Pod 容器的日志信息，寻找可能的错误或异常信息。\n集群中某个服务不可用，如何排查？ ​\t使用 kubectl get pods -n [namespace_name] 命令查看相关服务的所有 Pod的状态信息，判断是否存在故障。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令检查 Pod的网络连接和存储访问等问题，寻找故障原因。\n​\t使用 kubectl describe service [service_name] -n [namespace_name] 命令查看服务的配置和状态信息，判断是否存在故障。\n集群中的 Node 和 Pod 不平衡，如何排查？ ​\t使用 kubectl get nodes 和 kubectl get pods -o wide –all-namespaces命令查看所有 Node 和 Pod 的状态信息，判断是否存在分布不均的情况。\n​\t使用 kubectl top pod -n [namespace_name] 命令查看所有 Pod 的 CPU 和内存\n​\t使用情况，判断是否存在资源瓶颈导致 Pod 分布不均。\n​\t使用 kubectl describe pod [pod_name] -n [namespace_name] 命令查看 Pod所运行的节点信息，并使用 kubectl describe node [node_name] 命令查看相关节点的状态信息，判断是否存在节点不平衡的情况。\n​\t使用 kubectl describe pod / node [node_name] 查看当前Pod / Node上是否有相关的亲和或反亲和策略导致固定调度。\n集群中某个节点宕机，如何处理？ ​\t使用 kubectl get nodes 命令检查节点状态，找到异常节点。\n​\t使用 kubectl drain [node_name] –ignore-daemonsets 命令将节点上的 Pod驱逐出去，并将其部署到其他节点上。添加 –ignore-daemonsets 参数可以忽略DaemonSet 资源。\n​\t如果需要对节点进行维护或替换硬件：\n​\t先将节点设置为不可以调度 kubectl cordon [node_name]\n​\t再通过 kubectl drain [node_name] –ignore-daemonsets 命令将节点上的 Pod 驱逐出去，并将其部署到其他节点上。\n​\t然后再次 kubectl delete node [node_name] 安全的进行节点下线。\nKubernetes API Server 不可用，如何排查？ ​\t使用 kubectl cluster-info 命令查看集群状态，判断是否存在 API Server 不可用的情况。\n​\t使用 kubectl version 命令查看集群版本，确认 Kubernetes API Server 和kubelet 版本是否匹配。\n​\t使用 systemctl status kube-apiserver 命令检查 API Server 运行状态，确认是否存在故障或错误。\n​\t结合apiServer所在的节点查看系统层面的日志，进一步定位问题点。\nKubernetes 命令执行失败，怎么办？ ​\t检查 Kubernetes API server 是否可用： kubectl cluster-info\n​\t检查当前用户对集群的权限是否足够： kubectl auth can-i ​\t检查 kubeconfig 文件中的登录信息是否正确： kubectl config view\nKubernetes master 节点不可用，怎么办？ ​\t检查 kube-apiserver、kube-scheduler、kube-controller-manager 是否都在运行状态\n​\t检查 etcd 存储系统是否可用\n​\t尝试重新启动 master 节点上的 kubelet 和容器运行时\nKubernetes 集群绕过了 LoadBalancer，直接访问Pod，怎么办？ ​\t检查 Service 和 Pod 的通信是否使用了 ClusterIP 类型的 Service\n​\t确认该 Service 的 selector 是否匹配到了正确的Pod\nKubernetes 集群中的 Deployment 自动更新失败，怎么办？ ​\t检查更新策略是否设置正确，如 rollingUpdate 或 recreate\n​\t检查 Kubernetes API server 和 kubelet 之间的连接是否正常\n​\t检查 Pod 的定义是否正确\nKubernetes 集群中的状态检查错误，怎么办？ ​\t检查节点日志和事件信息，并确认错误类型\n​\t确认该状态检查是否与 kubelet 的版本兼容\n​\t尝试升级 kubelet 和容器运行时等组件\nKubernetes 集群中的授权配置有误，怎么办？ ​\t检查 RoleBinding 和 ClusterRoleBinding 定义是否正确\n​\t检查用户或服务账号所绑定的角色是否正确\n​\t检查 kubeconfig 文件中的用户和访问权限是否正确\nKubernetes 集群无法连接 etcd 存储系统，怎么办？ ​\t检查 etcd 存储系统是否正常运行\n​\t检查 kube-apiserver 配置文件中 etcd 的连接信息是否正确\n​\t尝试手动连接 etcd 集群，如执行 etcdctl cluster-health\n四、Pod 常遇状态异常排查 ​\t一般来说，无论 Pod 处于什么异常状态，都可以执行以下命令来查看 Pod 的状态：\nkubectl get pod -o yaml # 查看 Pod 的配置是否正确 kubectl describe pod -n命名空间 # 查看 Pod 的事件 kubectl logs [-c ] # 查看容器日志 如上这些事件和日志通常都会有助于排查 Pod 发生的问题。\nPod 一直处于 Pending 状态 ​\tPending 说明 Pod 还没有调度到某个 Node 上面。可以通过 kubectl describe pod 命令查看到当前 Pod 的事件，进而判断为什么没有调度。可能的原因包括：\n​\tkubectl get pod -o yaml 查看 Pod 的配置是否正确\n​\tkubectl describe pod -n命名空间 查看 Pod 的事件\n​\tkubectl logs [-c ] 查看容器日志资源不足，集群内所有的 Node 都不满足该 Pod 请求的 CPU、内存、GPU 等资源；\n​\tHostPort 已被占用，通常推荐使用 Service 对外开放服务端口；\nPod一直处于Waiting 或 ContainerCreating 状态 ​\t首先还是通过 kubectl describe pod 命令查看到当前 Pod 的事件。可能的原因包括：\n​\t镜像拉取失败，比如：\n​\t配置了错误的镜像；\n​\tKubelet 无法访问镜像（国内环境访问 gcr.io 需要特殊处理）；\n​\t私有镜像的密钥配置错误；\n​\t镜像太大，拉取超时（可以适当调整 kubelet 的 –image-pull-progress-deadline 和 –runtime-request-timeout 选项）；\n​\tCNI 网络错误，一般需要检查 CNI 网络插件的配置，比如：\n​\t无法配置 Pod 网络;\n​\t无法分配 IP 地址;\n​\t容器无法启动，需要检查是否打包了正确的镜像或者是否配置了正确的容器参数；\nPod处于ImagePullBackOff 状态 ​\t这通常是镜像名称配置错误或者私有镜像的密钥配置错误导致。这种情况可以使用docker pull 来验证镜像是否可以正常拉取。\n​\t如果是私有镜像，需要首先创建一个 docker-registry 类型的 Secret\nkubectl create secret docker-registry my-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL 然后在容器中引用这个 Secret：\nspec: containers: - name: private-reg-container image: imagePullSecrets: - name: my-secret Pod 一直处于 CrashLoopBackOff 状态 CrashLoopBackOff 状态说明容器曾经启动了，但又异常退出了。此时可以先查看一下容器的日志\nkubectl logs kubectl logs --previous 这里可以发现一些容器退出的原因，比如：\n​\t容器进程退出；\n​\t健康检查失败退出；\n此时如果还未发现线索，还可以到容器内执行命令来进一步查看退出原因\nkubectl exec cassandra -- cat /var/log/cassandra/system.log 如果还是没有线索，那就需要 SSH 登录该 Pod 所在的 Node 上，查看 Kubelet 或者Docker 的日志进一步排查了\n查询 pod 在哪台 Node：\nkubectl get pod -o wide Pod处于 Error 状态 ​\t通常处于 Error 状态说明 Pod 启动过程中发生了错误。常见的原因包括：\n​\t依赖的 ConfigMap、Secret 或者 PV 等不存在；\n​\t请求的资源超过了管理员设置的限制，比如超过了 LimitRange 等；\n​\t违反集群的安全策略，比如违反了 PodSecurityPolicy 等；\n​\t容器无权操作集群内的资源，比如开启 RBAC 后，需要为 ServiceAccount 配置角色绑定；\nPod 处于 Terminating 或 Unknown状态 Kubernetes 不会因为 Node 失联而删除其上正在运行的 Pod，而是将其标记为Terminating 或 Unknown 状态。想要删除这些状态的 Pod 有三种方法：\n​\t从集群中删除该 Node。使用公有云时，kube-controller-manager 会在 VM 删除后自动删除对应的 Node。而在物理机部署的集群中，需要管理员手动删除 Node（如kubectl delete node )。\n​\tNode 恢复正常。Kubelet 会重新跟 kube-apiserver 通信确认这些 Pod 的期待状态，进而再决定删除或者继续运行这些 Pod。\n​\t用户强制删除。用户可以执行 kubectl delete pods –grace-period=0 –force，强制删除 Pod。除非明确知道 Pod 的确处于停止状态（比如 Node 所在VM 或物理机已经关机），否则不建议使用该方法。特别是 StatefulSet 管理的Pod，强制删除容易导致脑裂或者数据丢失等问题。\n五、Kubernetes故障排查指南-分析容器退出状态码 Pod status状态解释\nCrashLoopBackOff：容器退出，kubelet正在将它重启 InvalidImageName：无法解析镜像名称 ImageInspectError：无法校验镜像 ErrImageNeverPull：策略禁止拉取镜像 ImagePullBackOff：镜像正在重试拉取 RegistryUnavailable：连接不到镜像中心 ErrImagePull：通用的拉取镜像出错 CreateContainerConfigError：不能创建kubelet使用的容器配置 CreateContainerError： 创建容器失败 m.internalLifecycle.PreStartContainer：执行hook报错 RunContainerError：启动容器失败 PostStartHookError：执行hook报错 ContainersNotInitialized：容器没有初始化完毕 ContainersNotReady：容器没有准备完毕 ContainerCreating：容器创建中 PodInitializing：pod 初始化中 DockerDaemonNotReady：docker还没有完全启动 NetworkPluginNotReady：网络插件还没有完全启动一般程序自身原因导致的异常退出状态区间在 1-128 (这只是一般约定，程序如果一 定要用129-255的状态码也是可以的) 容器 Exit Code 容器退出状态码的区间 ​\t必须在 0-255 之间\n​\t0 表示正常退出\n​\t外界中断将程序退出的时候状态码区间在 129-255，(操作系统给程序发送中断信号，比如 kill -9 是 SIGKILL，ctrl+c 是 SIGINT)\n​\t注意：有时我们会看到代码中有 exit(-1)，这时会自动做一个转换，最终输出的结果还是会在 0-255 之间。\n​\t转换公式如下，code 表现退出的状态码：\n当指定的退出时状态码为负数，转换公式如下：\n256 - (|code| % 256) 当指定的退出时状态码为正数，转换公式如下：\ncode % 256 常见的容器退出状态码解释 EXIT CODE 0\n​\t退出代码0表示特定容器没有附加前台进程\n​\t该退出代码是所有其他后续退出代码的例外\n​\t这不一定意味着发生了不好的事情。如果开发人员想要在容器完成其工作后自动停止其容器，则使用此退出代码。比如：kubernetes job 在执行完任务后正常退出码为0\nEXIT CODE 1\n​\t程序错误，或者Dockerfile中引用不存在的文件，如 entrypoint 中引用了错误的包\n​\t程序错误可以很简单，例如 “除以0”，也可以很复杂，比如空引用或者其他程序crash\nEXIT CODE 137\n​\t表明容器收到了 SIGKILL 信号，进程被杀掉，对应kill -9\n​\t引发 SIGKILL 的是docker kill。这可以由用户或由docker守护程序来发起，手动执行：docker kill\n​\t137 比较常见，如果 pod 中的limit 资源设置较小，会运行内存不足导致OOMKilled，此时state 中的 ”OOMKilled” 值为true，你可以在系统的 dmesg -T 中看到 oom 日志\nEXIT CODE 139\n​\t表明容器收到了 SIGSEGV 信号，无效的内存引用，对应kill -11\n​\t一般是代码有问题，或者 docker 的基础镜像有问题\nEXIT CODE 143\n​\t表明容器收到了 SIGTERM 信号，终端关闭，对应kill -15\n​\t一般对应 docker stop 命令\n​\t有时docker stop也会导致Exit Code 137。发生在与代码无法处理 SIGTERM 的情况下，docker进程等待十秒钟然后发出 SIGKILL 强制退出。\n不常用的一些 EXIT CODE\n​\tExit Code 126: 权限问题或命令不可执行\n​\tExit Code 127: Shell脚本中可能出现错字且字符无法识别的情况\n​\tExit Code 1 或 255：因为很多程序员写异常退出时习惯用 exit(1) 或 exit(-1)，-1 会根据转换规则转成 255。这个一般是自定义 code，要看具体逻辑。\n",
-  "wordCount" : "1387",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -240,6 +155,11 @@ Pod 无法连接到其他服务，如何排查？ ​	使用 kubectl exec -it [p
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -690,24 +610,45 @@ Pod 无法连接到其他服务，如何排查？ ​	使用 kubectl exec -it [p
 
   <footer class="post-footer">
     <ul class="post-tags">
-    </ul>
-<nav class="paginav">
-  <a class="prev" href="/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/">
-    <span class="title">« Prev</span>
-    <span>k8s笔记整理</span>
-  </a>
-  <a class="next" href="/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/">
-    <span class="title">Next »</span>
-    <span>k8s集群证书过期更换</span>
-  </a>
-</nav>
-
+    </ul><section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    <a class="prev" href="//localhost:1313/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">k8s集群证书过期更换</span>
+    </a>
+    <a class="next" href="//localhost:1313/k8s/kustormize/">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">kustormize</span>
+    </a>
+  </nav>
+</section>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

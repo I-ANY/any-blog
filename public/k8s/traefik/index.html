@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>traefik | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="参考博客：https://www.cuiliangblog.cn/detail/section/94663774
@@ -60,16 +60,16 @@ traefik组件与nginx类比
 
 ​	k8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/k8s/traefik/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/k8s/traefik/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/k8s/traefik/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/k8s/traefik/">
 <noscript>
     <style>
         #theme-toggle,
@@ -115,90 +115,17 @@ traefik组件与nginx类比
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/k8s/traefik/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="traefik">
-  <meta property="og:description" content="参考博客：https://www.cuiliangblog.cn/detail/section/94663774
-简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。
-组件 Providers：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。 Entrypoints：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP) Routers：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。 Middlewares：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。 Service：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。 Nginx-Ingress和traefik区别 traefik组件与nginx类比
-组件名 功能 nginx相同概念 Providers 监听路由信息变化，更新路由 修改nginx配置，并reload。 Entrypoints 网络入口，监听传入的流量 配置文件listen指定监听端口 Routers 分析传入的请求，匹配规则 配置文件server_name &#43; location Middlewares 中间件，修改请求或响应 location配置段中添加的缓存、压缩、请求头等配置 Service 请求转发 http配置段中的upstream ​	k8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="k8s">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="traefik">
-  <meta name="twitter:description" content="参考博客：https://www.cuiliangblog.cn/detail/section/94663774
-简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。
-组件 Providers：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。 Entrypoints：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP) Routers：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。 Middlewares：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。 Service：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。 Nginx-Ingress和traefik区别 traefik组件与nginx类比
-组件名 功能 nginx相同概念 Providers 监听路由信息变化，更新路由 修改nginx配置，并reload。 Entrypoints 网络入口，监听传入的流量 配置文件listen指定监听端口 Routers 分析传入的请求，匹配规则 配置文件server_name &#43; location Middlewares 中间件，修改请求或响应 location配置段中添加的缓存、压缩、请求头等配置 Service 请求转发 http配置段中的upstream ​	k8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Kubernetes",
-      "item": "/k8s/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "traefik",
-      "item": "/k8s/traefik/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "traefik",
-  "name": "traefik",
-  "description": "参考博客：https://www.cuiliangblog.cn/detail/section/94663774\n简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。\n组件 Providers：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。 Entrypoints：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP) Routers：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。 Middlewares：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。 Service：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。 Nginx-Ingress和traefik区别 traefik组件与nginx类比\n组件名 功能 nginx相同概念 Providers 监听路由信息变化，更新路由 修改nginx配置，并reload。 Entrypoints 网络入口，监听传入的流量 配置文件listen指定监听端口 Routers 分析传入的请求，匹配规则 配置文件server_name + location Middlewares 中间件，修改请求或响应 location配置段中添加的缓存、压缩、请求头等配置 Service 请求转发 http配置段中的upstream ​\tk8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "参考博客：https://www.cuiliangblog.cn/detail/section/94663774\n简介 Traefik是一个为了让部署微服务更加便捷而诞生的现代HTTP反向代理、负载均衡工具。 它支持多种后台 (Docker, Swarm, Kubernetes, Marathon, Mesos, Consul, Etcd, Zookeeper, BoltDB, Rest API, file…) 来自动化、动态的应用它的配置文件设置。\n组件 Providers：用来自动发现平台上的服务，可以是编排工具、容器引擎云提供商或者键值存储。Traefik通过查询Providers的API来查询路由的相关信息，一旦检测到变化，就会动态的更新路由。 Entrypoints：监听传入的流量，是网络的入口点，定义了接受请求的端口(HTTP或者TCP) Routers：分析请求(host,path,headers,SSL等)，负责将传入的请求连接到可以处理这些请求的服务上去。 Middlewares：中间件，用来修改请求或根据请求来做出判断，中间件被附件到路由上，可在请求发送到服务之前调整请求的。 Service：将请求转发给应用，负责配置如何最终将处理传入请求的实际服务，Traefik的Service介于Middlewares与Kubernetes Service之间，可以实现加权负载、流量复制等功能。 Nginx-Ingress和traefik区别 traefik组件与nginx类比\n组件名 功能 nginx相同概念 Providers 监听路由信息变化，更新路由 修改nginx配置，并reload。 Entrypoints 网络入口，监听传入的流量 配置文件listen指定监听端口 Routers 分析传入的请求，匹配规则 配置文件server_name + location Middlewares 中间件，修改请求或响应 location配置段中添加的缓存、压缩、请求头等配置 Service 请求转发 http配置段中的upstream ​\tk8s 是通过一个又一个的 controller 来负责监控、维护集群状态。Ingress Controller 就是监控 Ingress 路由规则的一个变化，然后跟 k8s 的资源操作入口 api-server 进行通信交互。K8s 并没有自带 Ingress Controller，它只是一种标准，具体实现有多种，需要自己单独安装，常用的是 Nginx Ingress Controller 和 Traefik Ingress Controller。\n​\tIngress Controller 收到请求，匹配 Ingress 转发规则，匹配到了就转发到后端 Service，而 Service 可能代表的后端 Pod 有多个，选出一个转发到那个 Pod，最终由那个 Pod 处理请求。\n**Ingress-Controller ：**为了能跟 kubernetes 交互，然后写入nginx 配置，最后reload。使用nginx作为前端负载均衡，通过ingress controller不断的和kubernetes api交互，实时获取后端service，pod等的变化，然后动态更新nginx配置，并刷新使配置生效，达到服务发现的目的。\n**traefik：**traefik本身设计的就能够实时跟kubernetes api交互，感知后端service，pod等的变化，自动更新配置并重载。\nNginx和Traefik横比\nNginx Ingress Traefik ingress 协议 http/https、http2、grpc、tcp/udp http/https、http2、grpc、tcp、tcp+tls 路由匹配 host、path host、path、headers、query、path prefix、method 命名空间支持 - 共用或指定命名空间 部署策略 - 金丝雀部署、蓝绿部署、灰度部署 upstream探测 重试、超时、心跳探测 重试、超时、心跳探测、熔断 负载均衡算法 RR、会话保持、最小连接、最短时间、一致性hash WRR、动态RR、会话保持 优点 简单易用，易接入 Golang编写，部署容易，支持众多的后端，内置WebUI 缺点 没有解决nginx reload，插件多，但是扩展性能差 性能略逊于NGINX，但强于HAProxy traefik优点\n不需要安装其他依赖，使用 GO 语言编译可执行文件 支持多种后台，如 Docker, Swarm mode, Kubernetes, Marathon, Consul, Etcd, Rancher, Amazon ECS 等等 支持 REST API 配置文件热重载，可自动监听配置改动、发现新服务，并自动更新无需人工重启 支持熔断、限流功能 支持轮训、负载均衡 提供简洁的 UI 界面 支持 Websocket, HTTP/2, GRPC 自动更新 HTTPS 证书 支持高可用集群模式 安装部署 必要条件\nKubernetes版本1.14+ Helm版本3+\nhelm安装 # 添加repo helm repo add traefik https://helm.traefik.io/traefik # 更新repo仓库资源 helm repo update # 查看repo仓库traefik helm search repo traefik NAME CHART VERSION\tAPP VERSION\tDESCRIPTION aliyun/traefik 1.24.1 1.5.3 A Traefik based Kubernetes ingress controller w... traefik/traefik 27.0.2 v2.11.2 A Traefik based Kubernetes ingress controller traefik/traefik-hub 4.2.0 v2.11.0 Traefik Hub Ingress Controller traefik/traefik-mesh 4.1.1 v1.4.8 Traefik Mesh - Simpler Service Mesh traefik/traefikee 3.4.0 v2.11.0 Traefik Enterprise is a unified cloud-native ne... traefik1/traefik 27.0.2 v2.11.2 A Traefik based Kubernetes ingress controller traefik1/traefik-hub 4.2.0 v2.11.0 Traefik Hub Ingress Controller traefik1/traefik-mesh\t4.1.1 v1.4.8 Traefik Mesh - Simpler Service Mesh traefik1/traefikee 3.4.0 v2.11.0 Traefik Enterprise is a unified cloud-native ne... traefik/maesh 2.1.2 v1.3.2 Maesh - Simpler Service Mesh traefik1/maesh 2.1.2 v1.3.2 Maesh - Simpler Service Mesh # 创建traefik名称空间 kubectl create ns traefik # 拉取helm包 helm pull traefik/traefik --untar # 修改配置 cd traefik/ [root@k8s-master1 traefik]# vim values.yaml # 1、禁用helm中渲染的dashboard # Create an IngressRoute for the dashboard ingressRoute: dashboard: enabled: false # 禁用helm中渲染的dashboard，traefik默认使用LoadBalancer暴露服务配置较为麻烦 # 2、修改port模式 # Configure ports ports: traefik: port: 9000 hostPort: 9000 # 使用 hostport 模式 web: port: 8000 hostPort: 8000 # 使用 hostport 模式 websecure: port: 8443 hostPort: 8443 # 使用 hostport 模式 # 3、关闭service # Options for the main traefik service, where the entrypoints traffic comes # from. service: # 使用 hostport 模式就不需要Service了 enabled: false # 4、修改日志级别 # Logs # https://docs.traefik.io/observability/logs/ logs: general: level: DEBUG # 5、添加容忍 tolerations: # (去掉大括号)kubeadm 安装的集群默认情况下master是有污点，需要容忍这个污点才可以部署 - key: \"node-role.kubernetes.io/master\" operator: \"Equal\" effect: \"NoSchedule\" # 6、固定到某一节点（可选） nodeSelector: # (去掉中括号)固定到master1节点（该节点才可以访问外网） kubernetes.io/hostname: \"k8s-master1\" # 安装 [root@k8s-master1 traefik]# helm install traefik -n traefik . -f values.yaml NAME: traefik LAST DEPLOYED: Wed Apr 24 16:52:53 2024 NAMESPACE: traefik STATUS: deployed REVISION: 1 TEST SUITE: None NOTES: Traefik Proxy v2.11.2 has been deployed successfully on traefik namespace ! # 查看helm列表 [root@k8s-master1 traefik]# helm list -n traefik NAME NAMESPACE\tREVISION\tUPDATED STATUS CHART APP VERSION traefik\ttraefik 1 2024-04-24 16:56:34.977156435 +0800 CST\tdeployed\ttraefik-27.0.2\tv2.11.2 # 查看pod资源信息 [root@k8s-master traefik]# kubectl get pod -n traefik NAME READY STATUS RESTARTS AGE traefik-57d88cb699-tflvk 1/1 Running 0 65s 配置域名访问dashboard服务\ncat \u003edashboard.yaml \u003c",
-  "wordCount" : "3683",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/k8s/traefik/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -267,6 +194,11 @@ traefik组件与nginx类比
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -2263,24 +2195,45 @@ HSTS：即HTTP严格传输安全响应头，收到该响应头的浏览器会在
 
   <footer class="post-footer">
     <ul class="post-tags">
-    </ul>
-<nav class="paginav">
-  <a class="prev" href="/k8s/promethues/">
-    <span class="title">« Prev</span>
-    <span>promethues</span>
-  </a>
-  <a class="next" href="/k8s/velero/">
-    <span class="title">Next »</span>
-    <span>velero</span>
-  </a>
-</nav>
-
+    </ul><section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    <a class="prev" href="//localhost:1313/k8s/promethues/">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">promethues</span>
+    </a>
+    <a class="next" href="//localhost:1313/k8s/velero/">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">velero</span>
+    </a>
+  </nav>
+</section>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

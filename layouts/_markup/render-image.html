@@ -1,0 +1,37 @@
+{{- $u := urls.Parse .Destination -}}
+{{- $src := $u.String -}}
+{{- if not $u.IsAbs -}}
+  {{- $path := replace (strings.TrimPrefix "./" $u.Path) "\\" "/" -}}
+  {{- $file := path.Base $path -}}
+  {{- $candidates := slice $path (printf "assets/%s" $path) (printf "images/%s" $path) (printf "assets/%s" $file) (printf "images/%s" $file) -}}
+  {{- $resource := false -}}
+  {{- range $candidates -}}
+    {{- if not $resource -}}
+      {{- with or ($.PageInner.Resources.Get .) (resources.Get .) -}}
+        {{- $resource = . -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $resource -}}
+    {{- with $.PageInner.Resources.GetMatch (printf "**/%s" $file) -}}
+      {{- $resource = . -}}
+    {{- end -}}
+  {{- end -}}
+  {{- with $resource -}}
+    {{- $src = .RelPermalink -}}
+    {{- with $u.RawQuery -}}
+      {{- $src = printf "%s?%s" $src . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $src = printf "%s#%s" $src . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $attributes := merge .Attributes (dict "alt" .Text "src" $src "title" (.Title | transform.HTMLEscape) "loading" "lazy") -}}
+<img
+  {{- range $k, $v := $attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}>
+{{- /**/ -}}

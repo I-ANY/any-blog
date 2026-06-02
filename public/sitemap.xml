@@ -2,197 +2,212 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/k8s/</loc>
+    <loc>//localhost:1313/go/%E5%9F%BA%E7%A1%80/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/middleware/dubbo/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/docker/</loc>
+    <loc>//localhost:1313/log/es/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/go/</loc>
+    <loc>//localhost:1313/bigdata/hadooop/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/linux/</loc>
+    <loc>//localhost:1313/shell/shell%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/</loc>
+    <loc>//localhost:1313/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/</loc>
+    <loc>//localhost:1313/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/log/</loc>
+    <loc>//localhost:1313/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/middleware/</loc>
+    <loc>//localhost:1313/linux/%E5%9F%BA%E6%93%8D/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/shell/</loc>
+    <loc>//localhost:1313/python/%E5%AE%89%E8%A3%85/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/bigdata/</loc>
+    <loc>//localhost:1313/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/%E5%89%8D%E7%AB%AF/</loc>
+    <loc>//localhost:1313/go/%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/linux/ansible/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/linux/ansible/</loc>
+    <loc>//localhost:1313/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/</loc>
+    <loc>//localhost:1313/log/filebeat/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/calico%E4%B8%8Efannel/</loc>
+    <loc>//localhost:1313/cicd/gitlab/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/celery/</loc>
+    <loc>//localhost:1313/bigdata/java-kafka/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/django/</loc>
+    <loc>//localhost:1313/middleware/nacos/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/django-bak/</loc>
+    <loc>//localhost:1313/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/docker%E4%B8%8Econtainerd/</loc>
+    <loc>//localhost:1313/python/%E5%9F%BA%E7%A1%80/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/docker/docker%E8%BF%90%E8%A1%8C%E5%90%84%E7%A7%8D%E6%9C%8D%E5%8A%A1/</loc>
+    <loc>//localhost:1313/go/%E5%9F%BA%E7%A1%80%E5%8C%85/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/k8s/calico%E4%B8%8Efannel/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/middleware/dubbo/</loc>
+    <loc>//localhost:1313/cicd/gitops/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/log/es/</loc>
+    <loc>//localhost:1313/log/graylog/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/log/filebeat/</loc>
+    <loc>//localhost:1313/bigdata/kafka/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/gitlab/</loc>
+    <loc>//localhost:1313/linux/rsync/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/gitops/</loc>
+    <loc>//localhost:1313/middleware/sentinel/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/log/graylog/</loc>
+    <loc>//localhost:1313/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/bigdata/hadooop/</loc>
+    <loc>//localhost:1313/go/%E5%B9%B6%E5%8F%91/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/python/celery/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/harbor/</loc>
+    <loc>//localhost:1313/k8s/docker%E4%B8%8Econtainerd/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/istio/</loc>
+    <loc>//localhost:1313/cicd/harbor/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/bigdata/java-kafka/</loc>
+    <loc>//localhost:1313/log/loki/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/jenkins/</loc>
+    <loc>//localhost:1313/middleware/skywalking/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/</loc>
+    <loc>//localhost:1313/linux/supervisor/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/</loc>
+    <loc>//localhost:1313/go/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/python/django/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/</loc>
+    <loc>//localhost:1313/python/django-bak/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/</loc>
+    <loc>//localhost:1313/k8s/istio/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/</loc>
+    <loc>//localhost:1313/cicd/jenkins/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/bigdata/kafka/</loc>
+    <loc>//localhost:1313/go/gin/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/k8s/k8s%E5%AE%89%E8%A3%85-%E4%BA%8C%E8%BF%9B%E5%88%B6/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/kustormize/</loc>
+    <loc>//localhost:1313/go/%E7%AC%AC%E4%B8%89%E6%96%B9%E5%8C%85/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/k8s/k8s%E5%AE%89%E8%A3%85-kubeadm%E9%9D%9E%E9%AB%98%E5%8F%AF%E7%94%A8&#43;%E9%AB%98%E5%8F%AF%E7%94%A8/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/log/loki/</loc>
+    <loc>//localhost:1313/go/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B3%A8%E6%84%8F/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/k8s/k8s%E7%AC%94%E8%AE%B0%E6%95%B4%E7%90%86/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/minio/</loc>
+    <loc>//localhost:1313/k8s/k8s%E9%9B%86%E7%BE%A4%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E6%9B%B4%E6%8D%A2/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/middleware/nacos/</loc>
+    <loc>//localhost:1313/python/spider%E9%9B%86%E5%90%88/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/promethues/</loc>
+    <loc>//localhost:1313/k8s/k8s%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E6%89%8B%E5%86%8C/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/linux/rsync/</loc>
+    <loc>//localhost:1313/k8s/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/spider/se_huaweicloud/</loc>
+    <loc>//localhost:1313/k8s/kustormize/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/middleware/sentinel/</loc>
+    <loc>//localhost:1313/k8s/minio/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/shell/shell%E5%AD%A6%E4%B9%A0/</loc>
+    <loc>//localhost:1313/k8s/promethues/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/middleware/skywalking/</loc>
+    <loc>//localhost:1313/k8s/traefik/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/spider/spider%E9%9B%86%E5%90%88/</loc>
+    <loc>//localhost:1313/k8s/velero/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/linux/supervisor/</loc>
+    <loc>//localhost:1313/docker/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/traefik/</loc>
+    <loc>//localhost:1313/go/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/velero/</loc>
+    <loc>//localhost:1313/linux/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/%E5%89%8D%E7%AB%AF/vue3%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B/</loc>
+    <loc>//localhost:1313/python/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/%E4%B8%80%E4%BA%9Bk8s-%E9%9D%A2%E8%AF%95%E9%A2%98/</loc>
+    <loc>//localhost:1313/cicd/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/k8s/%E4%B8%9A%E5%8A%A1%E8%BF%81%E7%A7%BBk8s%E6%A1%88%E4%BE%8B/</loc>
+    <loc>//localhost:1313/log/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/</loc>
+    <loc>//localhost:1313/middleware/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/linux/%E5%9F%BA%E6%93%8D/</loc>
+    <loc>//localhost:1313/shell/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/go/%E5%9F%BA%E7%A1%80/</loc>
+    <loc>//localhost:1313/bigdata/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/%E5%9F%BA%E7%A1%80/</loc>
+    <loc>//localhost:1313/%E5%89%8D%E7%AB%AF/</loc>
     <lastmod>2026-05-28T00:01:08+08:00</lastmod>
   </url><url>
-    <loc>/python/%E5%AE%89%E8%A3%85/</loc>
-    <lastmod>2026-05-28T00:01:08+08:00</lastmod>
+    <loc>//localhost:1313/</loc>
+    <lastmod>2026-06-02T00:00:00+08:00</lastmod>
   </url><url>
-    <loc>/docker/%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</loc>
-    <lastmod>2026-05-28T00:01:08+08:00</lastmod>
-  </url><url>
-    <loc>/python/%E6%A8%A1%E5%9D%97%E5%90%88%E9%9B%86/</loc>
-    <lastmod>2026-05-28T00:01:08+08:00</lastmod>
-  </url><url>
-    <loc>/python/spider/%E7%88%AC%E5%8F%96%E7%BD%91%E9%A1%B5%E4%BA%91%E8%AF%84%E8%AE%BA/</loc>
-    <lastmod>2026-05-28T00:01:08+08:00</lastmod>
-  </url><url>
-    <loc>/posts/my-first-post/</loc>
+    <loc>//localhost:1313/posts/my-first-post/</loc>
     <lastmod>2026-05-27T23:05:44+08:00</lastmod>
   </url><url>
-    <loc>/posts/</loc>
+    <loc>//localhost:1313/posts/</loc>
     <lastmod>2026-05-27T23:05:44+08:00</lastmod>
   </url><url>
-    <loc>/categories/</loc>
+    <loc>//localhost:1313/categories/</loc>
   </url><url>
-    <loc>/tags/</loc>
+    <loc>//localhost:1313/tags/</loc>
   </url>
 </urlset>

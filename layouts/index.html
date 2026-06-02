@@ -20,22 +20,28 @@
 <section class="kb-section" id="modules" aria-labelledby="modules-title">
   <div class="kb-section-heading">
     <p class="kb-eyebrow">Modules</p>
-    <h2 id="modules-title">按模块浏览</h2>
-    <p>每个模块对应一个独立知识板块，文章按主题聚合，方便快速定位。</p>
   </div>
   <div class="kb-module-grid">
     {{- range where site.Sections.ByWeight "File" "ne" nil }}
-      {{- $desc := .Description | default (.Summary | plainify | htmlUnescape | truncate 72) }}
-      {{- $icon := .Params.icon | default (substr .Title 0 2) }}
-      {{- $count := len .RegularPagesRecursive }}
-      <a class="kb-module-card" href="{{ .RelPermalink }}">
-        <span class="kb-module-icon">{{ $icon }}</span>
+    {{- $icon := .Params.icon | default (substr .Title 0 2) }}
+    {{- $count := len .RegularPagesRecursive }}
+    <article class="kb-module-card">
+      <div class="kb-module-head">
+        <a class="kb-module-icon" href="{{ .RelPermalink }}" aria-label="查看 {{ .Title }} 模块">{{ $icon }}</a>
         <span class="kb-module-body">
-          <strong>{{ .Title }}</strong>
-          <span>{{ $desc }}</span>
+          <a class="kb-module-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
         </span>
-        <span class="kb-module-count">{{ $count }} 篇</span>
-      </a>
+        <a class="kb-module-count" href="{{ .RelPermalink }}">{{ $count }} 篇</a>
+      </div>
+      <nav class="kb-module-posts" aria-label="{{ .Title }} 文章目录">
+        {{- range first 3 .RegularPages.ByWeight }}
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{- end }}
+        {{- if gt $count 3 }}
+        <a class="kb-module-more" href="{{ .RelPermalink }}" aria-label="查看 {{ .Title }} 更多文章">...</a>
+        {{- end }}
+      </nav>
+    </article>
     {{- end }}
   </div>
 </section>
@@ -48,13 +54,13 @@
   </div>
   <div class="kb-recent-list">
     {{- range first 10 site.RegularPages.ByDate.Reverse }}
-      <article class="kb-article-card">
-        <a href="{{ .RelPermalink }}">
-          <h3>{{ .Title }}</h3>
-          <p>{{ .Summary | plainify | htmlUnescape | truncate 120 }}</p>
-          <span>{{ .Date.Format "2006-01-02" }}</span>
-        </a>
-      </article>
+    <article class="kb-article-card">
+      <a href="{{ .RelPermalink }}">
+        <h3>{{ .Title }}</h3>
+        <p>{{ .Summary | plainify | htmlUnescape | truncate 120 }}</p>
+        <span>{{ .Date.Format "2006-01-02" }}</span>
+      </a>
+    </article>
     {{- end }}
   </div>
 </section>

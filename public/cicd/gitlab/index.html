@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 <title>gitlab | 探无止境</title>
 <meta name="keywords" content="">
 <meta name="description" content="安装
@@ -79,16 +79,16 @@ nginx[&#39;gzip_enabled&#39;] = true
 #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率
 启动">
 <meta name="author" content="ANY">
-<link rel="canonical" href="/cicd/gitlab/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.b261e9ddde6e203f47d927699c7daa5f583dc505ec1a68d297f448c37d1a7127.css" integrity="sha256-smHp3d5uID9H2SdpnH2qX1g9xQXsGmjSl/RIw30acSc=" rel="preload stylesheet" as="style">
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="mask-icon" href="/safari-pinned-tab.svg">
+<link rel="canonical" href="//localhost:1313/cicd/gitlab/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.7baa4a92dadde3334eb2ca88b67468c35aeb128c26c17a2dc5564ec5b7a972e6.css" integrity="sha256-e6pKktrd4zNOssqItnRow1rrEowmwXotxVZOxbepcuY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="//localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="//localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="/cicd/gitlab/">
+<link rel="alternate" hreflang="en" href="//localhost:1313/cicd/gitlab/">
 <noscript>
     <style>
         #theme-toggle,
@@ -134,90 +134,17 @@ nginx[&#39;gzip_enabled&#39;] = true
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="/cicd/gitlab/">
-  <meta property="og:site_name" content="探无止境">
-  <meta property="og:title" content="gitlab">
-  <meta property="og:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
-yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
-建议使用HTTPS
-[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
-  <meta property="og:locale" content="zh_cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="cicd">
-    <meta property="article:published_time" content="2026-05-28T00:01:08+08:00">
-    <meta property="article:modified_time" content="2026-05-28T00:01:08+08:00">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="gitlab">
-  <meta name="twitter:description" content="安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）
-yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问&#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/&#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件
-建议使用HTTPS
-[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url &#39;http://gitlab.example.com/&#39; #时区 gitlab_rails[&#39;time_zone&#39;] = &#39;Asia/Shanghai&#39; ######### SSH配置 ######### gitlab_rails[&#39;gitlab_shell_ssh_port&#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[&#39;smtp_enable&#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[&#39;smtp_address&#39;] = &#34;smtp.exmail.qq.com&#34; #设置SMTP服务器地址 gitlab_rails[&#39;smtp_port&#39;] = 465 #设置SMTP服务器端口 gitlab_rails[&#39;smtp_user_name&#39;] = &#34;xxx@xxx.cn&#34; #设置邮箱账号 gitlab_rails[&#39;smtp_password&#39;] = &#34;xxx&#34; #设置邮箱密码 gitlab_rails[&#39;smtp_authentication&#39;] = &#34;login&#34; #设置邮箱账号密码身份验证方式，&#34;login&#34;表示采用账号密码的方式登陆 gitlab_rails[&#39;smtp_enable_starttls_auto&#39;] = true gitlab_rails[&#39;smtp_tls&#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[&#39;gitlab_email_from&#39;] = &#39;xxx@xxx.cn&#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[&#39;enable&#39;] = true #启用Nginx服务 nginx[&#39;client_max_body_size&#39;] = &#39;250m&#39; #设置客户端最大文件上传大小 nginx[&#39;redirect_http_to_https&#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[&#39;ssl_certificate&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem&#34; #设置HTTPS所使用的证书 nginx[&#39;ssl_certificate_key&#39;] = &#34;/etc/gitlab/ssl/gitlab.xxx.cn.key&#34; #设置HTTPS所使用的证书密码 nginx[&#39;ssl_protocols&#39;] = &#34;TLSv1.1 TLSv1.2&#34; #设置HTTPS所使用的TLS协议版本 nginx[&#39;ssl_session_cache&#39;] = &#34;builtin:1000 shared:SSL:10m&#34; #设置开启SSL会话缓存功能 nginx[&#39;ssl_session_timeout&#39;] = &#34;5m&#34; #设置SSL会话超时时间 nginx[&#39;listen_addresses&#39;] = [&#39;*&#39;, &#39;[::]&#39;] #设置Nginx监听地址，&#34;*&#34;表示监听主机上所有网卡的地址 nginx[&#39;gzip_enabled&#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "CI/CD",
-      "item": "/cicd/"
-    }
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "gitlab",
-      "item": "/cicd/gitlab/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "gitlab",
-  "name": "gitlab",
-  "description": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u0026gt;/etc/yum.repos.d/gitlab-ce.repo \u0026lt;\u0026lt;EOF [gitlab-ce] name=Gitlab CE Repository baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/ gpgcheck=0 enabled=1 EOF yum makecache # 可以访问\u0026#34;https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/\u0026#34;查看Gitlab-ce的版本。 yum install -y gitlab-ce # 指定版本 yum install -y gitlab-ce-{VERSION} 配置文件\n建议使用HTTPS\n[root@localhost ~]# vim /etc/gitlab/gitlab.rb ######### 基础配置 ######### #用户访问所使用的URL，域名或者IP地址 external_url \u0026#39;http://gitlab.example.com/\u0026#39; #时区 gitlab_rails[\u0026#39;time_zone\u0026#39;] = \u0026#39;Asia/Shanghai\u0026#39; ######### SSH配置 ######### gitlab_rails[\u0026#39;gitlab_shell_ssh_port\u0026#39;] = 10222 #使用SSH协议拉取代码所使用的连接端口。 ######### 邮箱配置 ######### gitlab_rails[\u0026#39;smtp_enable\u0026#39;] = true #启用SMTP邮箱功能，绑定一个第三方邮箱，用于邮件发送 gitlab_rails[\u0026#39;smtp_address\u0026#39;] = \u0026#34;smtp.exmail.qq.com\u0026#34; #设置SMTP服务器地址 gitlab_rails[\u0026#39;smtp_port\u0026#39;] = 465 #设置SMTP服务器端口 gitlab_rails[\u0026#39;smtp_user_name\u0026#39;] = \u0026#34;xxx@xxx.cn\u0026#34; #设置邮箱账号 gitlab_rails[\u0026#39;smtp_password\u0026#39;] = \u0026#34;xxx\u0026#34; #设置邮箱密码 gitlab_rails[\u0026#39;smtp_authentication\u0026#39;] = \u0026#34;login\u0026#34; #设置邮箱账号密码身份验证方式，\u0026#34;login\u0026#34;表示采用账号密码的方式登陆 gitlab_rails[\u0026#39;smtp_enable_starttls_auto\u0026#39;] = true gitlab_rails[\u0026#39;smtp_tls\u0026#39;] = true #设置开启SMTP邮件使用TLS传输加密协议传输邮件，以保证邮件安全传输 gitlab_rails[\u0026#39;gitlab_email_from\u0026#39;] = \u0026#39;xxx@xxx.cn\u0026#39; #设置Gitlab来源邮箱地址，设置登陆所使用的邮箱地址 ######### WEB配置 ######### nginx[\u0026#39;enable\u0026#39;] = true #启用Nginx服务 nginx[\u0026#39;client_max_body_size\u0026#39;] = \u0026#39;250m\u0026#39; #设置客户端最大文件上传大小 nginx[\u0026#39;redirect_http_to_https\u0026#39;] = true #设置开启自动将HTTP跳转到HTTPS nginx[\u0026#39;ssl_certificate\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.pem\u0026#34; #设置HTTPS所使用的证书 nginx[\u0026#39;ssl_certificate_key\u0026#39;] = \u0026#34;/etc/gitlab/ssl/gitlab.xxx.cn.key\u0026#34; #设置HTTPS所使用的证书密码 nginx[\u0026#39;ssl_protocols\u0026#39;] = \u0026#34;TLSv1.1 TLSv1.2\u0026#34; #设置HTTPS所使用的TLS协议版本 nginx[\u0026#39;ssl_session_cache\u0026#39;] = \u0026#34;builtin:1000 shared:SSL:10m\u0026#34; #设置开启SSL会话缓存功能 nginx[\u0026#39;ssl_session_timeout\u0026#39;] = \u0026#34;5m\u0026#34; #设置SSL会话超时时间 nginx[\u0026#39;listen_addresses\u0026#39;] = [\u0026#39;*\u0026#39;, \u0026#39;[::]\u0026#39;] #设置Nginx监听地址，\u0026#34;*\u0026#34;表示监听主机上所有网卡的地址 nginx[\u0026#39;gzip_enabled\u0026#39;] = true #设置开启Nginx的传输压缩功能，以节约传输带宽，提高传输效率 启动\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "安装 环境硬件要求：最低2核4GB，建议4核8GB（比较重）\nyum安装 # 配置源 cat \u003e/etc/yum.repos.d/gitlab-ce.repo \u003c",
-  "wordCount" : "663",
-  "inLanguage": "en",
-  "datePublished": "2026-05-28T00:01:08+08:00",
-  "dateModified": "2026-05-28T00:01:08+08:00",
-  "author":{
-    "@type": "Person",
-    "name": "ANY"
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "/cicd/gitlab/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "探无止境",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "/favicon.ico"
-    }
-  }
-}
 </script>
 </head>
 <body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
+            <a href="//localhost:1313/" accesskey="h" title="探无止境 (Alt + H)">探无止境</a>
         </div>
         <ul id="menu" class="menu">
             <li>
-                <a href="/" title="首页">
+                <a href="//localhost:1313/" title="首页">
                     <span>首页</span>
                 </a>
             </li>
@@ -286,6 +213,11 @@ yum安装 # 配置源 cat &gt;/etc/yum.repos.d/gitlab-ce.repo &lt;&lt;EOF [gitla
             </li>
         </ul>
         <div class="logo-switches">
+            <a class="nav-github-link" href="https://github.com/I-ANY" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.05-.01-1.9-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.51-1.11-1.51-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.35 1.12 2.93.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0 1 12 6.97c.85 0 1.7.12 2.5.35 1.9-1.32 2.74-1.05 2.74-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.04.36.32.68.95.68 1.91 0 1.38-.01 2.49-.01 2.83 0 .27.18.59.69.49A10.12 10.12 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"></path>
+                </svg>
+            </a>
             <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                 <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -688,14 +620,45 @@ gitlab/gitlab-ce:15.6.2-ce.0
 
   <footer class="post-footer">
     <ul class="post-tags">
-    </ul>
-
+    </ul><section class="post-nav-section" aria-label="文章导航">
+  <h2 class="post-nav-heading">
+    <span class="post-nav-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img">
+        <path d="M5 12h12"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </svg>
+    </span>
+    文章导航
+  </h2>
+  <nav class="paginav">
+    <a class="prev" href="//localhost:1313/cicd/%E5%9F%BA%E4%BA%8Ejenkins&#43;argocd%E5%AE%9E%E7%8E%B0devops/">
+      <span class="title">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5"></path>
+          <path d="m11 6-6 6 6 6"></path>
+        </svg>
+        上一篇
+      </span>
+      <span class="post-nav-title">基于jenkins&#43;ArgoCD实现Devops</span>
+    </a>
+    <a class="next" href="//localhost:1313/cicd/gitops/">
+      <span class="title">
+        下一篇
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m13 6 6 6-6 6"></path>
+        </svg>
+      </span>
+      <span class="post-nav-title">Gitops</span>
+    </a>
+  </nav>
+</section>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="/">探无止境</a></span> · 
+        <span>&copy; 2026 <a href="//localhost:1313/">探无止境</a></span> · 
 
     
     

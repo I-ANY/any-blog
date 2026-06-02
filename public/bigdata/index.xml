@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>大数据 on 探无止境</title>
-    <link>/bigdata/</link>
+    <link>//localhost:1313/bigdata/</link>
     <description>Recent content in 大数据 on 探无止境</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 28 May 2026 00:01:08 +0800</lastBuildDate>
-    <atom:link href="/bigdata/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="//localhost:1313/bigdata/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Hadooop</title>
-      <link>/bigdata/hadooop/</link>
+      <link>//localhost:1313/bigdata/hadooop/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/bigdata/hadooop/</guid>
+      <guid>//localhost:1313/bigdata/hadooop/</guid>
       <description>&lt;h1 id=&#34;大数据技术栈&#34;&gt;大数据技术栈&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20231222160535013&#34; loading=&#34;lazy&#34; src=&#34;/bigdata/hadooop/images/image-20231222160535013.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20231222160535013&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/bigdata/hadooop/images/image-20231222160535013.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;**1）Sqoop：**Sqoop 是一款开源的工具，主要用于在 Hadoop、Hive 与传统的数据库(MySql)间进行数据的传递，可以将一个关系型数据库（例如 ：MySQL，Oracle 等）中的数据导进到Hadoop 的 HDFS 中，也可以将 HDFS 的数据导进到关系型数据库中。&lt;/p&gt;
 &lt;p&gt;**2）Flume：**Flume 是 Cloudera 提供的一个高可用的，高可靠的，分布式的海量日志采集、聚合和传输的系统，Flume 支持在日志系统中定制各类数据发送方，用于收集数据；同时，Flume提供对数据进行简单处理，并写到各种数据接受方（可定制）的能力。&lt;/p&gt;
 &lt;p&gt;**3）Kafka：**Kafka 是一种高吞吐量的分布式发布订阅消息系统，有如下特性：&lt;/p&gt;
@@ -32,18 +32,18 @@
     </item>
     <item>
       <title>java-kafka</title>
-      <link>/bigdata/java-kafka/</link>
+      <link>//localhost:1313/bigdata/java-kafka/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/bigdata/java-kafka/</guid>
+      <guid>//localhost:1313/bigdata/java-kafka/</guid>
       <description></description>
     </item>
     <item>
       <title>kafka</title>
-      <link>/bigdata/kafka/</link>
+      <link>//localhost:1313/bigdata/kafka/</link>
       <pubDate>Thu, 28 May 2026 00:01:08 +0800</pubDate>
-      <guid>/bigdata/kafka/</guid>
+      <guid>//localhost:1313/bigdata/kafka/</guid>
       <description>&lt;h1 id=&#34;消息队列介绍&#34;&gt;消息队列介绍&lt;/h1&gt;
-&lt;p&gt;&lt;img alt=&#34;image-20231220110430071&#34; loading=&#34;lazy&#34; src=&#34;/bigdata/kafka/images/image-20231220110430071.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20231220110430071&#34; loading=&#34;lazy&#34; src=&#34;//localhost:1313/bigdata/kafka/images/image-20231220110430071.png&#34;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;（1）点对点模式（一对一，消费者主动拉取数据， 消息收到后消息清除）&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;​	点对点模型通常是一个基于拉取或者轮询的消息传送模型，这种模型从队列中请求信息， 而不是将消息推送到客户端。这个模型的特点是发送到队列的消息被一个且只有一个接收者&lt;/p&gt;
 &lt;p&gt;接收处理， 即使有多个消息监听者也是如此。&lt;/p&gt;
